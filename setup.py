@@ -6,7 +6,7 @@ version = '0.1-alpha'
 setup(name='django-moderation',
       version=version,
       description="Generic Django objects moderation application",
-      long_description=open("README.txt").read() + "\n" +
+      long_description=open("README.rst").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
       
       classifiers=[
