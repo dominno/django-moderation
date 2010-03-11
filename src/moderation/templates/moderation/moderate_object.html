@@ -1,0 +1,73 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+{% block extrahead %}
+<style type="text/css">
+ins, del {
+text-decoration:none;
+}
+
+del {
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+background:#FFCCCC none repeat scroll 0 0;
+}
+
+ins {
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+background:#BBFFBB none repeat scroll 0 0;
+}
+</style>
+{% endblock %}
+{% block content %}
+{% block object-tools %}
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+    {% if has_absolute_url %}
+        <li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">
+            {% trans "View on site" %}</a>
+        </li>
+    {% endif%}
+  </ul>
+{% endif %}{% endif %}
+{% endblock %}
+
+<form enctype="multipart/form-data" action="" method="post" id="moderatedobject_form">
+<div>
+	<fieldset class="module aligned ">
+	<h2>Object differences</h2>
+
+	{% for field in fields_diff %}
+	<div class="form-row {{ field.label }}">
+		<div>
+			<label>{{ field.verbose_name }}</label><p style="width:615px;">{{ field.diff|safe }}</p>
+		</div>
+		
+	</div>
+	{% endfor %}
+	</fieldset>
+	
+	{% for fieldset in adminform %}
+  		{% include "admin/includes/fieldset.html" %}
+	{% endfor %}
+
+
+<div class="submit-row" >
+
+<input type="submit" value="Approve" name="approve" />
+
+<input type="submit" value="Reject" name="reject"  />
+
+</div>
+
+</form>
+</div>
+
+{% endblock %}
+
+
+
+
+

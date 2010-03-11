@@ -1,0 +1,13 @@
+Dear {{ user.first_name }}
+
+Your {{ content_type }} entry has been {% ifequal moderated_object.moderation_status 0 %}rejected{% endifequal %}{% ifequal moderated_object.moderation_status 1 %}accepted{% endifequal %}.
+
+{% if moderated_object.moderation_reason %}
+Reason: {{ moderated_object.moderation_reason }}
+{% endif %}
+
+{% if moderated_object.get_absolute_url %}
+You can view your entry here: {{ moderated_object.get_absolute_url }} 
+{% endif %}
+
+

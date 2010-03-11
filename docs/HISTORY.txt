@@ -1,0 +1,17 @@
+Changelog
+=========
+
+0.1 alpha
+----------------
+
+* Initial release
+
+Added features
+
+- configurable admin integration(data changed in admin can be visible on 
+  site when moderator approves it)
+- moderation queue in admin
+- html differences of changes between versions of objects
+- configurable email notifications
+- custom model form that allows to edit changed data of object
+
