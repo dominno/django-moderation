@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
     MODERATION_STATUS_REJECTED
 from django.db.models.query import QuerySet
-
+from moderation.diff import get_changes_between_models
 
 class MetaClass(type):
 
@@ -24,11 +24,13 @@ class ModerationObjectsManager(Manager):
         exclude_pks = []
         for object in query_set:
             try:
+                changes = get_changes_between_models(
+                                        object,
+                                        object.moderated_object.changed_object)
                 if object.moderated_object.moderation_status \
                     in [MODERATION_STATUS_PENDING,
                         MODERATION_STATUS_REJECTED] \
-                    and  object.__dict__ == \
-                    object.moderated_object.changed_object.__dict__:
+                    and not changes:
                     exclude_pks.append(object.pk)
             except ObjectDoesNotExist:
                 pass
