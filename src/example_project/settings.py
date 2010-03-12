@@ -53,7 +53,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'moderation',
     'example_project.example_app',
-    'test_extensions',
+    #'test_extensions',
     )
 
 
