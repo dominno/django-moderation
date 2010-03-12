@@ -1,5 +1,5 @@
 include LICENSE
-include README.txt
-include HISTORY.txt
+include README.rst
+include docs/HISTORY.txt
 recursive-include src/moderation/templates *
 recursive-include src/moderation/fixtures *
