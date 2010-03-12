@@ -22,21 +22,48 @@ Features:
 - 100% PEP8 correct code
 - test coverage > 80% 
 
+Known isuses
+============
+
+- foreign-key and m2m realtions in models are not currently supported
+- not tested on Django 1.2, i will make a test case.
+
+Road map
+========
+
+0.2 
+---
+
+- Add support for foreign-key and m2m realtions for models that are under moderation
+- Add support for ImageField, display images diffriences on approve/reject moderate page
+
+0.3
+---
+ 
+- Your feature ?
+
+
+Screenshots
+===========
+
+.. image:: http://dominno.pl/site_media/uploads/moderation.png
+.. image:: http://dominno.pl/site_media/uploads/moderation_2.png
+
 
 Requirements
 ============
 
 python >= 2.4
 
-django >= 1.1
+django == 1.1
 
 
 Installation
-===========
+============
 
-Download source code from http://github.com/dominno/django-moderation and run installation script:
+Download source code from http://github.com/dominno/django-moderation and run installation script::
 
-$> python setup.py install
+    $> python setup.py install
 
 
 Configuration
@@ -46,10 +73,10 @@ Configuration
 
     ``moderation``
 2. Run command ``manage.py syncdb``
-3. Register Models with moderation
+3. Register Models with moderation::
 
     from django.db import models
-    import moderation
+    from moderation import moderation
     
     
     class YourModel(models.Model):
@@ -57,7 +84,7 @@ Configuration
         
     moderation.register(YourModel)
 
-4. Register admin class with your Model
+4. Register admin class with your Model::
     
     from django.contrib import admin
     from moderation.admin import ModerationAdmin
@@ -69,7 +96,7 @@ Configuration
     admin.site.register(YourModel, YourModelAdmin)
     
 If you want to disable integration of moderation in admin,
-add admin_intergration_enabled = False to your admin class:
+add admin_intergration_enabled = False to your admin class::
 
     class YourModelAdmin(ModerationAdmin):
         admin_intergration_enabled = False
@@ -80,8 +107,8 @@ add admin_intergration_enabled = False to your admin class:
 How django-moderation works
 ===========================
     
- When you change existing object or create new one, it will not be publicly
- available until moderator approves it. It will be stored in ModeratedObject model.
+When you change existing object or create new one, it will not be publicly
+available until moderator approves it. It will be stored in ModeratedObject model.::
  
     your_model = YourModel(description='test')
     your_model.save()
@@ -90,7 +117,7 @@ How django-moderation works
     Traceback (most recent call last):
     DoesNotExist: YourModel matching query does not exist.
     
-When you will approve object, then it will be publicly available.
+When you will approve object, then it will be publicly available.::
 
     your_model.moderated_object.approve(moderatated_by=user,
                                        reason='Reason for approve')
@@ -106,7 +133,7 @@ You can access changed object by calling changed_object on moderated_object:
 This is deserialized version of object that was changed.
 
 Now when you will change an object, old version of it will be available publicly,
-new version will be saved in moderated_object
+new version will be saved in moderated_object::
 
     your_model.description = 'New description'
     your_model.save()
@@ -125,6 +152,7 @@ new version will be saved in moderated_object
     your_model.__dict__
     {'id': 1, 'description': 'New description'}
 	
+
 Email notifications
 ===================
 
@@ -149,16 +177,22 @@ E-mail notifications use following templates:
 
 Default context:
 
-``content_type`` - content type object of moderated object
-``moderated_object`` - ModeratedObject instance
-``site`` - current Site instance
+``content_type``
+    content type object of moderated object
+
+``moderated_object``
+    ModeratedObject instance
+
+``site``
+    current Site instance
 
 
 How to pass extra context to email notification templates
 ---------------------------------------------------------
 
 If you want to pass extra context to email notification methods
-you new need to create new class that subclass BaseModerationNotification class.
+you new need to create new class that subclass BaseModerationNotification class::
+
 
     class CustomModerationNotification(BaseModerationNotification):
         def inform_moderator(self,
@@ -170,7 +204,7 @@ you new need to create new class that subclass BaseModerationNotification class.
             super(CustomModerationNotification, self).inform_moderator(subject_template,
                                                                        message_template,
                                                                        extra_context)
-
+        
         def inform_user(self, user,
                         subject_template='moderation/notification_subject_user.txt',
                         message_template='moderation/notification_message_user.txt',
@@ -181,6 +215,7 @@ you new need to create new class that subclass BaseModerationNotification class.
                                                                   subject_template,
                                                                   message_template,
                                                                   extra_context)
+
 
 
 Next register it with moderation as notification_class:
@@ -198,8 +233,10 @@ Arguments sent with this signal:
 
 ``sender``
     The model class.
+
 ``instance``
     Instance of model class that is moderated
+
 ``status``
     Moderation status, 0 - rejected, 1 - approved
 
@@ -210,8 +247,10 @@ Arguments sent with this signal:
 
 ``sender``
     The model class.
+
 ``instance``
     Instance of model class that is moderated
+
 ``status``
     Moderation status, 0 - rejected, 1 - approved
 
@@ -221,7 +260,8 @@ Forms
 
 When creating ModelForms for models that are under moderation use
 BaseModeratedObjectForm class as ModelForm class. Thanks to that form will initialized 
-with data from changed_object.
+with data from changed_object.::
+
 
     from moderation.forms import BaseModeratedObjectForm
     
