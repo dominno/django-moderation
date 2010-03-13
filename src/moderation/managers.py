@@ -7,6 +7,7 @@ from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
 from django.db.models.query import QuerySet
 from moderation.diff import get_changes_between_models
 
+
 class MetaClass(type):
 
     def __new__(cls, name, bases, attrs):
