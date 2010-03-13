@@ -272,5 +272,14 @@ with data from changed_object.::
             model = MyModel
 
 
+How to run django-moderation tests
+==================================
+
+1. Download source from http://github.com/dominno/django-moderation
+2. Run: python bootstrap.py
+3. Run tests for Django 1.1 and Django 1.2::
+
+    bin/test-1.1
+    bin/test-1.2
 
 
