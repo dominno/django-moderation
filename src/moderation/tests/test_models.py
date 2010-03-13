@@ -51,13 +51,10 @@ class SerializationTestCase(SettingsTestCase):
         json_field = SerializedObjectField()
         object = json_field._deserialize(value)
 
-        self.assertEqual(object.__dict__, {
-                                        'url': u'http://www.google.com',
-                                        'user_id': 1,
-                                        'id': 1,
-                                        'description': u'Profile description',
-                                           })
-        
+        self.assertEqual(repr(object),
+                         '<UserProfile: moderator - http://www.google.com>')
+        self.assertTrue(isinstance(object, UserProfile))
+
     def test_deserialize_many_objects(self):
         value = '[{"pk": 1, "model": "test_app.userprofile", '\
                 '"fields": {"url": "http://www.google.com",'\
@@ -65,23 +62,19 @@ class SerializationTestCase(SettingsTestCase):
                 ' {"pk": 2, "model": "test_app.userprofile", "fields":'\
                 ' {"url": "http://www.yahoo.com", "user": 2, '\
                 '"description": "Profile description 2"}}]'
-                
+
         json_field = SerializedObjectField()
         objects = json_field._deserialize(value)
-        
-        self.assertEqual(objects[0].__dict__, {
-                                        'url': u'http://www.google.com',
-                                        'user_id': 1,
-                                        'id': 1,
-                                        'description': u'Profile description',
-                                           })
-        
-        self.assertEqual(objects[1].__dict__, {
-                                    'url': u'http://www.yahoo.com',
-                                    'user_id': 2,
-                                    'id': 2,
-                                    'description': u'Profile description 2',
-                                    })
+
+        self.assertTrue(isinstance(objects, list))
+
+        self.assertTrue(isinstance(objects[0], UserProfile))
+        self.assertEqual(repr(objects[0]),
+                         '<UserProfile: moderator - http://www.google.com>')
+
+        self.assertTrue(isinstance(objects[1], UserProfile))
+        self.assertEqual(repr(objects[1]),
+                         '<UserProfile: user1 - http://www.yahoo.com>')
 
     def test_deserialzed_object(self):
         moderated_object = ModeratedObject(content_object=self.profile)
@@ -89,12 +82,12 @@ class SerializationTestCase(SettingsTestCase):
         moderated_object.changed_object = self.profile
         moderated_object.save()
         pk = moderated_object.pk
-        
+
         moderated_object = ModeratedObject.objects.get(pk=pk)
-        
+
         self.assertEqual(moderated_object.changed_object.description,
                          'New description')
-        
+
         self.assertEqual(moderated_object.content_object.description,
                          "Profile description")
 
@@ -103,19 +96,15 @@ class SerializationTestCase(SettingsTestCase):
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
         pk = moderated_object.pk
-        
+
         self.profile.description = 'New changed description'
         moderated_object.changed_object = self.profile.description
         moderated_object.save()
-        
+
         moderated_object = ModeratedObject.objects.get(pk=pk)
-        
-        self.assertEqual(moderated_object.changed_object.__dict__, {
-                                    'url': u'http://www.google.com',
-                                    'user_id': 1,
-                                    'id': 1,
-                                    'description': 'New changed description',
-                                           })
+
+        self.assertEqual(moderated_object.changed_object.description,
+                         'New changed description')
 
 
 class ModerateTestCase(SettingsTestCase):
