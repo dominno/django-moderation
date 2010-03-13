@@ -11,14 +11,14 @@ from moderation.forms import BaseModeratedObjectForm
 
 def approve_objects(modeladmin, request, queryset):
     for obj in queryset:
-        obj.approve(moderatated_by=request.user)
+        obj.approve(moderated_by=request.user)
 
 approve_objects.short_description = "Approve selected moderated objects"
 
 
 def reject_objects(modeladmin, request, queryset):
     for obj in queryset:
-        obj.reject(moderatated_by=request.user)
+        obj.reject(moderated_by=request.user)
 
 reject_objects.short_description = "Reject selected moderated objects"
 
@@ -79,7 +79,7 @@ class ModerationAdmin(admin.ModelAdmin):
 class ModeratedObjectAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_created'
     list_display = ('content_object', 'content_type', 'date_created', 
-                    'moderation_status', 'moderatated_by', 'moderation_date')
+                    'moderation_status', 'moderated_by', 'moderation_date')
     list_filter = ['content_type', 'moderation_status']
     change_form_template = 'moderation/moderate_object.html'
     change_list_template = 'moderation/moderated_objects_list.html'

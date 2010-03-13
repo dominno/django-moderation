@@ -139,7 +139,7 @@ class ModerateTestCase(SettingsTestCase):
         
         self.assertEqual(moderated_object.moderation_status,
                          MODERATION_STATUS_APPROVED)
-        self.assertEqual(moderated_object.moderatated_by, self.user)
+        self.assertEqual(moderated_object.moderated_by, self.user)
         self.assertEqual(moderated_object.moderation_reason, "Reason")
         
     def test_approve_moderated_object(self):
@@ -150,7 +150,7 @@ class ModerateTestCase(SettingsTestCase):
         
         moderated_object.save()
         
-        moderated_object.approve(moderatated_by=self.user)
+        moderated_object.approve(moderated_by=self.user)
      
         user_profile = UserProfile.objects.get(user__username='moderator')
         

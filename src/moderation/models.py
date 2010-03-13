@@ -44,8 +44,8 @@ class ModeratedObject(models.Model):
     moderation_status = models.SmallIntegerField(choices=STATUS_CHOICES,
                                             default=MODERATION_STATUS_PENDING,
                                                  editable=False)
-    moderatated_by = models.ForeignKey(User, blank=True, null=True, 
-                            editable=False, related_name='moderatated_by_set')
+    moderated_by = models.ForeignKey(User, blank=True, null=True, 
+                            editable=False, related_name='moderated_by_set')
     moderation_date = models.DateTimeField(editable=False, blank=True, 
                                            null=True)
     moderation_reason = models.TextField(blank=True, null=True)
@@ -90,10 +90,10 @@ class ModeratedObject(models.Model):
 
         return ModerationNotification(moderated_object=self)
 
-    def _moderate(self, status, moderatated_by, reason):
+    def _moderate(self, status, moderated_by, reason):
         self.moderation_status = status
         self.moderation_date = datetime.datetime.now()
-        self.moderatated_by = moderatated_by
+        self.moderated_by = moderated_by
         self.moderation_reason = reason
         self.save()
 
@@ -109,22 +109,22 @@ class ModeratedObject(models.Model):
         else:
             return False
         
-    def approve(self, moderatated_by, reason=None):
+    def approve(self, moderated_by, reason=None):
         pre_moderation.send(sender=self.content_object.__class__,
                             instance=self.changed_object,
                             status=MODERATION_STATUS_APPROVED)
 
-        self._moderate(MODERATION_STATUS_APPROVED, moderatated_by, reason)
+        self._moderate(MODERATION_STATUS_APPROVED, moderated_by, reason)
 
         post_moderation.send(sender=self.content_object.__class__,
                             instance=self.content_object,
                             status=MODERATION_STATUS_APPROVED)
         
-    def reject(self, moderatated_by, reason=None):
+    def reject(self, moderated_by, reason=None):
         pre_moderation.send(sender=self.content_object.__class__,
                             instance=self.changed_object,
                             status=MODERATION_STATUS_REJECTED)
-        self._moderate(MODERATION_STATUS_REJECTED, moderatated_by, reason)
+        self._moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)
         post_moderation.send(sender=self.content_object.__class__,
                             instance=self.content_object,
                             status=MODERATION_STATUS_REJECTED)
