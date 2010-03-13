@@ -25,7 +25,7 @@ Features:
 Known isuses
 ============
 
-- foreign-key and m2m realtions in models are not currently supported
+- foreign-key and m2m relations in models are not currently supported
 - not tested on Django 1.2, i will make a test case.
 
 Road map
@@ -34,8 +34,8 @@ Road map
 0.2 
 ---
 
-- Add support for foreign-key and m2m realtions for models that are under moderation
-- Add support for ImageField, display images diffriences on approve/reject moderate page
+- Add support for foreign-key and m2m relations for models that are under moderation
+- Add support for ImageField, display images differences on approve/reject moderate page
 
 0.3
 ---
