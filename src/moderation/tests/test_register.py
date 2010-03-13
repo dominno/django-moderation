@@ -9,10 +9,12 @@ from moderation import ModerationInfo, RegistrationError,\
 from moderation.managers import ModerationObjectsManager
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from moderation.signals import pre_moderation, post_moderation
-from moderation.tests.test_app.models import UserProfile
+from moderation.tests.test_app.models import UserProfile, ModelWithSlugField,\
+    ModelWithSlugField2
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 import unittest
 from moderation.notifications import BaseModerationNotification
+from django.db import IntegrityError
 
 
 class RegistrationTestCase(SettingsTestCase):
@@ -95,6 +97,84 @@ class RegistrationTestCase(SettingsTestCase):
     def test_exception_is_raised_when_class_is_registered(self):
         self.assertRaises(RegistrationError, self.moderation.register,
                           UserProfile)
+
+
+class IntegrityErrorTestCase(SettingsTestCase):
+    test_settings = 'moderation.tests.test_settings'
+
+    def setUp(self):
+        self.moderation = ModerationManager()
+        self.moderation.register(ModelWithSlugField)
+
+    def tearDown(self):
+        self.moderation.unregister(ModelWithSlugField)
+
+    def test_raise_integrity_error_model_registered_with_moderation(self):
+        m1 = ModelWithSlugField(slug='test')
+        m1.save()
+
+        self.assertRaises(ObjectDoesNotExist, ModelWithSlugField.objects.get,
+                          slug='test')
+
+        m2 = ModelWithSlugField(slug='test')
+        self.assertRaises(IntegrityError, m2.save)
+
+        self.assertEqual(ModeratedObject.objects.all().count(), 1)
+
+    def test_raise_integrity_error_model_not_registered_with_moderation(self):
+        m1 = ModelWithSlugField2(slug='test')
+        m1.save()
+
+        m1 = ModelWithSlugField2.objects.get(slug='test')
+
+        m2 = ModelWithSlugField2(slug='test')
+        self.assertRaises(IntegrityError, m2.save)
+
+        self.assertEqual(ModeratedObject.objects.all().count(), 0)
+
+
+class IntegrityErrorRegresionTestCase(SettingsTestCase):
+    test_settings = 'moderation.tests.test_settings'
+
+    def setUp(self):
+        self.moderation = ModerationManager()
+        self.moderation.register(ModelWithSlugField)
+        self.filter_moderated_objects\
+        = ModelWithSlugField.objects.filter_moderated_objects
+        
+        def filter_moderated_objects(query_set):
+            from moderation.models import MODERATION_STATUS_PENDING,\
+                MODERATION_STATUS_REJECTED
+
+            exclude_pks = []
+            for object in query_set:
+                try:
+                    if object.moderated_object.moderation_status \
+                        in [MODERATION_STATUS_PENDING,
+                            MODERATION_STATUS_REJECTED] \
+                        and object.__dict__\
+                        == object.moderated_object.changed_object.__dict__:
+                        exclude_pks.append(object.pk)
+                except ObjectDoesNotExist:
+                    pass
+            
+            return query_set.exclude(pk__in=exclude_pks)
+        
+        setattr(ModelWithSlugField.objects,
+                'filter_moderated_objects',
+                filter_moderated_objects)
+
+    def tearDown(self):
+        self.moderation.unregister(ModelWithSlugField)
+
+    def test_old_version_of_filter_moderated_objects_method(self):
+        m1 = ModelWithSlugField(slug='test')
+        m1.save()
+
+        m2 = ModelWithSlugField(slug='test')
+        self.assertRaises(IntegrityError, m2.save)
+
+        self.assertEqual(ModeratedObject.objects.all().count(), 1)
 
 
 class BaseManagerTestCase(unittest.TestCase):

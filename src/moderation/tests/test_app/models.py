@@ -12,3 +12,11 @@ class UserProfile(models.Model):
 
     def __unicode__(self):
         return "%s - %s" % (self.user, self.url)
+
+
+class ModelWithSlugField(models.Model):
+    slug = models.SlugField(unique=True)
+
+
+class ModelWithSlugField2(models.Model):
+    slug = models.SlugField(unique=True)
