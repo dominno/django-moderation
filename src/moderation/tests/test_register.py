@@ -147,13 +147,13 @@ class IntegrityErrorRegresionTestCase(SettingsTestCase):
                 MODERATION_STATUS_REJECTED
 
             exclude_pks = []
-            for object in query_set:
+            for obj in query_set:
                 try:
-                    if object.moderated_object.moderation_status \
+                    if obj.moderated_object.moderation_status \
                         in [MODERATION_STATUS_PENDING,
                             MODERATION_STATUS_REJECTED] \
-                        and object.__dict__\
-                        == object.moderated_object.changed_object.__dict__:
+                        and obj.__dict__\
+                        == obj.moderated_object.changed_object.__dict__:
                         exclude_pks.append(object.pk)
                 except ObjectDoesNotExist:
                     pass

@@ -58,8 +58,8 @@ class ModerationAdminTestCase(TestCase):
         
         approve_objects(self.admin, self.request, qs)
         
-        for object in ModeratedObject.objects.all():
-            self.assertEqual(object.moderation_status,
+        for obj in ModeratedObject.objects.all():
+            self.assertEqual(obj.moderation_status,
                              MODERATION_STATUS_APPROVED)
         
     def test_reject_objects(self):
@@ -71,8 +71,8 @@ class ModerationAdminTestCase(TestCase):
         
         reject_objects(self.admin, self.request, qs)
         
-        for object in ModeratedObject.objects.all():
-            self.assertEqual(object.moderation_status,
+        for obj in ModeratedObject.objects.all():
+            self.assertEqual(obj.moderation_status,
                              MODERATION_STATUS_REJECTED)
 
     def test_get_moderated_object_form(self):

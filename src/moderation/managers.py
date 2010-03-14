@@ -23,16 +23,16 @@ class ModerationObjectsManager(Manager):
 
     def filter_moderated_objects(self, query_set):
         exclude_pks = []
-        for object in query_set:
+        for obj in query_set:
             try:
                 changes = get_changes_between_models(
-                                        object,
-                                        object.moderated_object.changed_object)
-                if object.moderated_object.moderation_status \
+                                        obj,
+                                        obj.moderated_object.changed_object)
+                if obj.moderated_object.moderation_status \
                     in [MODERATION_STATUS_PENDING,
                         MODERATION_STATUS_REJECTED] \
                     and not changes:
-                    exclude_pks.append(object.pk)
+                    exclude_pks.append(obj.pk)
             except ObjectDoesNotExist:
                 pass
 
