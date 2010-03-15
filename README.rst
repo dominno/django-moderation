@@ -26,7 +26,6 @@ Known isuses
 ============
 
 - foreign-key and m2m relations in models are not currently supported
-- not tested on Django 1.2, i will make a test case.
 
 Road map
 ========
@@ -55,7 +54,7 @@ Requirements
 
 python >= 2.4
 
-django == 1.1
+django >= 1.1
 
 
 Installation
