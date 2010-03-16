@@ -11,7 +11,7 @@ from moderation.managers import ModerationObjectsManager
 from django.db.models.manager import Manager
 from moderation.models import ModeratedObject
 from django.core.exceptions import ObjectDoesNotExist
-from moderation import moderation, ModerationInfo
+from moderation import moderation, ModerationManager
 from django.contrib.contenttypes import generic
 from django.db.models.query import EmptyQuerySet
 from moderation.notifications import BaseModerationNotification
@@ -27,13 +27,12 @@ class ModerationObjectsManagerTestCase(SettingsTestCase):
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
 
-        self.moderation_info = ModerationInfo(model_class=UserProfile,
-                                         manager_name="objects",
-                            moderation_manager_class=ModerationObjectsManager,
-                            moderated_object_name='moderated_object',
-                            base_manager=Manager,
-                            notification_class=BaseModerationNotification)
+        self.moderation = ModerationManager()
+        self.moderation.register(UserProfile)
 
+    def tearDown(self):
+        self.moderation.unregister(UserProfile)
+        
     def test_moderation_objects_manager(self):
         ManagerClass = ModerationObjectsManager()(Manager)
 
@@ -47,24 +46,17 @@ class ModerationObjectsManagerTestCase(SettingsTestCase):
 
         ManagerClass = ModerationObjectsManager()(Manager)
         manager = ManagerClass()
-        moderation._and_fields_to_model_class(model_class=UserProfile,
-                                               base_manager=Manager)
-        query_set = UserProfile.objects.all()
+
+        query_set = UserProfile._default_manager.all()
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
 
         self.assertEqual(unicode(manager.filter_moderated_objects(query_set)),
                                                                     u"[]")
 
-        # clean up 
-
-        moderation._remove_fields(UserProfile, self.moderation_info)
-
     def test_filter_moderated_objects_returns_object(self):
         """Test if filter_moderated_objects return object when object 
         doesnt have moderated object or deserialised object is <> object"""
-        moderation._and_fields_to_model_class(model_class=UserProfile,
-                                               base_manager=Manager)
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
 
@@ -73,7 +65,3 @@ class ModerationObjectsManagerTestCase(SettingsTestCase):
 
         self.assertEqual(unicode(UserProfile.objects.all()),
                     u'[<UserProfile: moderator - http://www.google.com>]')
-
-        # clean up 
-
-        moderation._remove_fields(UserProfile, self.moderation_info)
