@@ -38,6 +38,11 @@ class RegistrationTestCase(SettingsTestCase):
 
         del self.moderation
 
+    def test_get_moderator(self):
+        moderator = self.moderation.get_moderator(UserProfile)
+        
+        self.assertTrue(isinstance(moderator, GenericModerator))
+
     def test_get_of_new_object_should_raise_exception(self):
         """Tests if after register of model class with moderation, 
            when new object is created and getting of object 
