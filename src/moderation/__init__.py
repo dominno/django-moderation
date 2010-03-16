@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from moderation.notifications import BaseModerationNotification
+from django.contrib.auth.models import Group
 
 
 class RegistrationError(Exception):
@@ -34,14 +35,13 @@ class GenericModerator(object):
      = 'moderation/notification_subject_moderator.txt'
     message_template_moderator\
      = 'moderation/notification_message_moderator.txt'
-    
     subject_template_user = 'moderation/notification_subject_user.txt'
     message_template_user = 'moderation/notification_message_user.txt'
-    
+
     def __init__(self, model_class):
         self.model_class = model_class
         self.base_managers = self._get_base_managers()
-        
+
     def send(self, content_object, subject_template, message_template,
                            recipient_list, extra_context=None):
         context = {
@@ -228,6 +228,15 @@ class ModerationManager(object):
 
         return moderated_object
 
+    def get_moderator(self, model_class):
+        try:
+            moderator_instance = self._registered_models[model_class]
+        except KeyError:
+            msg = "%r has not been registered with Moderation." % model_class
+            raise RegistrationError(msg)
+        
+        return moderator_instance
+
     def post_save_handler(self, sender, instance, **kwargs):
         """
         Creates new moderation object if instance is created,
@@ -235,7 +244,7 @@ class ModerationManager(object):
         content_object of moderated_object
         """
         pk = instance.pk
-        moderator_instance = self._registered_models[sender]
+        moderator_instance = self.get_moderator(sender)
         if kwargs['created']:
             old_object = sender._default_manager.get(pk=pk)
             moderated_object = ModeratedObject(content_object=old_object)
