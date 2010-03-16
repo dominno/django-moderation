@@ -4,13 +4,13 @@ from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.manager import Manager
 
-from moderation import ModerationInfo, RegistrationError,\
-    ModerationManager
+from moderation import RegistrationError,\
+    ModerationManager, GenericModerator
 from moderation.managers import ModerationObjectsManager
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from moderation.signals import pre_moderation, post_moderation
 from moderation.tests.test_app.models import UserProfile, ModelWithSlugField,\
-    ModelWithSlugField2
+    ModelWithSlugField2, ModelWithMultipleManagers
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 import unittest
 from moderation.notifications import BaseModerationNotification
@@ -23,7 +23,6 @@ class RegistrationTestCase(SettingsTestCase):
 
     def setUp(self):
         import moderation
-        
         self.moderation = ModerationManager()
         self.old_moderation = moderation
         setattr(moderation, 'moderation', self.moderation)
@@ -97,6 +96,35 @@ class RegistrationTestCase(SettingsTestCase):
     def test_exception_is_raised_when_class_is_registered(self):
         self.assertRaises(RegistrationError, self.moderation.register,
                           UserProfile)
+
+
+class RegisterMultipleManagersTestCase(SettingsTestCase):
+    test_settings = 'moderation.tests.test_settings'
+
+    def setUp(self):
+        self.moderation = ModerationManager()
+        
+        class ModelWithMultipleManagersModerator(GenericModerator):
+            manager_names = ['objects', 'men', 'women']
+        
+        self.moderation.register(ModelWithMultipleManagers,
+                                 ModelWithMultipleManagersModerator)
+
+    def tearDown(self):
+        self.moderation.unregister(ModelWithMultipleManagers)
+        
+    def test_multiple_managers(self):
+        obj = ModelWithMultipleManagers(gender=0)
+        obj.save()
+        
+        obj2 = ModelWithMultipleManagers(gender=1)
+        obj2.save()
+        
+        men = ModelWithMultipleManagers.men.all()
+        women = ModelWithMultipleManagers.women.all()
+        
+        self.assertEqual(men.count(), 0)
+        self.assertEqual(women.count(), 0)
 
 
 class IntegrityErrorTestCase(SettingsTestCase):
@@ -177,39 +205,6 @@ class IntegrityErrorRegresionTestCase(SettingsTestCase):
         self.assertEqual(ModeratedObject.objects.all().count(), 1)
 
 
-class BaseManagerTestCase(unittest.TestCase):
-    
-    def setUp(self):
-        from django.db import models
-        self.moderation = ModerationManager()
-        
-        class CustomManager(Manager):
-            
-            pass
-        
-        class ModelClass(models.Model):
-            
-            pass
-        
-        self.custom_manager = CustomManager
-        self.model_class = ModelClass
-
-    def test_get_base_manager(self):
-        self.model_class.add_to_class('objects', self.custom_manager())
-
-        base_manager = self.moderation._get_base_manager(self.model_class,
-                                                         'objects')
-        
-        self.assertEqual(base_manager, self.custom_manager)
-        
-        delattr(self.model_class, 'objects')
-
-    def test_get_base_manager_default_manager(self):
-        base_manager = self.moderation._get_base_manager(self.model_class,
-                                                         'objects')
-        self.assertEqual(base_manager, Manager)
-
-
 class ModerationManagerTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     urls = 'django-moderation.test_urls'
@@ -228,25 +223,6 @@ class ModerationManagerTestCase(SettingsTestCase):
         setattr(moderation, 'moderation', self.old_moderation)
         del self.moderation
 
-    def test_moderation_info_class(self):
-        """Tests if instance of ModerationInfo class is propertly created"""
-        
-        info = ModerationInfo(
-                    model_class=UserProfile,
-                    manager_name="objects",
-                    moderation_manager_class=ModerationObjectsManager,
-                    moderated_object_name='moderated_object',
-                    base_manager=Manager,
-                    notification_class=BaseModerationNotification)
-        
-        self.assertEqual(info.model_class, UserProfile)
-        
-        self.assertEqual(info.manager_name, "objects")
-        self.assertEqual(info.moderation_manager_class, 
-                         ModerationObjectsManager)
-        self.assertEqual(info.moderated_object_name, 'moderated_object')
-        self.assertEqual(info.base_manager, Manager)
-        
     def test_unregister(self):
         """Tests if model class is sucessfuly unregistered from moderation"""
         from django.db.models import signals
@@ -284,9 +260,9 @@ class ModerationManagerTestCase(SettingsTestCase):
 
     def test_moderation_manager(self):
         moderation = ModerationManager()
-        
+
         self.assertEqual(moderation._registered_models, {})
-        
+
     def test_save_new_instance_after_add_and_remove_fields_from_class(self):
         """Test if after removing moderation from model class new 
         instance of model can be created"""
@@ -295,25 +271,15 @@ class ModerationManagerTestCase(SettingsTestCase):
         class CustomManager(Manager):
             pass
 
-        self.moderation._and_fields_to_model_class(model_class=UserProfile,
-                        base_manager=CustomManager,
-                        manager_name='objects',
-                        moderation_manager_class=ModerationObjectsManager,
-                        moderated_object_name='moderated_object')
+        moderator = GenericModerator(UserProfile)
+        self.moderation._and_fields_to_model_class(moderator)
 
-        info = ModerationInfo(model_class=UserProfile,
-                            manager_name="objects",
-                            moderation_manager_class=ModerationObjectsManager,
-                            moderated_object_name='moderated_object',
-                            base_manager=Manager,
-                            notification_class=BaseModerationNotification)
+        self.moderation._remove_fields(moderator)
 
-        self.moderation._remove_fields(UserProfile, info)
-    
         profile = UserProfile(description='Profile for new user', 
                               url='http://www.yahoo.com',
                               user=User.objects.get(username='user1'))
-        
+
         profile.save()
 
         up = UserProfile._default_manager.filter(url='http://www.yahoo.com')
@@ -324,13 +290,8 @@ class ModerationManagerTestCase(SettingsTestCase):
         class CustomManager(Manager):
         
             pass
-        
-        self.moderation._and_fields_to_model_class(
-                            model_class=UserProfile,
-                            base_manager=CustomManager,
-                            manager_name='objects',
-                            moderation_manager_class=ModerationObjectsManager,
-                            moderated_object_name='moderated_object')
+        moderator = GenericModerator(UserProfile)
+        self.moderation._and_fields_to_model_class(moderator)
 
         manager = ModerationObjectsManager()(CustomManager)()
 
@@ -339,13 +300,7 @@ class ModerationManagerTestCase(SettingsTestCase):
         self.assertEqual(hasattr(UserProfile, 'moderated_object'), True)
 
         #clean up
-        info = ModerationInfo(model_class=UserProfile,
-                            manager_name="objects",
-                            moderation_manager_class=ModerationObjectsManager,
-                            moderated_object_name='moderated_object',
-                            base_manager=Manager,
-                            notification_class=BaseModerationNotification)
-        self.moderation._remove_fields(UserProfile, info)
+        self.moderation._remove_fields(moderator)
 
     def test_get_or_create_moderated_object_exist(self):
         profile = UserProfile.objects.get(user__username='moderator')
@@ -367,7 +322,7 @@ class ModerationManagerTestCase(SettingsTestCase):
         object = self.moderation._get_or_create_moderated_object(profile)
 
         self.assertEqual(object.pk, None)
-        self.assertEqual(object.changed_object.description, 
+        self.assertEqual(object.changed_object.description,
                          u'Profile description')
 
 
@@ -378,6 +333,12 @@ class ModerationSignalsTestCase(SettingsTestCase):
     def setUp(self):
         import moderation
         self.moderation = ModerationManager()
+
+        class UserProfileModerator(GenericModerator):
+            notify_moderator = False
+
+        self.moderation.register(UserProfile, UserProfileModerator)
+        self.moderation._disconnect_signals(UserProfile)
         self.old_moderation = moderation
         setattr(moderation, 'moderation', self.moderation)
         
@@ -386,6 +347,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
 
     def tearDown(self):
         import moderation
+        self.moderation.unregister(UserProfile)
         setattr(moderation, 'moderation', self.old_moderation)
         del self.moderation
 
