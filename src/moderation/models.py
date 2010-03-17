@@ -64,6 +64,13 @@ class ModeratedObject(models.Model):
     def save(self, *args, **kwargs):
         if self.instance:
             self.changed_object = self.instance
+        
+        if self.changed_by:
+            if self.moderator.is_auto_approve(self.changed_by):
+                self.moderation_status = MODERATION_STATUS_APPROVED
+            if self.moderator.is_auto_reject(self.changed_by):
+                self.moderation_status = MODERATION_STATUS_REJECTED
+
         super(ModeratedObject, self).save(*args, **kwargs)
 
     class Meta:
@@ -83,12 +90,11 @@ class ModeratedObject(models.Model):
         return u"/admin/moderation/moderatedobject/%s/" % self.pk
 
     @property
-    def notification(self):
+    def moderator(self):
         from moderation import moderation
         model_class = self.content_object.__class__
-        ModerationNotification = moderation.get_notification_class(model_class)
-
-        return ModerationNotification(moderated_object=self)
+        
+        return moderation.get_moderator(model_class)
 
     def _moderate(self, status, moderated_by, reason):
         self.moderation_status = status
