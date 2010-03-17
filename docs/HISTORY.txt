@@ -2,7 +2,7 @@ Changelog
 =========
 
 0.1 alpha
-----------------
+---------
 
 * Initial release
 
@@ -14,4 +14,9 @@ Added features
 - html differences of changes between versions of objects
 - configurable email notifications
 - custom model form that allows to edit changed data of object
+
+0.1.1
+-----
+
+* Added auto approve/reject for selected user groups or user types
 
