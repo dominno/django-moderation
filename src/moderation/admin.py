@@ -46,14 +46,9 @@ class ModerationAdmin(admin.ModelAdmin):
         self.message_user(request, msg)
 
     def save_model(self, request, obj, form, change):
-        if self.admin_intergration_enabled:
-            obj.save()
-            obj.moderated_object.changed_by = request.user
-            obj.moderated_object.save()
-        else:
-            moderation._disconnect_signals(obj.__class__)
-            obj.save()
-            moderation._connect_signals(obj.__class__)
+        obj.save()
+        obj.moderated_object.changed_by = request.user
+        obj.moderated_object.save()
 
     def get_moderation_message(self, moderation_status, reason):
         if moderation_status == MODERATION_STATUS_PENDING:
