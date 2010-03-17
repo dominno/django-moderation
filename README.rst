@@ -19,6 +19,7 @@ Features:
 - html differences of changes between versions of objects
 - configurable email notifications
 - custom model form that allows to edit changed data of object
+- auto approve/reject for selected user groups or user types
 - 100% PEP8 correct code
 - test coverage > 80% 
 
@@ -102,6 +103,10 @@ add admin_intergration_enabled = False to your admin class::
     
     admin.site.register(YourModel, YourModelAdmin)
     
+If admin_intergration_enabled is enabled then when saving object in admin, data
+will not be saved in model instance but it will be stored in moderation queue.
+Also data in change form will not data from original model instance but data from
+ModeratedObject instance.
 
 How django-moderation works
 ===========================
@@ -151,28 +156,97 @@ new version will be saved in moderated_object::
     your_model.__dict__
     {'id': 1, 'description': 'New description'}
 	
+	
+Moderation registration options
+===============================
 
-Email notifications
-===================
+``moderation.register`` takes following parameters:
 
-By default when user change object that is under moderation,
-e-mail notification is send to moderator. It will inform him
-that object was changed and need to be moderated.
+``model_class``
+    Model class that will be registered with moderation
 
-When moderator approves or reject object changes then e-mail
-notification is send to user that changed this object. It will
-inform user if his changes were accepted or rejected and inform him
-why it was rejected or approved.
+``moderator_class``
+    Class that subclasses GenericModerator class. It Encapsulates moderation
+    options for a given model. Example::
+    
+        class UserProfileModerator(GenericModerator):
+            notify_user = False
+            auto_approve_for_superusers = True
+        
+        moderation.register(UserProfile, UserProfileModerator)
 
-How to overwrite email notification templates
----------------------------------------------
 
-E-mail notifications use following templates:
- 
-- moderation/notification_subject_moderator.txt
-- moderation/notification_message_moderator.txt
-- moderation/notification_subject_user.txt
-- moderation/notification_message_user.txt
+GenericModerator options
+------------------------
+
+
+``manager_names``
+    List of manager name on which moderation manager will be enables. Default: ['objects']
+
+``moderation_manager_class``
+    Default manager class that will enabled on model class managers passed in ``manager_names``. This class takes care of filtering out any objects that are not approved yet. Default: ModerationObjectsManager
+
+``auto_approve_for_superusers``
+    Auto approve objects changed by superusers. Default: True
+
+``auto_approve_for_staff``
+    Auto approve objects changed by user that are staff. Default: True
+
+``auto_approve_for_groups``
+    List of user group names that will be auto approved. Default: None
+
+``auto_reject_for_anonymous``
+    Auto reject objects changed by users that are anonymous. Default: True
+
+``auto_reject_for_groups``
+    List of user group names that will be auto rejected. Default: None
+
+``notify_moderator``
+    Defines if notification e-mails will be send to moderator.
+    By default when user change object that is under moderation,
+    e-mail notification is send to moderator. It will inform him
+    that object was changed and need to be moderated. Default: True
+    
+``notify_user``
+    Defines if notification e-mails will be user.
+    When moderator approves or reject object changes then e-mail
+    notification is send to user that changed this object. It will
+    inform user if his changes were accepted or rejected and inform him
+    why it was rejected or approved. Default: True
+
+``subject_template_moderator``
+    Subject template that will be used when sending notifications to moderators.
+    Default: moderation/notification_subject_moderator.txt
+
+``message_template_moderator``
+    Message template that will be used when sending notifications to moderator.
+    Default: moderation/notification_message_moderator.txt
+
+``subject_template_user``
+    Subject template that will be used when sending notifications to users.
+    Default: moderation/notification_subject_user.txt
+
+``message_template_user``
+    Message template that will be used when sending notifications to users.
+    Default: moderation/notification_message_user.txt
+
+
+``Notes on auto moderation``
+    If you want to use auto moderation in your views, then you need to save user object
+    that has changed the object in ModeratedObject instance. Example::
+
+
+        moderation.register(UserProfile)
+        
+        new_profile = UserProfile()
+        
+        new_profile.save()
+        new_profile.moderated_object.changed_by = self.user
+        new_profile.moderated_object.save()
+
+
+Default context of notification templates
+-----------------------------------------
 
 Default context:
 
@@ -189,38 +263,27 @@ Default context:
 How to pass extra context to email notification templates
 ---------------------------------------------------------
 
-If you want to pass extra context to email notification methods
-you new need to create new class that subclass BaseModerationNotification class::
+Subclass GenericModerator class and overwrite ``inform_moderator`` and ``inform_user``
+methods.::
 
+    class UserProfileModerator(GenericModerator):
 
-    class CustomModerationNotification(BaseModerationNotification):
         def inform_moderator(self,
-                         subject_template='moderation/notification_subject_moderator.txt',
-                         message_template='moderation/notification_message_moderator.txt',
+                         content_object,
                          extra_context=None):
             '''Send notification to moderator'''
             extra_context={'test':'test'}
-            super(CustomModerationNotification, self).inform_moderator(subject_template,
-                                                                       message_template,
-                                                                       extra_context)
+            super(UserProfileModerator, self).inform_moderator(content_object,
+                                                               extra_context)
         
-        def inform_user(self, user,
-                        subject_template='moderation/notification_subject_user.txt',
-                        message_template='moderation/notification_message_user.txt',
-                        extra_context=None)
+        def inform_user(self, content_object, user, extra_context=None)
             '''Send notification to user when object is approved or rejected'''
             extra_context={'test':'test'}
-            super(CustomModerationNotification, self).inform_user(user,
-                                                                  subject_template,
-                                                                  message_template,
+            super(CustomModerationNotification, self).inform_user(content_object,
+                                                                  user,
                                                                   extra_context)
 
-
-
-Next register it with moderation as notification_class:
-
-    moderation.register(YourModel, notification_class=CustomModerationNotification)
-
+    moderation.register(UserProfile, UserProfileModerator)
 
 
 Signals
