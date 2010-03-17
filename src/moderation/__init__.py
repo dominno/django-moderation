@@ -46,12 +46,12 @@ class GenericModerator(object):
         self.base_managers = self._get_base_managers()
 
     def is_auto_approve(self, user):
+        if self.auto_approve_for_groups \
+           and self._check_user_in_groups(user, self.auto_approve_for_groups):
+            return True
         if self.auto_approve_for_superusers and user.is_superuser:
             return True
         if self.auto_approve_for_staff and user.is_staff:
-            return True
-        if self.auto_approve_for_groups \
-           and self._check_user_in_groups(user, self.auto_approve_for_groups):
             return True
 
         return False
