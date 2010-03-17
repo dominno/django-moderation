@@ -1,11 +1,12 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from moderation.tests.test_app.models import UserProfile
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED, \
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED
 from django.core.exceptions import ObjectDoesNotExist
 from moderation.fields import SerializedObjectField
+from moderation import ModerationManager, GenericModerator
 
 
 class SerializationTestCase(SettingsTestCase):
@@ -207,3 +208,57 @@ class ModerateTestCase(SettingsTestCase):
         value = moderated_object._is_not_equal_instance(self.profile)
 
         self.assertEqual(value, False)
+    
+    
+class AutoModerateTestCase(SettingsTestCase):
+    fixtures = ['test_users.json', 'test_moderation.json']
+    test_settings = 'moderation.tests.test_settings'
+
+    def setUp(self):
+        import moderation
+        self.moderation = ModerationManager()
+
+        class UserProfileModerator(GenericModerator):
+            auto_approve_for_superusers = True
+            auto_approve_for_staff = True
+            auto_reject_for_groups = ['banned']
+
+        self.moderation.register(UserProfile, UserProfileModerator)
+
+        self.old_moderation = moderation
+        setattr(moderation, 'moderation', self.moderation)
+        
+        self.user = User.objects.get(username='moderator')
+        self.profile = UserProfile.objects.get(user__username='moderator')
+        
+    def tearDown(self):
+        import moderation
+        self.moderation.unregister(UserProfile)
+        setattr(moderation, 'moderation', self.old_moderation)
+        
+    def test_auto_approve(self):
+        self.profile.description = 'New description'
+        self.profile.save()
+        self.profile.moderated_object.changed_by = self.user
+        self.profile.moderated_object.save()
+        
+        profile = UserProfile.objects.get(user__username='moderator')
+        self.assertEqual(profile.description, 'New description')
+        self.assertEqual(profile.moderated_object.moderation_status,
+                         MODERATION_STATUS_APPROVED)
+
+    def test_auto_rejest(self):
+        group = Group(name='banned')
+        group.save()
+        self.user.groups.add(group)
+        self.user.save()
+        
+        self.profile.description = 'New description'
+        self.profile.save()
+        self.profile.moderated_object.changed_by = self.user
+        self.profile.moderated_object.save()
+        
+        profile = UserProfile.objects.get(user__username='moderator')
+        self.assertEqual(profile.description, 'Profile description')
+        self.assertEqual(profile.moderated_object.moderation_status,
+                         MODERATION_STATUS_REJECTED)
