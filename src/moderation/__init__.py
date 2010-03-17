@@ -23,14 +23,17 @@ class GenericModerator(object):
     """
     manager_names = ['objects']
     moderation_manager_class = ModerationObjectsManager
-    
+
+    auto_approve_for_superusers = True
     auto_approve_for_staff = True
     auto_approve_for_groups = None
+
+    auto_reject_for_anonymous = True
     auto_reject_for_groups = None
-    
+
     notify_moderator = True
     notify_user = True
-    
+
     subject_template_moderator\
      = 'moderation/notification_subject_moderator.txt'
     message_template_moderator\
@@ -41,6 +44,38 @@ class GenericModerator(object):
     def __init__(self, model_class):
         self.model_class = model_class
         self.base_managers = self._get_base_managers()
+
+    def is_auto_approve(self, user):
+        if self.auto_approve_for_superusers and user.is_superuser:
+            return True
+        if self.auto_approve_for_staff and user.is_staff:
+            return True
+        if self.auto_approve_for_groups \
+           and self._check_user_in_groups(user, self.auto_approve_for_groups):
+            return True
+
+        return False
+
+    def is_auto_reject(self, user):
+        if self.auto_reject_for_groups \
+         and self._check_user_in_groups(user, self.auto_reject_for_groups):
+            return True
+        if self.auto_reject_for_anonymous and user.is_anonymous():
+            return True
+
+        return False
+
+    def _check_user_in_groups(self, user, groups):
+        for group in groups:
+            try:
+                group = Group.objects.get(name=group)
+            except ObjectDoesNotExist:
+                return False
+            
+            if group in user.groups.all():
+                return True
+            
+        return False
 
     def send(self, content_object, subject_template, message_template,
                            recipient_list, extra_context=None):
