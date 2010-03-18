@@ -123,7 +123,7 @@ available until moderator approves it. It will be stored in ModeratedObject mode
     
 When you will approve object, then it will be publicly available.::
 
-    your_model.moderated_object.approve(moderatated_by=user,
+    your_model.moderated_object.approve(moderated_by=user,
                                        reason='Reason for approve')
                                        
     YourModel.objects.get(pk=1)
@@ -149,7 +149,7 @@ new version will be saved in moderated_object::
     your_model.moderated_object.changed_object.__dict__
     {'id': 1, 'description': 'New description'}
     
-    your_model.moderated_object.approve(moderatated_by=user,
+    your_model.moderated_object.approve(moderated_by=user,
                                        reason='Reason for approve')
 
     your_model = YourModel.objects.get(pk=1)
