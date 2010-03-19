@@ -94,7 +94,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
     def queryset(self, request):
         qs = super(ModeratedObjectAdmin, self).queryset(request)
 
-        return qs.exclude(moderaton_state=MODERATION_DRAFT_STATE)
+        return qs.exclude(moderation_state=MODERATION_DRAFT_STATE)
 
     def get_moderated_object_form(self, model_class):
 

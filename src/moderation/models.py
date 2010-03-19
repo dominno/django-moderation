@@ -38,7 +38,7 @@ class ModeratedObject(models.Model):
     content_object = generic.GenericForeignKey(ct_field="content_type",
                                                fk_field="object_pk")
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
-    moderaton_state = models.SmallIntegerField(choices=MODERATION_STATES,
+    moderation_state = models.SmallIntegerField(choices=MODERATION_STATES,
                                                default=MODERATION_READY_STATE,
                                                editable=False)
     moderation_status = models.SmallIntegerField(choices=STATUS_CHOICES,

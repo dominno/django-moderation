@@ -42,11 +42,11 @@ class ModerationAdminTestCase(TestCase):
             ModeratedObject(content_object=user).save()
             
         object = ModeratedObject.objects.all()[0]
-        object.moderaton_state = MODERATION_READY_STATE
+        object.moderation_state = MODERATION_READY_STATE
         object.save()
         
         qs = self.admin.queryset(self.request)
-        qs = qs.filter(moderaton_state=MODERATION_DRAFT_STATE)
+        qs = qs.filter(moderation_state=MODERATION_DRAFT_STATE)
         self.assertEqual(list(qs), [])
         
     def test_approve_objects(self):
