@@ -106,7 +106,7 @@ class ModeratedObject(models.Model):
         if status == MODERATION_STATUS_APPROVED:
             self.changed_object.save()
         if self.changed_by:
-            self.notification.inform_user(self.changed_by)
+            self.moderator.inform_user(self.changed_by)
 
     def _is_not_equal_instance(self, instance):
         changes = get_changes_between_models(self.changed_object, instance)
