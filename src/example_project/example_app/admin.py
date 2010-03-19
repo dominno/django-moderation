@@ -4,7 +4,7 @@ from moderation.admin import ModerationAdmin
 
 
 class ExampleUserProfileAdmin(ModerationAdmin):
-    admin_intergration_enabled = True
+    admin_integration_enabled = True
     
 admin.site.register(ExampleUserProfile, ExampleUserProfileAdmin)
 

@@ -24,16 +24,16 @@ reject_objects.short_description = "Reject selected moderated objects"
 
 
 class ModerationAdmin(admin.ModelAdmin):
-    admin_intergration_enabled = True
+    admin_integration_enabled = True
     
     def get_form(self, request, obj=None):
-        if obj and self.admin_intergration_enabled:
+        if obj and self.admin_integration_enabled:
             return self.get_moderated_object_form(obj.__class__)
         
         return super(ModerationAdmin, self).get_form(request, obj)
 
     def change_view(self, request, object_id, extra_context=None):
-        if self.admin_intergration_enabled:
+        if self.admin_integration_enabled:
             self.send_message(request, object_id)
 
         return super(ModerationAdmin, self).change_view(request, object_id)

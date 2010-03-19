@@ -96,14 +96,14 @@ Configuration
     admin.site.register(YourModel, YourModelAdmin)
     
 If you want to disable integration of moderation in admin,
-add admin_intergration_enabled = False to your admin class::
+add admin_integration_enabled = False to your admin class::
 
     class YourModelAdmin(ModerationAdmin):
-        admin_intergration_enabled = False
+        admin_integration_enabled = False
     
     admin.site.register(YourModel, YourModelAdmin)
     
-If admin_intergration_enabled is enabled then when saving object in admin, data
+If admin_integration_enabled is enabled then when saving object in admin, data
 will not be saved in model instance but it will be stored in moderation queue.
 Also data in change form will not data from original model instance but data from
 ModeratedObject instance.
