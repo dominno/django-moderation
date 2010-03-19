@@ -78,7 +78,7 @@ class ModeratedObject(models.Model):
 
     def get_object_for_this_type(self):
         pk = self.object_pk
-        obj = self.content_type.model_class().old_manager.get(pk=pk)
+        obj = self.content_type.model_class()._default_manager.get(pk=pk)
         return obj
 
     def get_absolute_url(self):
