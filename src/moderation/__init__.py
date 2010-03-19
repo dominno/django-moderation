@@ -177,11 +177,14 @@ class ModerationManager(object):
         relation_object = generic.GenericRelation(ModeratedObject,
                                                object_id_field='object_pk')
         
-        model_class.add_to_class('_moderated_object', relation_object)
+        model_class.add_to_class('_relation_object', relation_object)
 
         def get_modarated_object(self):
-            return getattr(self, '_moderated_object').get()
-
+            if not hasattr(self, '_moderated_object'):
+                self._moderated_object = getattr(self,
+                                                 '_relation_object').get()
+            return self._moderated_object
+        
         model_class.add_to_class('moderated_object',
                                  property(get_modarated_object))
 
