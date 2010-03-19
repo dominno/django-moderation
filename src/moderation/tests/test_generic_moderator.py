@@ -71,7 +71,7 @@ class GenericModeratorTestCase(SettingsTestCase):
         self.assertEqual(len(mail.outbox), 1)
 
 
-class AutoModerateTestCase(TestCase):
+class AutoModerateModeratorTestCase(TestCase):
     fixtures = ['test_users.json']
     
     def setUp(self):
