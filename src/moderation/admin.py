@@ -7,6 +7,7 @@ from moderation import moderation
 from moderation.diff import generate_diff
 from django.utils.translation import ugettext as _
 from moderation.forms import BaseModeratedObjectForm
+from moderation.helpers import automoderate
 
 
 def approve_objects(modeladmin, request, queryset):
@@ -47,8 +48,7 @@ class ModerationAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.save()
-        obj.moderated_object.changed_by = request.user
-        obj.moderated_object.save()
+        automoderate(obj, request.user)
 
     def get_moderation_message(self, moderation_status, reason):
         if moderation_status == MODERATION_STATUS_PENDING:
