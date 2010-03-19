@@ -208,8 +208,8 @@ class ModerateTestCase(SettingsTestCase):
         value = moderated_object._is_not_equal_instance(self.profile)
 
         self.assertEqual(value, False)
-    
-    
+
+
 class AutoModerateTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     test_settings = 'moderation.tests.test_settings'
@@ -227,38 +227,74 @@ class AutoModerateTestCase(SettingsTestCase):
 
         self.old_moderation = moderation
         setattr(moderation, 'moderation', self.moderation)
-        
+
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
-        
+
     def tearDown(self):
         import moderation
         self.moderation.unregister(UserProfile)
         setattr(moderation, 'moderation', self.old_moderation)
-        
+
     def test_auto_approve(self):
         self.profile.description = 'New description'
         self.profile.save()
-        self.profile.moderated_object.changed_by = self.user
+
+        self.profile.moderated_object.changed_by = self.user 
         self.profile.moderated_object.save()
-        
+
         profile = UserProfile.objects.get(user__username='moderator')
-        self.assertEqual(profile.description, 'New description')
+
         self.assertEqual(profile.moderated_object.moderation_status,
                          MODERATION_STATUS_APPROVED)
+        self.assertEqual(profile.description, 'New description')
 
     def test_auto_rejest(self):
         group = Group(name='banned')
         group.save()
         self.user.groups.add(group)
         self.user.save()
-        
+
         self.profile.description = 'New description'
         self.profile.save()
         self.profile.moderated_object.changed_by = self.user
         self.profile.moderated_object.save()
-        
+
         profile = UserProfile.objects.get(user__username='moderator')
-        self.assertEqual(profile.description, 'Profile description')
+        # = ModeratedObject.objects.get(object_pk=profile.pk)
+
         self.assertEqual(profile.moderated_object.moderation_status,
                          MODERATION_STATUS_REJECTED)
+        self.assertEqual(profile.description, 'Profile description')
+        
+    def test_auto_approve_helper_status_approved(self):
+        from moderation.helpers import automoderate
+        
+        self.profile.description = 'New description'
+        self.profile.save()
+
+        status = automoderate(self.profile, self.user)
+
+        self.assertEqual(status, MODERATION_STATUS_APPROVED)
+
+        profile = UserProfile.objects.get(user__username='moderator')
+        self.assertEqual(profile.description, 'New description')
+
+    def test_auto_approve_helper_status_rejected(self):
+        from moderation.helpers import automoderate
+
+        group = Group(name='banned')
+        group.save()
+        self.user.groups.add(group)
+        self.user.save()
+
+        self.profile.description = 'New description'
+        self.profile.save()
+
+        status = automoderate(self.profile, self.user)
+
+        profile = UserProfile.objects.get(user__username='moderator')
+
+        self.assertEqual(status,
+                         MODERATION_STATUS_REJECTED)
+        self.assertEqual(profile.description, 'Profile description')
