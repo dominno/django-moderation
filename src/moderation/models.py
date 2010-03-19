@@ -52,7 +52,7 @@ class ModeratedObject(models.Model):
     changed_object = SerializedObjectField(serialize_format='json',
                                            editable=False)
     changed_by = models.ForeignKey(User, blank=True, null=True, 
-                                editable=False, related_name='changed_by_set')
+                                editable=True, related_name='changed_by_set')
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.get('content_object')
@@ -60,16 +60,21 @@ class ModeratedObject(models.Model):
 
     def __unicode__(self):
         return "%s" % self.changed_object
-    
+
     def save(self, *args, **kwargs):
         if self.instance:
             self.changed_object = self.instance
-        
+
         if self.changed_by:
-            if self.moderator.is_auto_approve(self.changed_by):
-                self.moderation_status = MODERATION_STATUS_APPROVED
+            
             if self.moderator.is_auto_reject(self.changed_by):
-                self.moderation_status = MODERATION_STATUS_REJECTED
+                self.reject(moderated_by=self.moderated_by,
+                             reason='Auto rejected',
+                             auto_save=False)
+            elif self.moderator.is_auto_approve(self.changed_by):
+                self.approve(moderated_by=self.moderated_by,
+                             reason='Auto moderated',
+                             auto_save=False)
 
         super(ModeratedObject, self).save(*args, **kwargs)
 
@@ -85,7 +90,7 @@ class ModeratedObject(models.Model):
         if hasattr(self.changed_object, 'get_absolute_url'):
             return self.changed_object.get_absolute_url()
         return None
-    
+
     def get_admin_moderate_url(self):
         return u"/admin/moderation/moderatedobject/%s/" % self.pk
 
@@ -93,20 +98,21 @@ class ModeratedObject(models.Model):
     def moderator(self):
         from moderation import moderation
         model_class = self.content_object.__class__
-        
+
         return moderation.get_moderator(model_class)
 
-    def _moderate(self, status, moderated_by, reason):
+    def _moderate(self, status, moderated_by, reason, auto_save=True):
         self.moderation_status = status
         self.moderation_date = datetime.datetime.now()
         self.moderated_by = moderated_by
         self.moderation_reason = reason
-        self.save()
+        if auto_save:
+            self.save()
 
         if status == MODERATION_STATUS_APPROVED:
             self.changed_object.save()
         if self.changed_by:
-            self.moderator.inform_user(self.changed_by)
+            self.moderator.inform_user(self.content_object, self.changed_by)
 
     def _is_not_equal_instance(self, instance):
         changes = get_changes_between_models(self.changed_object, instance)
@@ -114,23 +120,25 @@ class ModeratedObject(models.Model):
             return True
         else:
             return False
-        
-    def approve(self, moderated_by, reason=None):
+
+    def approve(self, moderated_by=None, reason=None, auto_save=True):
         pre_moderation.send(sender=self.content_object.__class__,
                             instance=self.changed_object,
                             status=MODERATION_STATUS_APPROVED)
 
-        self._moderate(MODERATION_STATUS_APPROVED, moderated_by, reason)
+        self._moderate(MODERATION_STATUS_APPROVED, moderated_by, reason,
+                       auto_save)
 
         post_moderation.send(sender=self.content_object.__class__,
                             instance=self.content_object,
                             status=MODERATION_STATUS_APPROVED)
-        
-    def reject(self, moderated_by, reason=None):
+
+    def reject(self, moderated_by=None, reason=None, auto_save=True):
         pre_moderation.send(sender=self.content_object.__class__,
                             instance=self.changed_object,
                             status=MODERATION_STATUS_REJECTED)
-        self._moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)
+        self._moderate(MODERATION_STATUS_REJECTED, moderated_by, reason,
+                       auto_save)
         post_moderation.send(sender=self.content_object.__class__,
                             instance=self.content_object,
                             status=MODERATION_STATUS_REJECTED)
