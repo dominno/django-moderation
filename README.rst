@@ -233,7 +233,7 @@ GenericModerator options
 
 ``Notes on auto moderation``
     If you want to use auto moderation in your views, then you need to save user object
-    that has changed the object in ModeratedObject instance. Example::
+    that has changed the object in ModeratedObject instance. You can use following helper. Example::
 
 
         moderation.register(UserProfile)
@@ -241,8 +241,12 @@ GenericModerator options
         new_profile = UserProfile()
         
         new_profile.save()
-        new_profile.moderated_object.changed_by = self.user
-        new_profile.moderated_object.save()
+        
+        from moderation.helpers import automoderate
+        
+        automoderate(new_profile, user)
+        
+
 
 
 Default context of notification templates
