@@ -14,7 +14,7 @@ from mock import Mock
 class GenericModeratorTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     urls = 'django-moderation.test_urls'
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
     
     def setUp(self):
         self.user = User.objects.get(username='admin')

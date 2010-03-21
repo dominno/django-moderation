@@ -18,7 +18,7 @@ from django.db import IntegrityError
 
 class RegistrationTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         import moderation
@@ -103,7 +103,7 @@ class RegistrationTestCase(SettingsTestCase):
 
 
 class RegisterMultipleManagersTestCase(SettingsTestCase):
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         self.moderation = ModerationManager()
@@ -132,7 +132,7 @@ class RegisterMultipleManagersTestCase(SettingsTestCase):
 
 
 class IntegrityErrorTestCase(SettingsTestCase):
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         self.moderation = ModerationManager()
@@ -166,7 +166,7 @@ class IntegrityErrorTestCase(SettingsTestCase):
 
 
 class IntegrityErrorRegresionTestCase(SettingsTestCase):
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         self.moderation = ModerationManager()
@@ -212,7 +212,7 @@ class IntegrityErrorRegresionTestCase(SettingsTestCase):
 class ModerationManagerTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     urls = 'django-moderation.test_urls'
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
     
     def setUp(self):
         import moderation
@@ -332,7 +332,7 @@ class ModerationManagerTestCase(SettingsTestCase):
 
 class ModerationSignalsTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         import moderation

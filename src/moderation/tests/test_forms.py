@@ -8,7 +8,7 @@ from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 
 class FormsTestCase(SettingsTestCase):
     fixtures = ['test_users.json']
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         self.user = User.objects.get(username='moderator')

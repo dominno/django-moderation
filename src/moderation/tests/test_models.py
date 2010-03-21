@@ -11,7 +11,7 @@ from moderation import ModerationManager, GenericModerator
 
 class SerializationTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         self.user = User.objects.get(username='moderator')
@@ -110,7 +110,6 @@ class SerializationTestCase(SettingsTestCase):
 
 class ModerateTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    test_settings = 'moderation.tests.test_settings'
     
     def setUp(self):
         self.user = User.objects.get(username='moderator')
@@ -212,7 +211,7 @@ class ModerateTestCase(SettingsTestCase):
 
 class AutoModerateTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         import moderation

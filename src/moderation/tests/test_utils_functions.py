@@ -7,11 +7,12 @@ import unittest
 import moderation
 import pep8
 
+from moderation.tests.utils.testsettingsmanager import get_only_settings_locals
+
 
 class UtilsTestCase(unittest.TestCase):
         
     def test_get_only_settings_locals(self):
-        from moderation.tests.test_settings import get_only_settings_locals
         MYSETTING_LOCAL1 = 'test'
         MYSETTING_LOCAL2 = 'test'
         self.assertEqual(get_only_settings_locals(locals()),

@@ -19,7 +19,7 @@ from django.db.models.query import EmptyQuerySet
 class ModerationObjectsManagerTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     urls = 'moderation.tests.test_urls'
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         from django.db.models import signals

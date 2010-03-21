@@ -14,7 +14,7 @@ import re
 
 class DiffModeratedObjectTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    test_settings = 'moderation.tests.test_settings'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         self.profile = UserProfile.objects.get(user__username='moderator')
