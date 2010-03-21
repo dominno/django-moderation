@@ -290,6 +290,22 @@ methods.::
     moderation.register(UserProfile, UserProfileModerator)
 
 
+ModerationAdmin
+===============
+
+If you have defined your own ``save_model`` method in your ModelAdmin then you must::
+
+
+    # Custom save_model in MyModelAdmin
+    def save_model(self, request, obj, form, change):
+        # Your custom stuff
+        from moderation.helpers import automoderate
+        automoderate(obj, request.user)
+
+
+Otherwise what you save in the admin will get moderated and automoderation will not work.
+
+
 Signals
 =======
 
