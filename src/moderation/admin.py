@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.forms.models import ModelForm
+
 from moderation.models import ModeratedObject, MODERATION_DRAFT_STATE,\
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED,\
     MODERATION_STATUS_APPROVED
@@ -40,7 +41,7 @@ class ModerationAdmin(admin.ModelAdmin):
         return super(ModerationAdmin, self).change_view(request, object_id)
 
     def send_message(self, request, object_id):
-        moderated_object = ModeratedObject.objects.get(pk=object_id)
+        moderated_object = ModeratedObject.objects.get(object_pk=object_id)
 
         msg = self.get_moderation_message(moderated_object.moderation_status,
                                          moderated_object.moderation_reason)
@@ -105,6 +106,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
         return ModeratedObjectForm
     
+
     def change_view(self, request, object_id, extra_context=None):
         moderated_object = ModeratedObject.objects.get(pk=object_id)
 
