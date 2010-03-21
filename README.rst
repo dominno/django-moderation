@@ -181,7 +181,7 @@ GenericModerator options
 
 
 ``manager_names``
-    List of manager name on which moderation manager will be enables. Default: ['objects']
+    List of manager names on which moderation manager will be enabled. Default: ['objects']
 
 ``moderation_manager_class``
     Default manager class that will enabled on model class managers passed in ``manager_names``. This class takes care of filtering out any objects that are not approved yet. Default: ModerationObjectsManager
