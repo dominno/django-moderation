@@ -9,7 +9,6 @@ from django.contrib.sites.models import Site
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
-from moderation.notifications import BaseModerationNotification
 from django.contrib.auth.models import Group
 
 

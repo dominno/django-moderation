@@ -5,5 +5,4 @@ from moderation.tests.test_utils_functions import *
 from moderation.tests.test_admin import *
 from moderation.tests.test_diff import *
 from moderation.tests.test_forms import *
-from moderation.tests.test_notifications import *
 from moderation.tests.test_generic_moderator import *

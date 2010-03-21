@@ -14,7 +14,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from moderation import moderation, ModerationManager
 from django.contrib.contenttypes import generic
 from django.db.models.query import EmptyQuerySet
-from moderation.notifications import BaseModerationNotification
 
 
 class ModerationObjectsManagerTestCase(SettingsTestCase):

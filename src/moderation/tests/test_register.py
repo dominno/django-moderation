@@ -13,7 +13,6 @@ from moderation.tests.test_app.models import UserProfile, ModelWithSlugField,\
     ModelWithSlugField2, ModelWithMultipleManagers
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 import unittest
-from moderation.notifications import BaseModerationNotification
 from django.db import IntegrityError
 
 
