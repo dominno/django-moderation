@@ -35,6 +35,8 @@ background:#BBFFBB none repeat scroll 0 0;
 {% endblock %}
 
 <form enctype="multipart/form-data" action="" method="post" id="moderatedobject_form">
+	{% ifequal django_version '1.2' %}{% csrf_token %}{% endifequal %}
+	
 <div>
 	<fieldset class="module aligned ">
 	<h2>Object differences</h2>

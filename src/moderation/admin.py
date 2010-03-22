@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.forms.models import ModelForm
+import django
 
 from moderation.models import ModeratedObject, MODERATION_DRAFT_STATE,\
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED,\
@@ -105,7 +106,6 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                 model = model_class
 
         return ModeratedObjectForm
-    
 
     def change_view(self, request, object_id, extra_context=None):
         moderated_object = ModeratedObject.objects.get(pk=object_id)
@@ -125,7 +125,8 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                 elif 'reject' in request.POST:
                     moderated_object.reject(request.user, reason)
 
-        extra_context = {'fields_diff': fields_diff}
+        extra_context = {'fields_diff': fields_diff,
+                         'django_version': django.get_version()[:3]}
         return super(ModeratedObjectAdmin, self).change_view(request,
                                                              object_id,
                                                              extra_context)
