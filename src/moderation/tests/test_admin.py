@@ -8,7 +8,7 @@ from moderation.models import ModeratedObject, MODERATION_READY_STATE,\
     MODERATION_STATUS_REJECTED
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import User
-from example_project.example_app.models import ExampleUserProfile
+
 from moderation import moderation
 from moderation.tests.test_app.models import UserProfile
 from django.core.exceptions import ObjectDoesNotExist
@@ -76,6 +76,6 @@ class ModerationAdminTestCase(TestCase):
                              MODERATION_STATUS_REJECTED)
 
     def test_get_moderated_object_form(self):
-        form = self.admin.get_moderated_object_form(ExampleUserProfile)
+        form = self.admin.get_moderated_object_form(UserProfile)
         self.assertEqual(repr(form), 
                          "<class 'moderation.admin.ModeratedObjectForm'>")
