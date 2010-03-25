@@ -208,7 +208,7 @@ GenericModerator options
     that object was changed and need to be moderated. Default: True
     
 ``notify_user``
-    Defines if notification e-mails will be sent to user.
+    Defines if notification e-mails will be send to user.
     When moderator approves or reject object changes then e-mail
     notification is send to user that changed this object. It will
     inform user if his changes were accepted or rejected and inform him
