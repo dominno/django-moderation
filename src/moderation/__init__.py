@@ -240,18 +240,32 @@ class ModerationManager(object):
         """Update moderation object when moderation object for
            existing instance of model does not exists
         """
-        if instance.pk:
-            moderated_object = self._get_or_create_moderated_object(instance)
+        #check if object was loaded from fixture, bypass moderation if so
+        
+        if kwargs['raw']:
+            return
+
+        unchanged_obj = self._get_unchanged_object(instance)
+        if unchanged_obj:
+            moderated_object = self._get_or_create_moderated_object(instance,
+                                                                unchanged_obj)
             moderated_object.save()
 
-    def _get_or_create_moderated_object(self, instance):
+    def _get_unchanged_object(self, instance):
+        pk = instance.pk
+        try:
+            unchanged_obj = instance.__class__._default_manager.get(pk=pk)
+            return unchanged_obj
+        except ObjectDoesNotExist:
+            return None
+
+    def _get_or_create_moderated_object(self, instance, unchanged_obj):
         """
         Get or create ModeratedObject instance.
         If moderated object is not equal instance then serialize unchanged
         in moderated object in order to use it later in post_save_handler
         """
         pk = instance.pk
-        unchanged_obj = instance.__class__._default_manager.get(pk=pk)
 
         try:
             moderated_object = ModeratedObject.objects.get(object_pk=pk)
@@ -280,8 +294,14 @@ class ModerationManager(object):
         If instance exists and is only updated then save instance as
         content_object of moderated_object
         """
+        #check if object was loaded from fixture, bypass moderation if so
+        
+        if kwargs['raw']:
+            return
+        
         pk = instance.pk
         moderator_instance = self.get_moderator(sender)
+
         if kwargs['created']:
             old_object = sender._default_manager.get(pk=pk)
             moderated_object = ModeratedObject(content_object=old_object)

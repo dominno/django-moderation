@@ -313,7 +313,9 @@ class ModerationManagerTestCase(SettingsTestCase):
         
         profile.description = "New description"
         
-        object = self.moderation._get_or_create_moderated_object(profile)
+        unchanged_obj = self.moderation._get_unchanged_object(profile)
+        object = self.moderation._get_or_create_moderated_object(profile,
+                                                                unchanged_obj)
         
         self.assertNotEqual(object.pk, None)
         self.assertEqual(object.changed_object.description, 
@@ -322,12 +324,69 @@ class ModerationManagerTestCase(SettingsTestCase):
     def test_get_or_create_moderated_object_does_not_exist(self):
         profile = UserProfile.objects.get(user__username='moderator')
         profile.description = "New description"
+        
+        unchanged_obj = self.moderation._get_unchanged_object(profile)
 
-        object = self.moderation._get_or_create_moderated_object(profile)
+        object = self.moderation._get_or_create_moderated_object(profile,
+                                                                unchanged_obj)
 
         self.assertEqual(object.pk, None)
         self.assertEqual(object.changed_object.description,
                          u'Profile description')
+
+    def test_get_unchanged_object(self):
+        profile = UserProfile.objects.get(user__username='moderator')
+        profile.description = "New description"
+        
+        object = self.moderation._get_unchanged_object(profile)
+        
+        self.assertEqual(object.description,
+                         u'Profile description')
+        
+        
+class LoadingFixturesTestCase(SettingsTestCase):
+    fixtures = ['test_users.json']
+    test_settings = 'moderation.tests.settings.generic'
+    
+    def setUp(self):
+        import moderation
+        self.moderation = ModerationManager()
+        self.old_moderation = moderation
+        setattr(moderation, 'moderation', self.moderation)
+        from django.db.models import signals
+        self.user = User.objects.get(username='moderator')
+        
+        self.moderation.register(UserProfile)
+        
+    def tearDown(self):
+        self.moderation.unregister(UserProfile)
+        import moderation
+        setattr(moderation, 'moderation', self.old_moderation)
+
+    def test_loading_fixture_for_moderated_model(self):
+        management.call_command('loaddata', 'test_moderation.json',
+                                verbosity=0)
+
+        self.assertEqual(UserProfile.objects.all().count(), 1)
+
+    def test_loading_objs_from_fixture_should_not_create_moderated_obj(self):
+        management.call_command('loaddata', 'test_moderation.json',
+                                verbosity=0)
+
+        profile = UserProfile.objects.get(user__username='moderator')
+
+        self.assertRaises(ObjectDoesNotExist,
+                          ModeratedObject.objects.get, object_pk=profile.pk)
+
+    def test_moderated_object_is_created_when_not_loaded_from_fixture(self):
+        profile = UserProfile(description='Profile for new user', 
+                              url='http://www.yahoo.com',
+                              user=User.objects.get(username='user1'))
+
+        profile.save()
+
+        moderated_objs = ModeratedObject.objects.filter(object_pk=profile.pk)
+        self.assertEqual(moderated_objs.count(), 1)
 
 
 class ModerationSignalsTestCase(SettingsTestCase):
