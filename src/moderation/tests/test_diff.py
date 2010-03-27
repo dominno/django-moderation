@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from moderation.diff import get_changes_between_models, html_ta_list,\
+from moderation.diff import get_changes_between_models, html_to_list,\
     html_diff, generate_diff
 from django.test.testcases import TestCase
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User
-from moderation.tests.test_app.models import UserProfile
+from moderation.tests.test_app.models import UserProfile, ModelWIthDateField
 from moderation.models import ModeratedObject
 import re
 
@@ -80,13 +80,13 @@ class DiffTestCase(unittest.TestCase):
                      u'</div>',
                     ]
 
-        self.assertEqual(html_ta_list(html), html_list)
+        self.assertEqual(html_to_list(html), html_list)
 
     def test_html_to_list_non_ascii(self):
         html = u'<p id="test">text</p><b>Las demás lenguas españolas'\
         u' serán también</b><div class="test">text</div>'
         
-        self.assertEqual(html_ta_list(html), ['<p id="test">',
+        self.assertEqual(html_to_list(html), ['<p id="test">',
                                               'text',
                                               '</p>',
                                               '<b>',
@@ -120,3 +120,36 @@ class DiffTestCase(unittest.TestCase):
                     'commodo</ins>.</p>'
 
         self.assertEqual(html_diff(text_a, text_b), diff_html)
+
+
+class DateFieldTestCase(SettingsTestCase):
+    fixtures = ['test_users.json']
+    test_settings = 'moderation.tests.settings.generic'
+
+    def setUp(self):
+        self.obj1 = ModelWIthDateField()
+        self.obj2 = ModelWIthDateField()
+
+        self.obj1.save()
+        self.obj2.save()
+
+    def test_date_field_in_model_object_should_be_unicode(self):
+        '''Test if when model field value is not unicode, then when getting 
+           changes between models, all changes should be unicode.
+        '''
+        changes = get_changes_between_models(self.obj1, self.obj2)
+
+        self.assertTrue(isinstance(changes['date'][0], unicode))
+        self.assertTrue(isinstance(changes['date'][1], unicode))
+
+    def test_html_to_list_should_return_list(self):
+        '''Test if changes dict generated from model that has non unicode field
+           is properly used by html_to_list function
+        '''
+        changes = get_changes_between_models(self.obj1, self.obj2)
+        
+        changes_list1 = html_to_list(changes['date'][0])
+        changes_list2 = html_to_list(changes['date'][1])
+        
+        self.assertTrue(isinstance(changes_list1, list))
+        self.assertTrue(isinstance(changes_list2, list))

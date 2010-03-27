@@ -11,10 +11,9 @@ def get_changes_between_models(model1, model2, excludes=[]):
         if not (isinstance(field, (fields.AutoField,
                                    fields.related.RelatedField))
                 or field.name in excludes):
-            value2 = field.value_from_object(model2)
-            value1 = field.value_from_object(model1)
+            value2 = unicode(field.value_from_object(model2))
+            value1 = unicode(field.value_from_object(model1))
             if value1 != value2:
-
                 changes[field.verbose_name] = (value1, value2)
     return changes
 
@@ -46,13 +45,13 @@ def get_diff(a, b):
 def html_diff(a, b):
     """Takes in strings a and b and returns a human-readable HTML diff."""
 
-    a, b = html_ta_list(a), html_ta_list(b)
+    a, b = html_to_list(a), html_to_list(b)
     diff = get_diff(a, b)
 
     return u"".join(diff)
 
 
-def html_ta_list(html):
+def html_to_list(html):
     pattern = re.compile(r'&.*?;|(?:<[^<]*?>)|'\
                          '(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'\
                          '(?:\s*[,\.\?]*)', re.UNICODE)

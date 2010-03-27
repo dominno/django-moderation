@@ -42,3 +42,7 @@ class ModelWithMultipleManagers(models.Model):
     objects = Manager()
     men = MenMenager()
     women = WomenMenager()
+
+
+class ModelWIthDateField(models.Model):
+    date = models.DateField(auto_now=True)
