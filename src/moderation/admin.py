@@ -10,6 +10,7 @@ from moderation.diff import generate_diff
 from django.utils.translation import ugettext as _
 from moderation.forms import BaseModeratedObjectForm
 from moderation.helpers import automoderate
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def approve_objects(modeladmin, request, queryset):
@@ -42,17 +43,20 @@ class ModerationAdmin(admin.ModelAdmin):
         return super(ModerationAdmin, self).change_view(request, object_id)
 
     def send_message(self, request, object_id):
-        moderated_object = ModeratedObject.objects.get(object_pk=object_id)
+        try:
+            moderated_obj = ModeratedObject.objects.get(object_pk=object_id)
+            msg = self.get_moderation_message(moderated_obj.moderation_status,
+                                              moderated_obj.moderation_reason)
+        except ObjectDoesNotExist:
+            msg = self.get_moderation_message()
 
-        msg = self.get_moderation_message(moderated_object.moderation_status,
-                                         moderated_object.moderation_reason)
         self.message_user(request, msg)
 
     def save_model(self, request, obj, form, change):
         obj.save()
         automoderate(obj, request.user)
 
-    def get_moderation_message(self, moderation_status, reason):
+    def get_moderation_message(self, moderation_status=None, reason=None):
         if moderation_status == MODERATION_STATUS_PENDING:
             return _(u"Object is not viewable on site, "\
                     "it will be visible when moderator will accept it")
@@ -62,6 +66,9 @@ class ModerationAdmin(admin.ModelAdmin):
         elif moderation_status == MODERATION_STATUS_APPROVED:
             return _(u"Object has been approved by moderator "\
                     "and is visible on site")
+        elif moderation_status is None:
+            return _("This object is not registered with "\
+                     "the moderation system.")
 
     def get_moderated_object_form(self, model_class):
 

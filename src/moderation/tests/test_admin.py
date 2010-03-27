@@ -5,16 +5,16 @@ from moderation.admin import ModerationAdmin, approve_objects, reject_objects,\
 from django.test.testcases import TestCase
 from moderation.models import ModeratedObject, MODERATION_READY_STATE,\
     MODERATION_DRAFT_STATE, MODERATION_STATUS_APPROVED,\
-    MODERATION_STATUS_REJECTED
+    MODERATION_STATUS_REJECTED, MODERATION_STATUS_PENDING
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import User
 
-from moderation import moderation
+from moderation import moderation, ModerationManager
 from moderation.tests.test_app.models import UserProfile
 from django.core.exceptions import ObjectDoesNotExist
 
 
-class ModerationAdminTestCase(TestCase):
+class ModeratedObjectAdminTestCase(TestCase):
     fixtures = ['test_users.json']
     urls = 'moderation.tests.test_urls'
     
@@ -79,3 +79,63 @@ class ModerationAdminTestCase(TestCase):
         form = self.admin.get_moderated_object_form(UserProfile)
         self.assertEqual(repr(form), 
                          "<class 'moderation.admin.ModeratedObjectForm'>")
+
+
+class ModerationAdminSendMessageTestCase(TestCase):
+    fixtures = ['test_users.json', 'test_moderation.json']
+    urls = 'moderation.tests.test_urls'
+
+    def setUp(self):
+        rf = RequestFactory()
+        rf.login(username='admin', password='aaaa')
+        self.request = rf.get('/admin/moderation/')
+        self.request.user = User.objects.get(username='admin')
+        self.admin = ModerationAdmin(UserProfile, site)
+
+        self.profile = UserProfile.objects.get(user__username='moderator')
+        self.moderated_obj = ModeratedObject(content_object=self.profile)
+        self.moderated_obj.save()
+
+    def test_send_message_when_object_has_no_moderated_object(self):
+        profile = UserProfile(description='Profile for new user',
+                    url='http://www.yahoo.com',
+                    user=User.objects.get(username='user1'))
+
+        profile.save()
+
+        self.admin.send_message(self.request, profile.pk)
+
+        message = self.request.user.message_set.get()
+        self.assertEqual(unicode(message), u"This object is not registered "\
+                                          u"with the moderation system.")
+
+    def test_send_message_status_pending(self):
+        self.moderated_obj.moderation_status = MODERATION_STATUS_PENDING
+        self.moderated_obj.save()
+
+        self.admin.send_message(self.request, self.profile.pk)
+
+        message = self.request.user.message_set.get()
+        self.assertEqual(unicode(message), u"Object is not viewable on site,"\
+                         u" it will be visible when moderator will accept it")
+
+    def test_send_message_status_rejected(self):
+        self.moderated_obj.moderation_status = MODERATION_STATUS_REJECTED
+        self.moderated_obj.moderation_reason = u'Reason for rejection'
+        self.moderated_obj.save()
+
+        self.admin.send_message(self.request, self.profile.pk)
+
+        message = self.request.user.message_set.get()
+        self.assertEqual(unicode(message), u"Object has been rejected by "\
+                                 "moderator, reason: Reason for rejection")
+
+    def test_send_message_status_approved(self):
+        self.moderated_obj.moderation_status = MODERATION_STATUS_APPROVED
+        self.moderated_obj.save()
+
+        self.admin.send_message(self.request, self.profile.pk)
+
+        message = self.request.user.message_set.get()
+        self.assertEqual(unicode(message), "Object has been approved by "\
+                                           "moderator and is visible on site")
