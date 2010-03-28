@@ -69,21 +69,30 @@ class ModeratedObject(models.Model):
         if self.instance:
             self.changed_object = self.instance
 
-        if self.changed_by:
-            
-            if self.moderator.is_auto_reject(self.changed_by):
-                self.reject(moderated_by=self.moderated_by,
-                             reason='Auto rejected',
-                             auto_save=False)
-            elif self.moderator.is_auto_approve(self.changed_by):
-                self.approve(moderated_by=self.moderated_by,
-                             reason='Auto moderated',
-                             auto_save=False)
-
         super(ModeratedObject, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ['moderation_status', 'date_created']
+
+    def automoderate(self, user=None):
+        '''Auto moderate object for given user.
+          Returns status of moderation.
+        '''
+        if user is None:
+            user = self.changed_by
+        else:
+            self.changed_by = user
+
+        if self.moderator.is_auto_reject(user):
+            self.reject(moderated_by=self.moderated_by,
+                         reason='Auto rejected',
+                         )
+        elif self.moderator.is_auto_approve(user):
+            self.approve(moderated_by=self.moderated_by,
+                         reason='Auto moderated',
+                         )
+
+        return self.moderation_status
 
     def get_object_for_this_type(self):
         pk = self.object_pk
@@ -105,13 +114,12 @@ class ModeratedObject(models.Model):
 
         return moderation.get_moderator(model_class)
 
-    def _moderate(self, status, moderated_by, reason, auto_save=True):
+    def _moderate(self, status, moderated_by, reason):
         self.moderation_status = status
         self.moderation_date = datetime.datetime.now()
         self.moderated_by = moderated_by
         self.moderation_reason = reason
-        if auto_save:
-            self.save()
+        self.save()
 
         if status == MODERATION_STATUS_APPROVED:
             self.changed_object.save()
@@ -125,24 +133,22 @@ class ModeratedObject(models.Model):
         else:
             return False
 
-    def approve(self, moderated_by=None, reason=None, auto_save=True):
+    def approve(self, moderated_by=None, reason=None):
         pre_moderation.send(sender=self.content_object.__class__,
                             instance=self.changed_object,
                             status=MODERATION_STATUS_APPROVED)
 
-        self._moderate(MODERATION_STATUS_APPROVED, moderated_by, reason,
-                       auto_save)
+        self._moderate(MODERATION_STATUS_APPROVED, moderated_by, reason)
 
         post_moderation.send(sender=self.content_object.__class__,
                             instance=self.content_object,
                             status=MODERATION_STATUS_APPROVED)
 
-    def reject(self, moderated_by=None, reason=None, auto_save=True):
+    def reject(self, moderated_by=None, reason=None):
         pre_moderation.send(sender=self.content_object.__class__,
                             instance=self.changed_object,
                             status=MODERATION_STATUS_REJECTED)
-        self._moderate(MODERATION_STATUS_REJECTED, moderated_by, reason,
-                       auto_save)
+        self._moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)
         post_moderation.send(sender=self.content_object.__class__,
                             instance=self.content_object,
                             status=MODERATION_STATUS_REJECTED)

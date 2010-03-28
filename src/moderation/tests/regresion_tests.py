@@ -54,3 +54,33 @@ class CSRFMiddlewareTestCase(SettingsTestCase):
 
         self.assertEqual(profile.moderated_object.moderation_status,
                          MODERATION_STATUS_APPROVED)
+
+
+class AutomoderationRuntimeErrorRegresionTestCase(SettingsTestCase):
+    fixtures = ['test_users.json', 'test_moderation.json']
+    test_settings = 'moderation.tests.settings.generic'
+    
+    def setUp(self):
+        import moderation
+        self.moderation = ModerationManager()
+        self.old_moderation = moderation
+        setattr(moderation, 'moderation', self.moderation)
+        self.user = User.objects.get(username='admin')
+
+        self.moderation.register(UserProfile)
+
+    def tearDown(self):
+        self.moderation.unregister(UserProfile)
+        import moderation
+        setattr(moderation, 'moderation', self.old_moderation)
+
+    def test_RuntimeError(self):
+        from moderation.helpers import automoderate
+
+        profile = UserProfile.objects.get(user__username='moderator')
+        profile.description = 'Change description'
+        profile.save()
+        profile.moderated_object.changed_by = self.user
+        profile.moderated_object.save()
+        automoderate(profile, self.user)
+        profile.moderated_object.save()

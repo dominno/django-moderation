@@ -265,8 +265,6 @@ class ModerationManager(object):
         If moderated object is not equal instance then serialize unchanged
         in moderated object in order to use it later in post_save_handler
         """
-        pk = instance.pk
-
         try:
             moderated_object\
              = ModeratedObject.objects.get_for_instance(instance)
@@ -309,7 +307,6 @@ class ModerationManager(object):
             moderated_object.save()
             moderator_instance.inform_moderator(instance)
         else:
-
             moderated_object \
              = ModeratedObject.objects.get_for_instance(instance)
 

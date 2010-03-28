@@ -1,12 +1,13 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User, Group
-from moderation.tests.test_app.models import UserProfile
+from moderation.tests.test_app.models import UserProfile, ModelWithSlugField2
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED, \
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED
 from django.core.exceptions import ObjectDoesNotExist
 from moderation.fields import SerializedObjectField
-from moderation import ModerationManager, GenericModerator
+from moderation import ModerationManager, GenericModerator, RegistrationError
+from moderation.helpers import automoderate
 
 
 class SerializationTestCase(SettingsTestCase):
@@ -235,40 +236,7 @@ class AutoModerateTestCase(SettingsTestCase):
         self.moderation.unregister(UserProfile)
         setattr(moderation, 'moderation', self.old_moderation)
 
-    def test_auto_approve(self):
-        self.profile.description = 'New description'
-        self.profile.save()
-
-        self.profile.moderated_object.changed_by = self.user 
-        self.profile.moderated_object.save()
-
-        profile = UserProfile.objects.get(user__username='moderator')
-
-        self.assertEqual(profile.moderated_object.moderation_status,
-                         MODERATION_STATUS_APPROVED)
-        self.assertEqual(profile.description, 'New description')
-
-    def test_auto_rejest(self):
-        group = Group(name='banned')
-        group.save()
-        self.user.groups.add(group)
-        self.user.save()
-
-        self.profile.description = 'New description'
-        self.profile.save()
-        self.profile.moderated_object.changed_by = self.user
-        self.profile.moderated_object.save()
-
-        profile = UserProfile.objects.get(user__username='moderator')
-        # = ModeratedObject.objects.get(object_pk=profile.pk)
-
-        self.assertEqual(profile.moderated_object.moderation_status,
-                         MODERATION_STATUS_REJECTED)
-        self.assertEqual(profile.description, 'Profile description')
-        
     def test_auto_approve_helper_status_approved(self):
-        from moderation.helpers import automoderate
-        
         self.profile.description = 'New description'
         self.profile.save()
 
@@ -280,8 +248,6 @@ class AutoModerateTestCase(SettingsTestCase):
         self.assertEqual(profile.description, 'New description')
 
     def test_auto_approve_helper_status_rejected(self):
-        from moderation.helpers import automoderate
-
         group = Group(name='banned')
         group.save()
         self.user.groups.add(group)
@@ -297,3 +263,9 @@ class AutoModerateTestCase(SettingsTestCase):
         self.assertEqual(status,
                          MODERATION_STATUS_REJECTED)
         self.assertEqual(profile.description, 'Profile description')
+
+    def test_model_not_registered_with_moderation(self):
+        obj = ModelWithSlugField2(slug='test')
+        obj.save()
+        
+        self.assertRaises(RegistrationError, automoderate, obj, self.user)

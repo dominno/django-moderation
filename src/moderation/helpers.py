@@ -1,3 +1,4 @@
+from moderation import RegistrationError
 
 
 def automoderate(instance, user):
@@ -6,7 +7,10 @@ def automoderate(instance, user):
     0 - Rejected
     1 - Approved
     '''
-    instance.moderated_object.changed_by = user
-    instance.moderated_object.save()
-    
-    return instance.moderated_object.moderation_status
+    try:
+        status = instance.moderated_object.automoderate(user)
+    except AttributeError:
+        msg = u"%s has been registered with Moderation." % instance.__class__
+        raise RegistrationError(msg)
+
+    return status
