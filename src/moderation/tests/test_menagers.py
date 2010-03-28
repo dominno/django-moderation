@@ -6,11 +6,11 @@ Created on 2009-12-10
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User
-from moderation.tests.test_app.models import UserProfile
+from moderation.tests.test_app.models import UserProfile, ModelWithSlugField2
 from moderation.managers import ModerationObjectsManager
 from django.db.models.manager import Manager
 from moderation.models import ModeratedObject
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from moderation import moderation, ModerationManager
 from django.contrib.contenttypes import generic
 from django.db.models.query import EmptyQuerySet
@@ -64,3 +64,47 @@ class ModerationObjectsManagerTestCase(SettingsTestCase):
 
         self.assertEqual(unicode(UserProfile.objects.all()),
                     u'[<UserProfile: moderator - http://www.google.com>]')
+
+
+class ModeratedObjectManagerTestCase(SettingsTestCase):
+    fixtures = ['test_users.json']
+    test_settings = 'moderation.tests.settings.generic'
+
+    def setUp(self):
+        import moderation
+        self.moderation = ModerationManager()
+        self.old_moderation = moderation
+        setattr(moderation, 'moderation', self.moderation)
+        from django.db.models import signals
+        self.user = User.objects.get(username='admin')
+
+        self.moderation.register(UserProfile)
+        self.moderation.register(ModelWithSlugField2)
+
+    def tearDown(self):
+        self.moderation.unregister(UserProfile)
+        self.moderation.unregister(ModelWithSlugField2)
+        import moderation
+        setattr(moderation, 'moderation', self.old_moderation)
+
+    def test_objects_with_same_object_id(self):
+        model1 = ModelWithSlugField2(slug='test')
+        model1.save()
+        
+        model2 = UserProfile(description='Profile for new user',
+                    url='http://www.yahoo.com',
+                    user=User.objects.get(username='user1'))
+
+        model2.save()
+        
+        self.assertRaises(MultipleObjectsReturned,
+                          ModeratedObject.objects.get,
+                          object_pk=model2.pk)
+
+        moderated_obj1 = ModeratedObject.objects.get_for_instance(model1)
+        moderated_obj2 = ModeratedObject.objects.get_for_instance(model2)
+        
+        self.assertEqual(repr(moderated_obj1),
+                         u"<ModeratedObject: ModelWithSlugField2 object>")
+        self.assertEqual(repr(moderated_obj2),
+                         u'<ModeratedObject: user1 - http://www.yahoo.com>')

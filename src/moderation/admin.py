@@ -44,7 +44,8 @@ class ModerationAdmin(admin.ModelAdmin):
 
     def send_message(self, request, object_id):
         try:
-            moderated_obj = ModeratedObject.objects.get(object_pk=object_id)
+            obj = self.model.objects.get(pk=object_id)
+            moderated_obj = ModeratedObject.objects.get_for_instance(obj)
             msg = self.get_moderation_message(moderated_obj.moderation_status,
                                               moderated_obj.moderation_reason)
         except ObjectDoesNotExist:

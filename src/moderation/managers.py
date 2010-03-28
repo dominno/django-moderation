@@ -2,9 +2,6 @@ from django.db.models.manager import Manager
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
-from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
-    MODERATION_STATUS_REJECTED
-from django.db.models.query import QuerySet
 from moderation.diff import get_changes_between_models
 
 
@@ -22,6 +19,8 @@ class ModerationObjectsManager(Manager):
                          {'use_for_related_fields': True})
 
     def filter_moderated_objects(self, query_set):
+        from moderation.models import MODERATION_STATUS_PENDING,\
+                MODERATION_STATUS_REJECTED
         exclude_pks = []
         for obj in query_set:
             try:
@@ -43,3 +42,11 @@ class ModerationObjectsManager(Manager):
         query_set = self.filter_moderated_objects(query_set)
 
         return query_set
+
+
+class ModeratedObjectManager(Manager):
+
+    def get_for_instance(self, instance):
+        '''Returns ModeratedObject for given model instance'''
+        return self.get(object_pk=instance.pk,
+           content_type=ContentType.objects.get_for_model(instance.__class__))

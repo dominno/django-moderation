@@ -268,7 +268,8 @@ class ModerationManager(object):
         pk = instance.pk
 
         try:
-            moderated_object = ModeratedObject.objects.get(object_pk=pk)
+            moderated_object\
+             = ModeratedObject.objects.get_for_instance(instance)
 
             if moderated_object._is_not_equal_instance(instance):
                 moderated_object.changed_object = unchanged_obj
@@ -295,7 +296,7 @@ class ModerationManager(object):
         content_object of moderated_object
         """
         #check if object was loaded from fixture, bypass moderation if so
-        
+
         if kwargs['raw']:
             return
         
@@ -309,7 +310,8 @@ class ModerationManager(object):
             moderator_instance.inform_moderator(instance)
         else:
 
-            moderated_object = ModeratedObject.objects.get(object_pk=pk)
+            moderated_object \
+             = ModeratedObject.objects.get_for_instance(instance)
 
             if moderated_object._is_not_equal_instance(instance):
                 copied_instance = self._copy_model_instance(instance)

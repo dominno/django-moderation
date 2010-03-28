@@ -66,7 +66,7 @@ class RegistrationTestCase(SettingsTestCase):
 
         profile.save()
         
-        modearated_object = ModeratedObject.objects.get(object_pk=profile.pk)
+        modearated_object = ModeratedObject.objects.get_for_instance(profile)
         
         self.assertEqual(unicode(modearated_object), 
                          u"user1 - http://www.yahoo.com")
@@ -495,7 +495,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
         profile.description = 'New description of user profile'
         profile.save()
 
-        moderated_object = ModeratedObject.objects.get(object_pk=profile.pk)
+        moderated_object = ModeratedObject.objects.get_for_instance(profile)
 
         orginal_object = moderated_object.changed_object
         self.assertEqual(orginal_object.description,
@@ -518,7 +518,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
         profile.description = 'New description of user profile'
         profile.save()
 
-        moderated_object = ModeratedObject.objects.get(object_pk=profile.pk)
+        moderated_object = ModeratedObject.objects.get_for_instance(profile)
 
         orginal_object = moderated_object.changed_object
         content_object = moderated_object.content_object
@@ -544,7 +544,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
         
         profile.save()
         
-        moderated_object = ModeratedObject.objects.get(object_pk=profile.pk)
+        moderated_object = ModeratedObject.objects.get_for_instance(profile)
 
         self.assertEqual(moderated_object.content_object, profile)
 
@@ -564,8 +564,9 @@ class ModerationSignalsTestCase(SettingsTestCase):
 
         profile.save()
 
-        self.assertRaises(ObjectDoesNotExist, ModeratedObject.objects.get,
-                          object_pk=profile.pk)
+        self.assertRaises(ObjectDoesNotExist,
+                          ModeratedObject.objects.get_for_instance,
+                          profile)
 
         signals.pre_save.disconnect(self.moderation.pre_save_handler,
                                     UserProfile)

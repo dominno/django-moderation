@@ -8,8 +8,10 @@ from django.db import models
 from moderation.diff import get_changes_between_models
 from moderation.fields import SerializedObjectField
 from moderation.signals import post_moderation, pre_moderation
+from moderation.managers import ModeratedObjectManager
 
 import datetime
+
 
 MODERATION_READY_STATE = 0
 MODERATION_DRAFT_STATE = 1
@@ -53,6 +55,8 @@ class ModeratedObject(models.Model):
                                            editable=False)
     changed_by = models.ForeignKey(User, blank=True, null=True, 
                                 editable=True, related_name='changed_by_set')
+
+    objects = ModeratedObjectManager()
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.get('content_object')
