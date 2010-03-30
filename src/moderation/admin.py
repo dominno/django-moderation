@@ -10,7 +10,6 @@ from moderation.diff import generate_diff
 from django.utils.translation import ugettext as _
 from moderation.forms import BaseModeratedObjectForm
 from moderation.helpers import automoderate
-from django.core.exceptions import ObjectDoesNotExist
 
 
 def approve_objects(modeladmin, request, queryset):
@@ -48,7 +47,7 @@ class ModerationAdmin(admin.ModelAdmin):
             moderated_obj = ModeratedObject.objects.get_for_instance(obj)
             msg = self.get_moderation_message(moderated_obj.moderation_status,
                                               moderated_obj.moderation_reason)
-        except ObjectDoesNotExist:
+        except ModeratedObject.DoesNotExist:
             msg = self.get_moderation_message()
 
         self.message_user(request, msg)
