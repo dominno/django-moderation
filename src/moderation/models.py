@@ -12,6 +12,9 @@ from moderation.managers import ModeratedObjectManager
 
 import datetime
 
+# Register new ContentTypeFilterSpec
+import moderation.filterspecs
+
 
 MODERATION_READY_STATE = 0
 MODERATION_DRAFT_STATE = 1
@@ -57,6 +60,8 @@ class ModeratedObject(models.Model):
                                 editable=True, related_name='changed_by_set')
 
     objects = ModeratedObjectManager()
+
+    content_type.content_type_filter = True
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.get('content_object')

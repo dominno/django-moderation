@@ -10,8 +10,11 @@ from django.contrib.admin.sites import site
 from django.contrib.auth.models import User
 
 from moderation import moderation, ModerationManager
-from moderation.tests.test_app.models import UserProfile
+from moderation.tests.test_app.models import UserProfile, ModelWithSlugField,\
+    ModelWithSlugField2
 from django.core.exceptions import ObjectDoesNotExist
+from moderation.filterspecs import ContentTypeFilterSpec
+from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 
 
 class ModeratedObjectAdminTestCase(TestCase):
@@ -139,3 +142,44 @@ class ModerationAdminSendMessageTestCase(TestCase):
         message = self.request.user.message_set.get()
         self.assertEqual(unicode(message), "Object has been approved by "\
                                            "moderator and is visible on site")
+
+
+class ContentTypeFilterSpecTextCase(SettingsTestCase):
+    fixtures = ['test_users.json', 'test_moderation.json']
+    urls = 'moderation.tests.test_urls'
+    test_settings = 'moderation.tests.settings.generic'
+
+    def setUp(self):
+        from moderation.tests import setup_moderation
+        rf = RequestFactory()
+        rf.login(username='admin', password='aaaa')
+        self.request = rf.get('/admin/moderation/')
+        self.request.user = User.objects.get(username='admin')
+        self.admin = ModerationAdmin(UserProfile, site)
+
+        models = [ModelWithSlugField, ModelWithSlugField2]
+        self.new_moderation, self.old_moderation = setup_moderation(models)
+        
+        self.m1 = ModelWithSlugField(slug='test')
+        self.m1.save()
+        
+        self.m2 = ModelWithSlugField2(slug='test')
+        self.m2.save()
+        
+    def tearDown(self):
+        from moderation.tests import teardown_moderation
+        teardown_moderation(self.new_moderation, self.old_moderation,
+                            [ModelWithSlugField, ModelWithSlugField2])
+        
+    def test_content_types(self):
+        f = ModeratedObject._meta.get_field('content_type')
+        filter_spec = ContentTypeFilterSpec(f, self.request, {},
+                                            ModeratedObject, self.admin)
+        
+        self.assertEqual(filter_spec.lookup_choices,
+                         [(13, u'Model with slug field'),
+                          (14, u'Model with slug field2')])
+        
+        self.assertEqual(unicode(filter_spec.content_types),
+                         u"[<ContentType: model with slug field>, "\
+                         "<ContentType: model with slug field2>]")
