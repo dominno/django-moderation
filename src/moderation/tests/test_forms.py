@@ -55,3 +55,15 @@ class FormsTestCase(SettingsTestCase):
 
         self.assertEqual(profile.description, u"old description")
         self.assertEqual(form.initial['description'], u'Changed description')
+
+    def test_form_when_obj_has_no_moderated_obj(self):
+        self.moderation.unregister(UserProfile)
+        profile = UserProfile(description="old description",
+                    url='http://test.com',
+                    user=self.user)
+        profile.save()
+        self.moderation.register(UserProfile)
+
+        form = self.ModeratedObjectForm(instance=profile)
+
+        self.assertEqual(form.initial['description'], u'old description')

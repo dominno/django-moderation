@@ -1,6 +1,7 @@
-from django.forms.models import BaseModelForm, ModelFormMetaclass, ModelForm
+from django.forms.models import ModelForm
 from moderation.models import MODERATION_STATUS_PENDING,\
     MODERATION_STATUS_REJECTED
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class BaseModeratedObjectForm(ModelForm):
@@ -9,10 +10,13 @@ class BaseModeratedObjectForm(ModelForm):
         instance = kwargs.get('instance', None)
 
         if instance:
-            if instance.moderated_object.moderation_status in \
-            [MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED]:
-                initial = \
-                instance.moderated_object.changed_object.__dict__
-                kwargs['initial'] = initial
+            try:
+                if instance.moderated_object.moderation_status in \
+                [MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED]:
+                    initial = \
+                    instance.moderated_object.changed_object.__dict__
+                    kwargs['initial'] = initial
+            except ObjectDoesNotExist:
+                pass
 
         super(BaseModeratedObjectForm, self).__init__(*args, **kwargs)
