@@ -5,7 +5,6 @@ import sys
 import unittest
 
 import moderation
-import pep8
 
 from moderation.tests.utils.testsettingsmanager import get_only_settings_locals
 
@@ -22,7 +21,8 @@ class UtilsTestCase(unittest.TestCase):
         
 class PEP8TestCase(unittest.TestCase):
     
-    def test_pep8_rules(self):  
+    def test_pep8_rules(self): 
+        import pep8 
         sys.argv[1:] = ['--filename=*.py', '--show-source', '--show-pep8',
                         '--ignore=W291', moderation.__path__[0]]  
         buf = StringIO()         

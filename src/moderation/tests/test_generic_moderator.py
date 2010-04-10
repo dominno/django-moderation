@@ -8,7 +8,6 @@ from moderation.models import ModeratedObject
 from django.db.models.manager import Manager
 import unittest
 from django.test.testcases import TestCase
-from mock import Mock
 
 
 class GenericModeratorTestCase(SettingsTestCase):
@@ -117,11 +116,13 @@ class AutoModerateModeratorTestCase(TestCase):
         self.assertFalse(self.moderator.is_auto_approve(self.user))
 
     def test_is_auto_reject_user_is_anonymous(self):
+        from mock import Mock
         self.user.is_anonymous = Mock()
         self.user.is_anonymous.return_value = True
         self.assertTrue(self.moderator.is_auto_reject(self.user))
 
     def test_is_auto_reject_user_is_not_anonymous(self):
+        from mock import Mock
         self.user.is_anonymous = Mock()
         self.user.is_anonymous.return_value = False
         self.assertFalse(self.moderator.is_auto_reject(self.user))
