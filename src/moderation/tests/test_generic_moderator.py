@@ -76,28 +76,29 @@ class AutoModerateModeratorTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.get(username='admin')
         self.moderator = GenericModerator(UserProfile)
+        self.obj = object
 
     def test_is_auto_approve_user_superuser(self):
         self.moderator.auto_approve_for_superusers = True
         self.user.is_superuser = True
-        self.assertTrue(self.moderator.is_auto_approve(self.user))
+        self.assertTrue(self.moderator.is_auto_approve(self.obj, self.user))
 
     def test_is_auto_approve_user_is_staff(self):
         self.moderator.auto_approve_for_staff = True
-        self.assertTrue(self.moderator.is_auto_approve(self.user))
+        self.assertTrue(self.moderator.is_auto_approve(self.obj, self.user))
 
     def test_is_auto_approve_not_user_superuser(self):
         self.moderator.auto_approve_for_superusers = True
         self.moderator.auto_approve_for_staff = True
         self.user.is_superuser = False
         self.user.is_staff = False
-        self.assertFalse(self.moderator.is_auto_approve(self.user))
+        self.assertFalse(self.moderator.is_auto_approve(self.obj, self.user))
 
     def test_is_auto_approve_not_user_is_staff(self):
         self.moderator.auto_approve_for_staff = True
         self.user.is_staff = False
         self.user.is_superuser = False
-        self.assertFalse(self.moderator.is_auto_approve(self.user))
+        self.assertFalse(self.moderator.is_auto_approve(self.obj, self.user))
 
     def test_auto_approve_for_groups_user_in_group(self):
         self.moderator.auto_approve_for_superusers = False
@@ -107,25 +108,25 @@ class AutoModerateModeratorTestCase(TestCase):
         group.save()
         self.user.groups.add(group)
         self.user.save()
-        self.assertTrue(self.moderator.is_auto_approve(self.user))
+        self.assertTrue(self.moderator.is_auto_approve(self.obj, self.user))
 
     def test_auto_approve_for_groups_user_not_in_group(self):
         self.moderator.auto_approve_for_superusers = False
         self.moderator.auto_approve_for_staff = False
         self.moderator.auto_approve_for_groups = ['banned']
-        self.assertFalse(self.moderator.is_auto_approve(self.user))
+        self.assertFalse(self.moderator.is_auto_approve(self.obj, self.user))
 
     def test_is_auto_reject_user_is_anonymous(self):
         from mock import Mock
         self.user.is_anonymous = Mock()
         self.user.is_anonymous.return_value = True
-        self.assertTrue(self.moderator.is_auto_reject(self.user))
+        self.assertTrue(self.moderator.is_auto_reject(self.obj, self.user))
 
     def test_is_auto_reject_user_is_not_anonymous(self):
         from mock import Mock
         self.user.is_anonymous = Mock()
         self.user.is_anonymous.return_value = False
-        self.assertFalse(self.moderator.is_auto_reject(self.user))
+        self.assertFalse(self.moderator.is_auto_reject(self.obj, self.user))
 
     def test_auto_reject_for_groups_user_in_group(self):
         self.moderator.auto_reject_for_groups = ['banned']
@@ -133,11 +134,28 @@ class AutoModerateModeratorTestCase(TestCase):
         group.save()
         self.user.groups.add(group)
         self.user.save()
-        self.assertTrue(self.moderator.is_auto_reject(self.user))
+        self.assertTrue(self.moderator.is_auto_reject(self.obj, self.user))
 
     def test_auto_reject_for_groups_user_not_in_group(self):
         self.moderator.auto_reject_for_groups = ['banned']
-        self.assertFalse(self.moderator.is_auto_reject(self.user))
+        self.assertFalse(self.moderator.is_auto_reject(self.obj, self.user))
+
+    def test_overwrite_automoderation_method(self):
+        def akismet_spam_check(obj):
+            return True
+
+        class UserProfileModerator(GenericModerator):
+            # Inside MyModelModerator, which is registered with MyModel
+            def is_auto_reject(self, obj, user):
+                # Auto reject spam
+                if akismet_spam_check(obj):  # Check body of object for spam
+                    # Body of object is spam, moderate
+                    return True
+                super(UserProfile, self).is_auto_reject(obj, user)
+
+        moderator = UserProfileModerator(UserProfile)
+
+        self.assertTrue(moderator.is_auto_reject(self.obj, self.user))
 
 
 class BaseManagerTestCase(unittest.TestCase):

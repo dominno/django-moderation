@@ -44,7 +44,7 @@ class GenericModerator(object):
         self.model_class = model_class
         self.base_managers = self._get_base_managers()
 
-    def is_auto_approve(self, user):
+    def is_auto_approve(self, obj, user):
         if self.auto_approve_for_groups \
            and self._check_user_in_groups(user, self.auto_approve_for_groups):
             return True
@@ -55,7 +55,7 @@ class GenericModerator(object):
 
         return False
 
-    def is_auto_reject(self, user):
+    def is_auto_reject(self, obj, user):
         if self.auto_reject_for_groups \
          and self._check_user_in_groups(user, self.auto_reject_for_groups):
             return True

@@ -88,11 +88,11 @@ class ModeratedObject(models.Model):
         else:
             self.changed_by = user
 
-        if self.moderator.is_auto_reject(user):
+        if self.moderator.is_auto_reject(self.changed_object, user):
             self.reject(moderated_by=self.moderated_by,
                          reason='Auto rejected',
                          )
-        elif self.moderator.is_auto_approve(user):
+        elif self.moderator.is_auto_approve(self.changed_object, user):
             self.approve(moderated_by=self.moderated_by,
                          reason='Auto moderated',
                          )
