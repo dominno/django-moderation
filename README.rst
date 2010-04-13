@@ -245,7 +245,25 @@ GenericModerator options
         from moderation.helpers import automoderate
         
         automoderate(new_profile, user)
+
+
+``Custom auto moderation``
+    If you want to define your custom logic in auto moderation, you can overwrite
+    methods: ``is_auto_reject`` or ``is_auto_approve`` of GenericModerator class
+    
+    Example::
         
+        
+        class MyModelModerator(GenericModerator):
+            
+            def is_auto_reject(self, obj, user):
+                # Auto reject spam
+                if akismet_spam_check(obj.body):  # Check body of object for spam
+                    # Body of object is spam, moderate
+                    return True
+                super(MyModelModerator, self).is_auto_reject(obj, user)
+                
+        moderation.register(MyModel, MyModelModerator)
 
 
 
