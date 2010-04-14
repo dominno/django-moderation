@@ -313,7 +313,7 @@ class ModerationManager(object):
             if moderated_object._is_not_equal_instance(instance):
                 copied_instance = self._copy_model_instance(instance)
                 # save instance with data from changed_object
-                moderated_object.changed_object.save()
+                moderated_object.changed_object.save_base(raw=True)
 
                 # save new data in moderated object
                 moderated_object.changed_object = copied_instance
