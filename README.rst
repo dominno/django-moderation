@@ -266,6 +266,26 @@ GenericModerator options
         moderation.register(MyModel, MyModelModerator)
 
 
+``Custom reason for auto moderation``
+    In order to provide custom reason for auto moderation approve or reject,
+    overwrite methods of GenericModerator class - ``get_auto_approve_reason`` and 
+    ``get_auto_reject_reason``.
+    
+    Example::
+        
+        
+        class MyModelModerator(GenericModerator):
+            
+            def get_auto_approve_reason(self, obj, user):
+                return 'Auto approved. Object: %s, changed by %s' % (obj,
+                                                                        user)
+            
+            def get_auto_reject_reason(self, obj, user):
+                return 'Auto rejected. Object: %s, changed by %s' % (obj,
+                                                                        user)
+            
+        moderation.register(MyModel, MyModelModerator)
+
 
 Default context of notification templates
 -----------------------------------------

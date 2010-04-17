@@ -20,18 +20,16 @@ class GenericModeratorTestCase(SettingsTestCase):
         obj = ModeratedObject(content_object=self.user)
         obj.save()
         self.user.moderated_object = obj
+        self.moderator = GenericModerator(UserProfile)
     
     def test_create_generic_moderator(self):
-
-        moderator = GenericModerator(UserProfile)
-        
-        self.assertEqual(moderator.model_class, UserProfile)
-        self.assertEqual(moderator.manager_names, ['objects'])
-        self.assertEqual(moderator.moderation_manager_class,
+        self.assertEqual(self.moderator.model_class, UserProfile)
+        self.assertEqual(self.moderator.manager_names, ['objects'])
+        self.assertEqual(self.moderator.moderation_manager_class,
                          ModerationObjectsManager)
-        self.assertEqual(moderator.auto_approve_for_staff, True)
-        self.assertEqual(moderator.auto_approve_for_groups, None)
-        self.assertEqual(moderator.auto_reject_for_groups, None)
+        self.assertEqual(self.moderator.auto_approve_for_staff, True)
+        self.assertEqual(self.moderator.auto_approve_for_groups, None)
+        self.assertEqual(self.moderator.auto_reject_for_groups, None)
 
     def test_subclass_moderator_class(self):
         class UserProfileModerator(GenericModerator):
@@ -50,8 +48,7 @@ class GenericModeratorTestCase(SettingsTestCase):
         self.assertEqual(moderator.auto_reject_for_groups, ['others'])
         
     def test_send_notification(self):
-        moderator = GenericModerator(UserProfile)
-        moderator.send(self.user,
+        self.moderator.send(self.user,
             subject_template='moderation/notification_subject_moderator.txt',
             message_template='moderation/notification_message_moderator.txt',
             recipient_list=['test@eample.com'])
@@ -59,15 +56,26 @@ class GenericModeratorTestCase(SettingsTestCase):
         self.assertEqual(len(mail.outbox), 1)
         
     def test_inform_moderator(self):
-        moderator = GenericModerator(UserProfile)
-        moderator.inform_moderator(self.user)
+        self.moderator = GenericModerator(UserProfile)
+        self.moderator.inform_moderator(self.user)
 
         self.assertEqual(len(mail.outbox), 1)
         
     def test_inform_user(self):
-        moderator = GenericModerator(UserProfile)
-        moderator.inform_user(self.user, self.user)
+        self.moderator = GenericModerator(UserProfile)
+        self.moderator.inform_user(self.user, self.user)
         self.assertEqual(len(mail.outbox), 1)
+
+    def test_get_auto_reject_reason_default(self):
+        obj = UserProfile.objects.get()
+        self.assertEqual(self.moderator.get_auto_reject_reason(obj, self.user),
+                         'Auto rejected')
+
+    def test_get_auto_approve_reason_default(self):
+        obj = UserProfile.objects.get()
+        self.assertEqual(self.moderator.get_auto_approve_reason(obj,
+                                                                self.user),
+                         u'Auto approved')
 
 
 class AutoModerateModeratorTestCase(TestCase):

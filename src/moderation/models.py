@@ -89,12 +89,18 @@ class ModeratedObject(models.Model):
             self.changed_by = user
 
         if self.moderator.is_auto_reject(self.changed_object, user):
+            reason = self.moderator.get_auto_reject_reason(
+                                                        self.changed_object,
+                                                        user)
             self.reject(moderated_by=self.moderated_by,
-                         reason='Auto rejected',
+                         reason=reason,
                          )
         elif self.moderator.is_auto_approve(self.changed_object, user):
+            reason = self.moderator.get_auto_approve_reason(
+                                                        self.changed_object,
+                                                        user)
             self.approve(moderated_by=self.moderated_by,
-                         reason='Auto moderated',
+                         reason=reason,
                          )
 
         return self.moderation_status

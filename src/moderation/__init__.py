@@ -64,6 +64,18 @@ class GenericModerator(object):
 
         return False
 
+    def get_auto_reject_reason(self, obj, user):
+        '''Returns moderation reason for auto reject, overwrite it to
+           provide custom reason for auto reject.
+        '''
+        return u'Auto rejected'
+
+    def get_auto_approve_reason(self, obj, user):
+        '''Returns moderation reason for auto approve, overwrite it to
+           provide custom reason for auto reject.
+        '''
+        return u'Auto approved'
+
     def _check_user_in_groups(self, user, groups):
         for group in groups:
             try:
