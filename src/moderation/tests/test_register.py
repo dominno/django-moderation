@@ -412,7 +412,6 @@ class ModerationSignalsTestCase(SettingsTestCase):
         import moderation
         self.moderation.unregister(UserProfile)
         setattr(moderation, 'moderation', self.old_moderation)
-        del self.moderation
 
     def test_send_pre_moderation_signal(self):
         """check if custom_approve_handler function was called when """
