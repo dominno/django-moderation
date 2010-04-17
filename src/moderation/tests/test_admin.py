@@ -176,9 +176,9 @@ class ContentTypeFilterSpecTextCase(SettingsTestCase):
         filter_spec = ContentTypeFilterSpec(f, self.request, {},
                                             ModeratedObject, self.admin)
         
-        self.assertEqual(filter_spec.lookup_choices,
-                         [(13, u'Model with slug field'),
-                          (14, u'Model with slug field2')])
+        self.assertEqual([x[1] for x in filter_spec.lookup_choices],
+                         [u'Model with slug field',
+                          u'Model with slug field2'])
         
         self.assertEqual(unicode(filter_spec.content_types),
                          u"[<ContentType: model with slug field>, "\
