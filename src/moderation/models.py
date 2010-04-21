@@ -87,23 +87,31 @@ class ModeratedObject(models.Model):
             user = self.changed_by
         else:
             self.changed_by = user
-
-        if self.moderator.is_auto_reject(self.changed_object, user):
-            reason = self.moderator.get_auto_reject_reason(
+        
+        moderate_status, reason = self._get_moderation_status_and_reason(
                                                         self.changed_object,
                                                         user)
-            self.reject(moderated_by=self.moderated_by,
-                         reason=reason,
-                         )
-        elif self.moderator.is_auto_approve(self.changed_object, user):
-            reason = self.moderator.get_auto_approve_reason(
-                                                        self.changed_object,
-                                                        user)
-            self.approve(moderated_by=self.moderated_by,
-                         reason=reason,
-                         )
 
-        return self.moderation_status
+        if moderate_status == MODERATION_STATUS_REJECTED:
+            self.reject(moderated_by=self.moderated_by, reason=reason)
+        elif moderate_status == MODERATION_STATUS_APPROVED:
+            self.approve(moderated_by=self.moderated_by, reason=reason)
+
+        return moderate_status
+    
+    def _get_moderation_status_and_reason(self, obj, user):
+        '''
+        Returns tuple of moderation status and reason for auto moderation
+        '''
+        reason = self.moderator.is_auto_reject(obj, user)
+        if reason:
+            return MODERATION_STATUS_REJECTED, reason
+        else:
+            reason = self.moderator.is_auto_approve(obj, user)
+            if reason:
+                return MODERATION_STATUS_APPROVED, reason
+
+        return MODERATION_STATUS_PENDING, None
 
     def get_object_for_this_type(self):
         pk = self.object_pk

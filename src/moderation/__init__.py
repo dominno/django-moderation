@@ -45,36 +45,44 @@ class GenericModerator(object):
         self.base_managers = self._get_base_managers()
 
     def is_auto_approve(self, obj, user):
+        '''
+        Checks if change on obj by user need to be auto approved
+        Returns False if change is not auto approve or reason(Unicode) if 
+        change need to be auto approved.
+        
+        Overwrite this method if you want to provide your custom logic.
+        '''
         if self.auto_approve_for_groups \
            and self._check_user_in_groups(user, self.auto_approve_for_groups):
-            return True
+            return self.reason(u'Auto-approved: User in allowed group')
         if self.auto_approve_for_superusers and user.is_superuser:
-            return True
+            return self.reason(u'Auto-approved: Superuser')
         if self.auto_approve_for_staff and user.is_staff:
-            return True
+            return self.reason(u'Auto-approved: Staff')
 
         return False
 
     def is_auto_reject(self, obj, user):
+        '''
+        Checks if change on obj by user need to be auto rejected
+        Returns False if change is not auto reject or reason(Unicode) if 
+        change need to be auto rejected.
+        
+        Overwrite this method if you want to provide your custom logic.
+        '''
         if self.auto_reject_for_groups \
          and self._check_user_in_groups(user, self.auto_reject_for_groups):
-            return True
+            return self.reason(u'Auto-rejected: User in disallowed group')
         if self.auto_reject_for_anonymous and user.is_anonymous():
-            return True
+            return self.reason(u'Auto-approve: Anonymous User')
 
         return False
-
-    def get_auto_reject_reason(self, obj, user):
-        '''Returns moderation reason for auto reject, overwrite it to
-           provide custom reason for auto reject.
+    
+    def reason(self, reason, user=None, obj=None):
+        '''Returns moderation reason for auto moderation.  Optional user 
+        and object can be passed for a more custom reason.
         '''
-        return u'Auto rejected'
-
-    def get_auto_approve_reason(self, obj, user):
-        '''Returns moderation reason for auto approve, overwrite it to
-           provide custom reason for auto reject.
-        '''
-        return u'Auto approved'
+        return reason
 
     def _check_user_in_groups(self, user, groups):
         for group in groups:

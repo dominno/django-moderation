@@ -66,17 +66,6 @@ class GenericModeratorTestCase(SettingsTestCase):
         self.moderator.inform_user(self.user, self.user)
         self.assertEqual(len(mail.outbox), 1)
 
-    def test_get_auto_reject_reason_default(self):
-        obj = UserProfile.objects.get()
-        self.assertEqual(self.moderator.get_auto_reject_reason(obj, self.user),
-                         'Auto rejected')
-
-    def test_get_auto_approve_reason_default(self):
-        obj = UserProfile.objects.get()
-        self.assertEqual(self.moderator.get_auto_approve_reason(obj,
-                                                                self.user),
-                         u'Auto approved')
-
 
 class AutoModerateModeratorTestCase(TestCase):
     fixtures = ['test_users.json']
@@ -89,11 +78,16 @@ class AutoModerateModeratorTestCase(TestCase):
     def test_is_auto_approve_user_superuser(self):
         self.moderator.auto_approve_for_superusers = True
         self.user.is_superuser = True
-        self.assertTrue(self.moderator.is_auto_approve(self.obj, self.user))
+        reason = self.moderator.is_auto_approve(self.obj, self.user)
+        self.assertTrue(reason)
+        self.assertEqual(reason, 'Auto-approved: Superuser')
 
     def test_is_auto_approve_user_is_staff(self):
         self.moderator.auto_approve_for_staff = True
-        self.assertTrue(self.moderator.is_auto_approve(self.obj, self.user))
+        self.user.is_superuser = False
+        reason = self.moderator.is_auto_approve(self.obj, self.user)
+        self.assertTrue(reason)
+        self.assertEqual(reason, 'Auto-approved: Staff')
 
     def test_is_auto_approve_not_user_superuser(self):
         self.moderator.auto_approve_for_superusers = True
@@ -116,7 +110,9 @@ class AutoModerateModeratorTestCase(TestCase):
         group.save()
         self.user.groups.add(group)
         self.user.save()
-        self.assertTrue(self.moderator.is_auto_approve(self.obj, self.user))
+        reason = self.moderator.is_auto_approve(self.obj, self.user)
+        self.assertTrue(reason)
+        self.assertEqual(reason, 'Auto-approved: User in allowed group')
 
     def test_auto_approve_for_groups_user_not_in_group(self):
         self.moderator.auto_approve_for_superusers = False
@@ -128,7 +124,9 @@ class AutoModerateModeratorTestCase(TestCase):
         from mock import Mock
         self.user.is_anonymous = Mock()
         self.user.is_anonymous.return_value = True
-        self.assertTrue(self.moderator.is_auto_reject(self.obj, self.user))
+        reason = self.moderator.is_auto_reject(self.obj, self.user)
+        self.assertTrue(reason)
+        self.assertEqual(reason, 'Auto-approve: Anonymous User')
 
     def test_is_auto_reject_user_is_not_anonymous(self):
         from mock import Mock
@@ -142,7 +140,9 @@ class AutoModerateModeratorTestCase(TestCase):
         group.save()
         self.user.groups.add(group)
         self.user.save()
-        self.assertTrue(self.moderator.is_auto_reject(self.obj, self.user))
+        reason = self.moderator.is_auto_reject(self.obj, self.user)
+        self.assertTrue(reason)
+        self.assertEqual(reason, 'Auto-rejected: User in disallowed group')
 
     def test_auto_reject_for_groups_user_not_in_group(self):
         self.moderator.auto_reject_for_groups = ['banned']
@@ -158,12 +158,13 @@ class AutoModerateModeratorTestCase(TestCase):
                 # Auto reject spam
                 if akismet_spam_check(obj):  # Check body of object for spam
                     # Body of object is spam, moderate
-                    return True
+                    return self.reason('Auto rejected: SPAM')
                 super(UserProfile, self).is_auto_reject(obj, user)
 
         moderator = UserProfileModerator(UserProfile)
-
-        self.assertTrue(moderator.is_auto_reject(self.obj, self.user))
+        reason = moderator.is_auto_reject(self.obj, self.user)
+        self.assertTrue(reason)
+        self.assertEqual(reason, 'Auto rejected: SPAM')
 
 
 class BaseManagerTestCase(unittest.TestCase):

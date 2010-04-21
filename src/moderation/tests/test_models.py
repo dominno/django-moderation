@@ -223,14 +223,6 @@ class AutoModerateTestCase(SettingsTestCase):
             auto_approve_for_staff = True
             auto_reject_for_groups = ['banned']
 
-            def get_auto_approve_reason(self, obj, user):
-                return 'Auto approved. Object: %s, changed by %s' % (obj,
-                                                                        user)
-
-            def get_auto_reject_reason(self, obj, user):
-                return 'Auto rejected. Object: %s, changed by %s' % (obj,
-                                                                        user)
-
         self.moderation.register(UserProfile, UserProfileModerator)
 
         self.old_moderation = moderation
@@ -277,29 +269,3 @@ class AutoModerateTestCase(SettingsTestCase):
         obj.save()
         
         self.assertRaises(RegistrationError, automoderate, obj, self.user)
-
-    def test_custom_reason_for_auto_approve(self):
-        self.profile.description = 'New description'
-        self.profile.save()
-
-        automoderate(self.profile, self.user)
-
-        self.assertEqual(self.profile.moderated_object.moderation_reason,
-                         u'Auto approved. Object: moderator - '\
-                         u'http://www.google.com, changed by moderator')
-        
-    def test_custom_reason_for_auto_reject(self):
-        user = User.objects.get(username='user1')
-        group = Group(name='banned')
-        group.save()
-        user.groups.add(group)
-        user.save()
-
-        self.profile.description = 'New description'
-        self.profile.save()
-
-        automoderate(self.profile, user)
-
-        self.assertEqual(self.profile.moderated_object.moderation_reason,
-                         u'Auto rejected. Object: moderator - '\
-                         u'http://www.google.com, changed by user1')
