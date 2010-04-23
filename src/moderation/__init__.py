@@ -74,7 +74,7 @@ class GenericModerator(object):
          and self._check_user_in_groups(user, self.auto_reject_for_groups):
             return self.reason(u'Auto-rejected: User in disallowed group')
         if self.auto_reject_for_anonymous and user.is_anonymous():
-            return self.reason(u'Auto-approve: Anonymous User')
+            return self.reason(u'Auto-rejected: Anonymous User')
 
         return False
     
