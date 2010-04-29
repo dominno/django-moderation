@@ -1,10 +1,10 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.test_app.models import UserProfile
-from moderation import GenericModerator
+from moderation import GenericModerator, ModerationManager
 from moderation.managers import ModerationObjectsManager
 from django.core import mail
 from django.contrib.auth.models import User, Group
-from moderation.models import ModeratedObject
+from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from django.db.models.manager import Manager
 import unittest
 from django.test.testcases import TestCase
@@ -126,7 +126,7 @@ class AutoModerateModeratorTestCase(TestCase):
         self.user.is_anonymous.return_value = True
         reason = self.moderator.is_auto_reject(self.obj, self.user)
         self.assertTrue(reason)
-        self.assertEqual(reason, 'Auto-approve: Anonymous User')
+        self.assertEqual(reason, u'Auto-rejected: Anonymous User')
 
     def test_is_auto_reject_user_is_not_anonymous(self):
         from mock import Mock
@@ -165,6 +165,45 @@ class AutoModerateModeratorTestCase(TestCase):
         reason = moderator.is_auto_reject(self.obj, self.user)
         self.assertTrue(reason)
         self.assertEqual(reason, 'Auto rejected: SPAM')
+
+
+class ByPassModerationTestCase():
+    fixtures = ['test_users.json', 'test_moderation.json']
+    test_settings = 'moderation.tests.settings.generic'
+
+    def setUp(self):
+        import moderation
+        self.moderation = ModerationManager()
+
+        class UserProfileModerator(GenericModerator):
+            bypass_moderation_after_approval = True
+
+        self.moderation.register(UserProfile, UserProfileModerator)
+
+        self.old_moderation = moderation
+        setattr(moderation, 'moderation', self.moderation)
+
+        self.user = User.objects.get(username='moderator')
+        self.profile = UserProfile.objects.get(user__username='moderator')
+    
+    def tearDown(self):
+        import moderation
+        self.moderation.unregister(UserProfile)
+        setattr(moderation, 'moderation', self.old_moderation)
+        
+    def test_bypass_moderation_after_approval(self):
+        profile = UserProfile(description='Profile for new user',
+                    url='http://www.test.com',
+                    user=User.objects.get(username='user1'))
+        profile.save()
+        
+        profile.moderated_object.approve(self.user)
+        
+        profile.description = 'New description'
+        profile.save()
+        
+        self.assertEqual(profile.moderated_object.moderation_status,
+                         MODERATION_STATUS_APPROVED)
 
 
 class BaseManagerTestCase(unittest.TestCase):

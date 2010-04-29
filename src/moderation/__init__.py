@@ -22,6 +22,7 @@ class GenericModerator(object):
     """
     manager_names = ['objects']
     moderation_manager_class = ModerationObjectsManager
+    bypass_moderation_after_approval = False
 
     auto_approve_for_superusers = True
     auto_approve_for_staff = True
@@ -266,10 +267,13 @@ class ModerationManager(object):
             return
 
         unchanged_obj = self._get_unchanged_object(instance)
+        moderator = self.get_moderator(sender)
         if unchanged_obj:
-            moderated_object = self._get_or_create_moderated_object(instance,
+            moderated_obj = self._get_or_create_moderated_object(instance,
                                                                 unchanged_obj)
-            moderated_object.save()
+            if moderated_obj.moderation_status != MODERATION_STATUS_APPROVED\
+              and not moderator.bypass_moderation_after_approval:
+                moderated_obj.save()
 
     def _get_unchanged_object(self, instance):
         pk = instance.pk
@@ -319,28 +323,33 @@ class ModerationManager(object):
             return
         
         pk = instance.pk
-        moderator_instance = self.get_moderator(sender)
+        moderator = self.get_moderator(sender)
 
         if kwargs['created']:
             old_object = sender._default_manager.get(pk=pk)
-            moderated_object = ModeratedObject(content_object=old_object)
-            moderated_object.save()
-            moderator_instance.inform_moderator(instance)
+            moderated_obj = ModeratedObject(content_object=old_object)
+            moderated_obj.save()
+            moderator.inform_moderator(instance)
         else:
-            moderated_object \
+            
+            moderated_obj \
              = ModeratedObject.objects.get_for_instance(instance)
+             
+            if moderated_obj.moderation_status == MODERATION_STATUS_APPROVED\
+               and moderator.bypass_moderation_after_approval:
+                return
 
-            if moderated_object._is_not_equal_instance(instance):
+            if moderated_obj._is_not_equal_instance(instance):
                 copied_instance = self._copy_model_instance(instance)
                 # save instance with data from changed_object
-                moderated_object.changed_object.save_base(raw=True)
+                moderated_obj.changed_object.save_base(raw=True)
 
                 # save new data in moderated object
-                moderated_object.changed_object = copied_instance
+                moderated_obj.changed_object = copied_instance
 
-                moderated_object.moderation_status = MODERATION_STATUS_PENDING
-                moderated_object.save()
-                moderator_instance.inform_moderator(instance)
+                moderated_obj.moderation_status = MODERATION_STATUS_PENDING
+                moderated_obj.save()
+                moderator.inform_moderator(instance)
 
     def _copy_model_instance(self, obj):
         initial = dict([(f.name, getattr(obj, f.name))

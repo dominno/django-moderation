@@ -1,7 +1,7 @@
 import unittest
 from moderation.tests.utils.request_factory import RequestFactory
 from moderation.admin import ModerationAdmin, approve_objects, reject_objects,\
-    ModeratedObjectAdmin
+    ModeratedObjectAdmin, set_objects_as_pending
 from django.test.testcases import TestCase
 from moderation.models import ModeratedObject, MODERATION_READY_STATE,\
     MODERATION_DRAFT_STATE, MODERATION_STATUS_APPROVED,\
@@ -27,6 +27,9 @@ class ModeratedObjectAdminTestCase(TestCase):
         self.request = rf.get('/admin/moderation/')
         self.request.user = User.objects.get(username='admin')
         self.admin = ModeratedObjectAdmin(ModeratedObject, site)
+        
+        for user in User.objects.all():
+            ModeratedObject(content_object=user).save()
     
     def test_get_actions_should_not_return_delete_selected(self):
         actions = self.admin.get_actions(self.request)
@@ -38,38 +41,42 @@ class ModeratedObjectAdminTestCase(TestCase):
         moderated_object.save()
         content_object = self.admin.content_object(moderated_object)
         self.assertEqual(content_object, "admin")
+
+    def test_get_moderated_object_form(self):
+        form = self.admin.get_moderated_object_form(UserProfile)
+        self.assertEqual(repr(form), 
+                         "<class 'moderation.admin.ModeratedObjectForm'>")
+
+
+class AdminActionsTestCase(TestCase):
+    fixtures = ['test_users.json']
+    urls = 'moderation.tests.test_urls'
+    
+    def setUp(self):
+        rf = RequestFactory()
+        rf.login(username='admin', password='aaaa')
+        self.request = rf.get('/admin/moderation/')
+        self.request.user = User.objects.get(username='admin')
+        self.admin = ModeratedObjectAdmin(ModeratedObject, site)
         
-    def test_queryset_should_return_only_moderation_ready_objects(self):
-        users = User.objects.all()
-        for user in users:
+        for user in User.objects.all():
             ModeratedObject(content_object=user).save()
             
-        object = ModeratedObject.objects.all()[0]
-        object.moderation_state = MODERATION_READY_STATE
-        object.save()
-        
+        self.moderated_objects = ModeratedObject.objects.all()
+
+    def test_queryset_should_return_only_moderation_ready_objects(self):
         qs = self.admin.queryset(self.request)
         qs = qs.filter(moderation_state=MODERATION_DRAFT_STATE)
         self.assertEqual(list(qs), [])
         
     def test_approve_objects(self):
-        users = User.objects.all()
-        for user in users:
-            ModeratedObject(content_object=user).save()
-        
-        qs = ModeratedObject.objects.all()
-        
-        approve_objects(self.admin, self.request, qs)
+        approve_objects(self.admin, self.request, self.moderated_objects)
         
         for obj in ModeratedObject.objects.all():
             self.assertEqual(obj.moderation_status,
                              MODERATION_STATUS_APPROVED)
         
     def test_reject_objects(self):
-        users = User.objects.all()
-        for user in users:
-            ModeratedObject(content_object=user).save()
-        
         qs = ModeratedObject.objects.all()
         
         reject_objects(self.admin, self.request, qs)
@@ -77,11 +84,17 @@ class ModeratedObjectAdminTestCase(TestCase):
         for obj in ModeratedObject.objects.all():
             self.assertEqual(obj.moderation_status,
                              MODERATION_STATUS_REJECTED)
-
-    def test_get_moderated_object_form(self):
-        form = self.admin.get_moderated_object_form(UserProfile)
-        self.assertEqual(repr(form), 
-                         "<class 'moderation.admin.ModeratedObjectForm'>")
+    
+    def test_set_objects_as_pending(self):
+        for obj in self.moderated_objects:
+            obj.approve(moderated_by=self.request.user)
+            
+        set_objects_as_pending(self.admin, self.request,
+                               self.moderated_objects)
+        
+        for obj in ModeratedObject.objects.all():
+            self.assertEqual(obj.moderation_status,
+                             MODERATION_STATUS_PENDING)
 
 
 class ModerationAdminSendMessageTestCase(TestCase):

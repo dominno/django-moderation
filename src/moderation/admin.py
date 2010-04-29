@@ -26,6 +26,13 @@ def reject_objects(modeladmin, request, queryset):
 reject_objects.short_description = "Reject selected moderated objects"
 
 
+def set_objects_as_pending(modeladmin, request, queryset):
+    queryset.update(moderation_status=MODERATION_STATUS_PENDING)
+
+set_objects_as_pending.short_description = "Set selected moderated objects "\
+                                           "as Pending"
+
+
 class ModerationAdmin(admin.ModelAdmin):
     admin_integration_enabled = True
     
@@ -87,7 +94,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
     list_filter = ['content_type', 'moderation_status']
     change_form_template = 'moderation/moderate_object.html'
     change_list_template = 'moderation/moderated_objects_list.html'
-    actions = [reject_objects, approve_objects]
+    actions = [reject_objects, approve_objects, set_objects_as_pending]
     fieldsets = (
         ('Object moderation', {'fields': ('moderation_reason',)}),
         )

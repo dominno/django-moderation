@@ -201,6 +201,9 @@ GenericModerator options
 ``auto_reject_for_groups``
     List of user group names that will be auto rejected. Default: None
 
+``bypass_moderation_after_approval``
+    When set to True, affected objects will be released from the model moderator's control upon initial approval. This is useful for models in which you want to avoid unnecessary repetition of potentially expensive auto-approve/reject logic upon each object edit. This cannot be used for models in which you would like to approve (auto or manually) each object edit, because changes are not tracked and the moderation logic is not run. If the object needs to be entered back into moderation you can set its status to "Pending" by unapproving it. Default: False
+
 ``notify_moderator``
     Defines if notification e-mails will be send to moderator.
     By default when user change object that is under moderation,
