@@ -23,7 +23,7 @@ Features:
 - 100% PEP8 correct code
 - test coverage > 80% 
 
-Known isuses
+Known issues
 ============
 
 - foreign-key and m2m relations in models are not currently supported
@@ -31,16 +31,19 @@ Known isuses
 Road map
 ========
 
-0.2 
----
+For road map and issues list look at:
 
-- Add support for foreign-key and m2m relations for models that are under moderation
-- Add support for ImageField, display images differences on approve/reject moderate page
+http://github.com/dominno/django-moderation/issues
 
-0.3
----
- 
-- Your feature ?
+
+Contributors
+============
+
+Special thanks to all persons that contributed to this project.
+
+- jonwd7 http://github.com/jonwd7 - Thank you for all ideas, bug fixes, patches.
+
+Thank you very much.
 
 
 Screenshots
