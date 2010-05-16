@@ -8,6 +8,7 @@ from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from django.db.models.manager import Manager
 import unittest
 from django.test.testcases import TestCase
+from moderation.tests.utils import setup_moderation, teardown_moderation
 
 
 class GenericModeratorTestCase(SettingsTestCase):
@@ -172,24 +173,19 @@ class ByPassModerationTestCase():
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        import moderation
-        self.moderation = ModerationManager()
-
         class UserProfileModerator(GenericModerator):
             bypass_moderation_after_approval = True
 
-        self.moderation.register(UserProfile, UserProfileModerator)
-
-        self.old_moderation = moderation
-        setattr(moderation, 'moderation', self.moderation)
+        self.moderation, self.old_moderation =\
+                 setup_moderation([(UserProfile,
+                                    UserProfileModerator)])
 
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
-    
+
     def tearDown(self):
-        import moderation
-        self.moderation.unregister(UserProfile)
-        setattr(moderation, 'moderation', self.old_moderation)
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [UserProfile])
         
     def test_bypass_moderation_after_approval(self):
         profile = UserProfile(description='Profile for new user',

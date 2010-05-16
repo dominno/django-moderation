@@ -4,6 +4,7 @@ from moderation.tests.test_app.models import UserProfile
 from django.contrib.auth.models import User
 from moderation.models import MODERATION_STATUS_APPROVED
 import django
+from moderation.tests.utils import setup_moderation, teardown_moderation
 
 
 django_version = django.get_version()[:3]
@@ -15,18 +16,12 @@ class CSRFMiddlewareTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.csrf_middleware'
     
     def setUp(self):
-        import moderation
-        self.moderation = ModerationManager()
-        self.moderation.register(UserProfile)
-
-        self.old_moderation = moderation
-        setattr(moderation, 'moderation', self.moderation)
+        self.moderation, self.old_moderation = setup_moderation([UserProfile])
 
     def tearDown(self):
-        import moderation
-        self.moderation.unregister(UserProfile)
-        setattr(moderation, 'moderation', self.old_moderation)
-        
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [UserProfile])
+
     def test_csrf_token(self):
         profile = UserProfile(description='Profile for new user',
                     url='http://www.yahoo.com',
@@ -61,18 +56,13 @@ class AutomoderationRuntimeErrorRegresionTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
     
     def setUp(self):
-        import moderation
-        self.moderation = ModerationManager()
-        self.old_moderation = moderation
-        setattr(moderation, 'moderation', self.moderation)
+        self.moderation, self.old_moderation = setup_moderation([UserProfile])
+
         self.user = User.objects.get(username='admin')
 
-        self.moderation.register(UserProfile)
-
     def tearDown(self):
-        self.moderation.unregister(UserProfile)
-        import moderation
-        setattr(moderation, 'moderation', self.old_moderation)
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [UserProfile])
 
     def test_RuntimeError(self):
         from moderation.helpers import automoderate

@@ -14,6 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from moderation import moderation, ModerationManager
 from django.contrib.contenttypes import generic
 from django.db.models.query import EmptyQuerySet
+from moderation.tests.utils import setup_moderation, teardown_moderation
 
 
 class ModerationObjectsManagerTestCase(SettingsTestCase):
@@ -71,21 +72,14 @@ class ModeratedObjectManagerTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        import moderation
-        self.moderation = ModerationManager()
-        self.old_moderation = moderation
-        setattr(moderation, 'moderation', self.moderation)
-        from django.db.models import signals
+        self.moderation, self.old_moderation =\
+             setup_moderation([UserProfile, ModelWithSlugField2])
+
         self.user = User.objects.get(username='admin')
 
-        self.moderation.register(UserProfile)
-        self.moderation.register(ModelWithSlugField2)
-
     def tearDown(self):
-        self.moderation.unregister(UserProfile)
-        self.moderation.unregister(ModelWithSlugField2)
-        import moderation
-        setattr(moderation, 'moderation', self.old_moderation)
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [UserProfile, ModelWithSlugField2])
 
     def test_objects_with_same_object_id(self):
         model1 = ModelWithSlugField2(slug='test')

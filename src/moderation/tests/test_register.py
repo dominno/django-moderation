@@ -12,6 +12,9 @@ from moderation.signals import pre_moderation, post_moderation
 from moderation.tests.test_app.models import UserProfile, ModelWithSlugField,\
     ModelWithSlugField2, ModelWithMultipleManagers
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
+from moderation.tests.utils import setup_moderation
+from moderation.tests.utils import teardown_moderation
+
 import unittest
 from django.db import IntegrityError
 
@@ -21,21 +24,13 @@ class RegistrationTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        import moderation
-        self.moderation = ModerationManager()
-        self.old_moderation = moderation
-        setattr(moderation, 'moderation', self.moderation)
-        #moderation = self.moderation 
-        from django.db.models import signals
+        self.moderation, self.old_moderation \
+           = setup_moderation([UserProfile])
         self.user = User.objects.get(username='moderator')
-        self.moderation.register(UserProfile)
-
+        
     def tearDown(self):
-        import moderation
-        setattr(moderation, 'moderation', self.old_moderation)
-        self.moderation.unregister(UserProfile)
-
-        del self.moderation
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [UserProfile])
 
     def test_get_moderator(self):
         moderator = self.moderation.get_moderator(UserProfile)
@@ -215,18 +210,12 @@ class ModerationManagerTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
     
     def setUp(self):
-        import moderation
-        self.moderation = ModerationManager()
-        self.old_moderation = moderation
-        setattr(moderation, 'moderation', self.moderation)
-        from django.db.models import signals
+        self.moderation, self.old_moderation = setup_moderation()
         self.user = User.objects.get(username='moderator')
         
     def tearDown(self):
-        import moderation
-        setattr(moderation, 'moderation', self.old_moderation)
-        del self.moderation
-
+        teardown_moderation(self.moderation, self.old_moderation)
+        
     def test_unregister(self):
         """Tests if model class is sucessfuly unregistered from moderation"""
         from django.db.models import signals
@@ -349,19 +338,13 @@ class LoadingFixturesTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
     
     def setUp(self):
-        import moderation
-        self.moderation = ModerationManager()
-        self.old_moderation = moderation
-        setattr(moderation, 'moderation', self.moderation)
-        from django.db.models import signals
+        self.new_moderation, self.old_moderation \
+           = setup_moderation([UserProfile])
         self.user = User.objects.get(username='moderator')
-        
-        self.moderation.register(UserProfile)
-        
+
     def tearDown(self):
-        self.moderation.unregister(UserProfile)
-        import moderation
-        setattr(moderation, 'moderation', self.old_moderation)
+        teardown_moderation(self.new_moderation, self.old_moderation,
+                            [UserProfile])
 
     def test_loading_fixture_for_moderated_model(self):
         management.call_command('loaddata', 'test_moderation.json',
@@ -394,24 +377,20 @@ class ModerationSignalsTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        import moderation
-        self.moderation = ModerationManager()
-
         class UserProfileModerator(GenericModerator):
             notify_moderator = False
-
-        self.moderation.register(UserProfile, UserProfileModerator)
+        
+        self.moderation, self.old_moderation \
+           = setup_moderation([(UserProfile, UserProfileModerator)])
+        
         self.moderation._disconnect_signals(UserProfile)
-        self.old_moderation = moderation
-        setattr(moderation, 'moderation', self.moderation)
         
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
 
     def tearDown(self):
-        import moderation
-        self.moderation.unregister(UserProfile)
-        setattr(moderation, 'moderation', self.old_moderation)
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [UserProfile])
 
     def test_send_pre_moderation_signal(self):
         """check if custom_approve_handler function was called when """
