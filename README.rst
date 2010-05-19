@@ -377,6 +377,13 @@ with data from changed_object.::
             model = MyModel
 
 
+Settings
+========
+
+``MODERATORS``
+    List of moderators e-mails to which notifications will be send.
+
+
 How to run django-moderation tests
 ==================================
 
