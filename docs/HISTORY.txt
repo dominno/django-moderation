@@ -15,8 +15,39 @@ Added features
 - configurable email notifications
 - custom model form that allows to edit changed data of object
 
-0.1.1
------
+0.2
+---
 
-* Added auto approve/reject for selected user groups or user types
-
+- Added GenericModerator class that encapsulates moderation options for a given 
+model.Changed register method, it  will get only two parameters: model class 
+and settings class.
+- Added option to register models with multiple managers.
+- Added options to GenericModerator class: auto_approve_for_superusers, 
+auto_approve_for_staff, auto_approve_for_groups, auto_reject_for_anonymous, 
+auto_reject_for_groups. Added methods for checking auto moderation.
+- Added automoderate helper function.
+- Changed moderated_object property in ModerationManager class, moderated object 
+is get only once from database, next is cached in _moderated_object, fixed 
+issue with not setting user object on changed_by attribute of ModeratedObject model. 
+- Fixed issue when loading object from fixture for model class that is registered 
+with moderation. Now moderated objects will not be created when objects are 
+loaded from fixture.
+- Fixed issue with TypeError when generating differences of changes between model 
+instances that have field with non unicode value ex. DateField.
+- Fixed issue with accessing objects that existed before installation of 
+django-moderation on model class.
+- Fixed issue when more then one model is registered with moderation and multiple 
+model instances have the same pk. 
+- Fixed issue with multiple model save when automoderate was used. Auto moderation 
+in save method of ModeratedObject has been moved to separate method.
+- Added admin filter that will show only content types registered with moderation 
+in admin queue. 
+- Fixed issue when creating model forms for objects that doesn't have moderated 
+object created.
+- Added possibility of passing changed object in to is_auto- methods of 
+GenericModerator class. This will allow more useful custom auto-moderation. Ex. 
+auto reject if akismet spam check returns True.
+- Added ability to provide custom auto reject/approve reason.
+- Added option bypass_moderation_after_approval in to GenericModerator class that 
+will release object from moderation system after initial approval of object.
+- Other bug fixes and code refactoring.

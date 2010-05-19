@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.1-alpha'
+version = '0.2'
 
 setup(name='django-moderation',
       version=version,
@@ -10,7 +10,7 @@ setup(name='django-moderation',
                        open(os.path.join("docs", "HISTORY.txt")).read(),
       
       classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
