@@ -64,9 +64,15 @@ django >= 1.1
 Installation
 ============
 
-Download source code from http://github.com/dominno/django-moderation and run installation script::
+Use easy_install::
+
+    $> easy_install django-moderation 
+
+Or download source code from http://github.com/dominno/django-moderation and run
+installation script::
 
     $> python setup.py install
+
 
 
 Configuration
@@ -187,7 +193,10 @@ GenericModerator options
     List of manager names on which moderation manager will be enabled. Default: ['objects']
 
 ``moderation_manager_class``
-    Default manager class that will enabled on model class managers passed in ``manager_names``. This class takes care of filtering out any objects that are not approved yet. Default: ModerationObjectsManager
+    Default manager class that will enabled on model class managers passed in
+
+``manager_names``. This class takes care of filtering out any objects that are
+not approved yet. Default: ModerationObjectsManager
 
 ``auto_approve_for_superusers``
     Auto approve objects changed by superusers. Default: True
@@ -208,38 +217,26 @@ GenericModerator options
     When set to True, affected objects will be released from the model moderator's control upon initial approval. This is useful for models in which you want to avoid unnecessary repetition of potentially expensive auto-approve/reject logic upon each object edit. This cannot be used for models in which you would like to approve (auto or manually) each object edit, because changes are not tracked and the moderation logic is not run. If the object needs to be entered back into moderation you can set its status to "Pending" by unapproving it. Default: False
 
 ``notify_moderator``
-    Defines if notification e-mails will be send to moderator.
-    By default when user change object that is under moderation,
-    e-mail notification is send to moderator. It will inform him
-    that object was changed and need to be moderated. Default: True
+    Defines if notification e-mails will be send to moderator. By default when user change object that is under moderation, e-mail notification is send to moderator. It will inform him that object was changed and need to be moderated. Default: True
     
 ``notify_user``
-    Defines if notification e-mails will be send to user.
-    When moderator approves or reject object changes then e-mail
-    notification is send to user that changed this object. It will
-    inform user if his changes were accepted or rejected and inform him
-    why it was rejected or approved. Default: True
+    Defines if notification e-mails will be send to user. When moderator approves or reject object changes then e-mail notification is send to user that changed this object. It will inform user if his changes were accepted or rejected and inform him why it was rejected or approved. Default: True
 
 ``subject_template_moderator``
-    Subject template that will be used when sending notifications to moderators.
-    Default: moderation/notification_subject_moderator.txt
+    Subject template that will be used when sending notifications to moderators. Default: moderation/notification_subject_moderator.txt
 
 ``message_template_moderator``
-    Message template that will be used when sending notifications to moderator.
-    Default: moderation/notification_message_moderator.txt
+    Message template that will be used when sending notifications to moderator. Default: moderation/notification_message_moderator.txt
 
 ``subject_template_user``
-    Subject template that will be used when sending notifications to users.
-    Default: moderation/notification_subject_user.txt
+    Subject template that will be used when sending notifications to users. Default: moderation/notification_subject_user.txt
 
 ``message_template_user``
-    Message template that will be used when sending notifications to users.
-    Default: moderation/notification_message_user.txt
+    Message template that will be used when sending notifications to users. Default: moderation/notification_message_user.txt
 
 
 ``Notes on auto moderation``
-    If you want to use auto moderation in your views, then you need to save user object
-    that has changed the object in ModeratedObject instance. You can use following helper. Example::
+    If you want to use auto moderation in your views, then you need to save user object that has changed the object in ModeratedObject instance. You can use following helper. Example::
 
 
         moderation.register(UserProfile)
@@ -254,9 +251,9 @@ GenericModerator options
 
 
 ``Custom auto moderation``
-    If you want to define your custom logic in auto moderation, you can overwrite
-    methods: ``is_auto_reject`` or ``is_auto_approve`` of GenericModerator class
+    If you want to define your custom logic in auto moderation, you can overwrite methods: ``is_auto_reject`` or ``is_auto_approve`` of GenericModerator class
     
+
     Example::
         
         
@@ -290,7 +287,8 @@ Default context:
 How to pass extra context to email notification templates
 ---------------------------------------------------------
 
-Subclass GenericModerator class and overwrite ``inform_moderator`` and ``inform_user``
+Subclass GenericModerator class and overwrite ``inform_moderator`` and
+``inform_user``
 methods.::
 
     class UserProfileModerator(GenericModerator):
@@ -316,7 +314,8 @@ methods.::
 ModerationAdmin
 ===============
 
-If you have defined your own ``save_model`` method in your ModelAdmin then you must::
+If you have defined your own ``save_model`` method in your ModelAdmin then you
+must::
 
 
     # Custom save_model in MyModelAdmin
@@ -326,13 +325,15 @@ If you have defined your own ``save_model`` method in your ModelAdmin then you m
         automoderate(obj, request.user)
 
 
-Otherwise what you save in the admin will get moderated and automoderation will not work.
+Otherwise what you save in the admin will get moderated and automoderation will
+not work.
 
 
 Signals
 =======
 
-``moderation.signals.pre_moderation`` - signal send before object is approved or rejected
+``moderation.signals.pre_moderation`` - signal send before object is approved or
+rejected
 
 Arguments sent with this signal:
 
@@ -346,7 +347,8 @@ Arguments sent with this signal:
     Moderation status, 0 - rejected, 1 - approved
 
 
-``moderation.signals.post_moderation`` - signal send after object is approved or rejected
+``moderation.signals.post_moderation`` - signal send after object is approved or
+rejected
 
 Arguments sent with this signal:
 
@@ -364,7 +366,8 @@ Forms
 =====
 
 When creating ModelForms for models that are under moderation use
-BaseModeratedObjectForm class as ModelForm class. Thanks to that form will initialized 
+BaseModeratedObjectForm class as ModelForm class. Thanks to that form will
+initialized 
 with data from changed_object.::
 
 
@@ -397,5 +400,3 @@ How to run django-moderation tests
 
     bin/test-1.1
     bin/test-1.2
-
-
