@@ -29,5 +29,5 @@ setup(name='django-moderation',
       install_requires=[
           'setuptools',
       ],
-      zip_safe=False,
+      zip_safe=True,
       )
