@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.db.models.fields import BooleanField
 
 
 class RegistrationError(Exception):
@@ -23,6 +24,8 @@ class GenericModerator(object):
     manager_names = ['objects']
     moderation_manager_class = ModerationObjectsManager
     bypass_moderation_after_approval = False
+    
+    visibility_column = None
 
     auto_approve_for_superusers = True
     auto_approve_for_staff = True
@@ -43,6 +46,7 @@ class GenericModerator(object):
 
     def __init__(self, model_class):
         self.model_class = model_class
+        self._validate_options()
         self.base_managers = self._get_base_managers()
 
     def is_auto_approve(self, obj, user):
@@ -161,6 +165,19 @@ class GenericModerator(object):
 
         return base_manager
 
+    def _validate_options(self):
+        if self.visibility_column:
+            field_type = type(self.model_class._meta.get_field_by_name(
+                                                self.visibility_column)[0])
+            
+            if field_type != BooleanField:
+                msg = 'visibility_column field: %s on model %s should '\
+                      'be BooleanField type but is %s' % (
+                                            self.moderator.visibility_column,
+                                            self.changed_object.__class__,
+                                            field_type)
+                raise AttributeError(msg)
+
 
 class ModerationManager(object):
 
@@ -262,7 +279,6 @@ class ModerationManager(object):
            existing instance of model does not exists
         """
         #check if object was loaded from fixture, bypass moderation if so
-        
         if kwargs['raw']:
             return
 

@@ -9,12 +9,13 @@ from moderation.models import ModeratedObject, MODERATION_READY_STATE,\
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import User
 
-from moderation import moderation, ModerationManager
+from moderation import ModerationManager
 from moderation.tests.test_app.models import UserProfile, ModelWithSlugField,\
     ModelWithSlugField2
 from django.core.exceptions import ObjectDoesNotExist
 from moderation.filterspecs import ContentTypeFilterSpec
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
+from moderation.tests.utils import setup_moderation, teardown_moderation
 
 
 class ModeratedObjectAdminTestCase(TestCase):
@@ -59,10 +60,16 @@ class AdminActionsTestCase(TestCase):
         self.request.user = User.objects.get(username='admin')
         self.admin = ModeratedObjectAdmin(ModeratedObject, site)
         
+        self.moderation, self.old_moderation = setup_moderation([User])
+        
         for user in User.objects.all():
             ModeratedObject(content_object=user).save()
             
         self.moderated_objects = ModeratedObject.objects.all()
+    
+    def tearDown(self):
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [User])
 
     def test_queryset_should_return_only_moderation_ready_objects(self):
         qs = self.admin.queryset(self.request)

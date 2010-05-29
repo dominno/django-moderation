@@ -30,7 +30,7 @@ class DiffModeratedObjectTestCase(SettingsTestCase):
                                    self.profile)
 
         self.assertEqual(diff, {'description': ('New description',
-                                                u'Profile description')})
+                                                u'Old description')})
         
     def test_generate_diff(self):
         self.profile.description = 'New description'

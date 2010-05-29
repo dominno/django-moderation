@@ -21,6 +21,7 @@ class ModerationObjectsManager(Manager):
     def filter_moderated_objects(self, query_set):
         from moderation.models import MODERATION_STATUS_PENDING,\
                 MODERATION_STATUS_REJECTED
+
         exclude_pks = []
         for obj in query_set:
             try:
@@ -37,11 +38,27 @@ class ModerationObjectsManager(Manager):
 
         return query_set.exclude(pk__in=exclude_pks)
 
+    def exclude_objs_by_visibility_col(self, query_set):
+        from moderation.models import MODERATION_STATUS_REJECTED
+        
+        kwargs = {}
+        kwargs[self.moderator.visibility_column] =\
+         bool(MODERATION_STATUS_REJECTED)
+        
+        return query_set.exclude(**kwargs)
+
     def get_query_set(self):
         query_set = super(ModerationObjectsManager, self).get_query_set()
-        query_set = self.filter_moderated_objects(query_set)
+        
+        if self.moderator.visibility_column:
+            return self.exclude_objs_by_visibility_col(query_set)
 
-        return query_set
+        return self.filter_moderated_objects(query_set)
+
+    @property
+    def moderator(self):
+        from moderation import moderation
+        return moderation.get_moderator(self.model)
 
 
 class ModeratedObjectManager(Manager):

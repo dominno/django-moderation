@@ -6,12 +6,13 @@ Created on 2009-12-10
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User
-from moderation.tests.test_app.models import UserProfile, ModelWithSlugField2
+from moderation.tests.test_app.models import UserProfile, ModelWithSlugField2,\
+    ModelWithVisibilityField
 from moderation.managers import ModerationObjectsManager
 from django.db.models.manager import Manager
 from moderation.models import ModeratedObject
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from moderation import moderation, ModerationManager
+from moderation import ModerationManager, GenericModerator
 from django.contrib.contenttypes import generic
 from django.db.models.query import EmptyQuerySet
 from moderation.tests.utils import setup_moderation, teardown_moderation
@@ -26,12 +27,16 @@ class ModerationObjectsManagerTestCase(SettingsTestCase):
         from django.db.models import signals
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
-
-        self.moderation = ModerationManager()
-        self.moderation.register(UserProfile)
+        
+        class UserProfileModerator(GenericModerator):
+            visibility_column = 'is_public'
+        
+        self.moderation, self.old_moderation = setup_moderation([UserProfile,
+                            (ModelWithVisibilityField, UserProfileModerator)])
 
     def tearDown(self):
-        self.moderation.unregister(UserProfile)
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [UserProfile, ModelWithVisibilityField])
         
     def test_moderation_objects_manager(self):
         ManagerClass = ModerationObjectsManager()(Manager)
@@ -65,6 +70,21 @@ class ModerationObjectsManagerTestCase(SettingsTestCase):
 
         self.assertEqual(unicode(UserProfile.objects.all()),
                     u'[<UserProfile: moderator - http://www.google.com>]')
+        
+    def test_exclude_objs_by_visibility_col(self):
+        ManagerClass = ModerationObjectsManager()(Manager)
+        manager = ManagerClass()
+        manager.model = ModelWithVisibilityField
+        
+        ModelWithVisibilityField(test='test 1').save()
+        ModelWithVisibilityField(test='test 2', is_public=True).save()
+        
+        query_set = ModelWithVisibilityField.objects.all()
+        
+        query_set = manager.exclude_objs_by_visibility_col(query_set)
+        
+        self.assertEqual(unicode(query_set),
+                    u"[<ModelWithVisibilityField: test 2 - is public True>]")
 
 
 class ModeratedObjectManagerTestCase(SettingsTestCase):

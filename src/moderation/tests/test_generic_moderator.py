@@ -1,5 +1,6 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
-from moderation.tests.test_app.models import UserProfile
+from moderation.tests.test_app.models import UserProfile,\
+    ModelWithVisibilityField, ModelWithWrongVisibilityField
 from moderation import GenericModerator, ModerationManager
 from moderation.managers import ModerationObjectsManager
 from django.core import mail
@@ -168,7 +169,7 @@ class AutoModerateModeratorTestCase(TestCase):
         self.assertEqual(reason, 'Auto rejected: SPAM')
 
 
-class ByPassModerationTestCase():
+class ByPassModerationTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     test_settings = 'moderation.tests.settings.generic'
 
@@ -233,3 +234,70 @@ class BaseManagerTestCase(unittest.TestCase):
         base_manager = self.moderator._get_base_manager(self.model_class,
                                                          'objects')
         self.assertEqual(base_manager, Manager)
+
+
+class VisibilityColumnTestCase(SettingsTestCase):
+    fixtures = ['test_users.json', 'test_moderation.json']
+    test_settings = 'moderation.tests.settings.generic'
+
+    def setUp(self):
+        class UserProfileModerator(GenericModerator):
+            visibility_column = 'is_public'
+
+        self.moderation, self.old_moderation =\
+                 setup_moderation([(ModelWithVisibilityField,
+                                    UserProfileModerator)])
+
+        self.user = User.objects.get(username='moderator')
+        #self.profile = UserProfile.objects.get(user__username='moderator')
+
+    def tearDown(self):
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [ModelWithVisibilityField])
+    
+    def _create_userprofile(self):
+        profile = ModelWithVisibilityField(test='Profile for new user')
+        profile.save()
+        return profile
+
+    def test_exclude_of_not_is_public_object(self):
+        '''Verify new object with visibility column is accessible by manager'''
+        self._create_userprofile()
+        
+        objects = ModelWithVisibilityField.objects.all()
+        
+        self.assertEqual(list(objects), [])
+    
+    def test_approved_obj_should_be_return_by_manager(self):
+        '''Verify new object with visibility column is accessible '''\
+        '''by manager after approve'''
+        profile = self._create_userprofile()
+        profile.moderated_object.approve(self.user)
+        
+        objects = ModelWithVisibilityField.objects.all()
+        
+        self.assertEqual(objects.count(), 1)
+    
+    def test_invalid_visibility_column_field_should_rise_exception(self):
+        '''Verify correct exception is raised when model has '''\
+        '''invalid visibility column'''
+        class UserProfileModerator(GenericModerator):
+            visibility_column = 'is_public'
+        
+        self.assertRaises(AttributeError,
+                          self.moderation.register,
+                          ModelWithWrongVisibilityField,
+                          UserProfileModerator)
+
+    def test_model_should_be_saved_propertly(self):
+        '''Verify that after approve of object that has visibility column '''\
+        '''value is changed from False to True'''
+        profile = self._create_userprofile()
+        
+        self.assertEqual(profile.is_public, False)
+        
+        profile.moderated_object.approve(self.user)
+        
+        self.assertEqual(ModelWithVisibilityField.unmoderated_objects.get()\
+                         .is_public,
+                         True)

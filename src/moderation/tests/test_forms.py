@@ -4,6 +4,7 @@ from moderation.forms import BaseModeratedObjectForm
 from moderation import ModerationManager
 from django.contrib.auth.models import User
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
+from moderation.tests.utils import setup_moderation, teardown_moderation
 
 
 class FormsTestCase(SettingsTestCase):
@@ -19,11 +20,12 @@ class FormsTestCase(SettingsTestCase):
                 model = UserProfile
 
         self.ModeratedObjectForm = ModeratedObjectForm
-        self.moderation = ModerationManager()
-        self.moderation.register(UserProfile)
+        self.moderation, self.old_moderation \
+           = setup_moderation([UserProfile])
         
     def tearDown(self):
-        self.moderation.unregister(UserProfile)
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [UserProfile])
 
     def test_create_form_class(self):
         form = self.ModeratedObjectForm()

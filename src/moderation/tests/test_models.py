@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from moderation.fields import SerializedObjectField
 from moderation import ModerationManager, GenericModerator, RegistrationError
 from moderation.helpers import automoderate
+from moderation.tests.utils import setup_moderation, teardown_moderation
 
 
 class SerializationTestCase(SettingsTestCase):
@@ -26,7 +27,7 @@ class SerializationTestCase(SettingsTestCase):
         self.assertEqual(json_field._serialize(self.profile),
                     '[{"pk": 1, "model": "test_app.userprofile", "fields": '\
                     '{"url": "http://www.google.com", "user": 1, '\
-                    '"description": "Profile description"}}]',
+                    '"description": "Old description"}}]',
                          )
  
     def test_serialize_of_many_objects(self):
@@ -41,7 +42,7 @@ class SerializationTestCase(SettingsTestCase):
         self.assertEqual(json_field._serialize(UserProfile.objects.all()),
                        '[{"pk": 1, "model": "test_app.userprofile", '\
                        '"fields": {"url": "http://www.google.com",'\
-                       ' "user": 1, "description": "Profile description"}},'\
+                       ' "user": 1, "description": "Old description"}},'\
                        ' {"pk": 2, "model": "test_app.userprofile", "fields":'\
                        ' {"url": "http://www.test.com", "user": 2, '\
                        '"description": "Profile for new user"}}]')
@@ -91,7 +92,7 @@ class SerializationTestCase(SettingsTestCase):
                          'New description')
 
         self.assertEqual(moderated_object.content_object.description,
-                         "Profile description")
+                         u'Old description')
 
     def test_change_of_deserialzed_object(self):
         self.profile.description = 'New description'
@@ -111,37 +112,38 @@ class SerializationTestCase(SettingsTestCase):
 
 class ModerateTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
+    test_settings = 'moderation.tests.settings.generic'
     
     def setUp(self):
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
+        self.moderation, self.old_moderation = setup_moderation([UserProfile])
+        
+    def tearDown(self):
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [UserProfile])
         
     def test_approval_status_pending(self):
         """test if before object approval status is pending"""
         
-        moderated_object = ModeratedObject(content_object=self.profile)
-        moderated_object.save()
+        self.profile.description = 'New description'
+        self.profile.save()
         
-        self.assertEqual(moderated_object.moderation_status,
+        self.assertEqual(self.profile.moderated_object.moderation_status,
                          MODERATION_STATUS_PENDING)
         
     def test_moderate(self):
         self.profile.description = 'New description'
         self.profile.save()
         
-        moderated_object = ModeratedObject(content_object=self.profile)
-        moderated_object.save()
-        
-        self.profile.description = 'Old description'
-        self.profile.save()
-        
-        moderated_object._moderate(MODERATION_STATUS_APPROVED,
+        self.profile.moderated_object._moderate(MODERATION_STATUS_APPROVED,
                                    self.user, "Reason")
         
-        self.assertEqual(moderated_object.moderation_status,
+        self.assertEqual(self.profile.moderated_object.moderation_status,
                          MODERATION_STATUS_APPROVED)
-        self.assertEqual(moderated_object.moderated_by, self.user)
-        self.assertEqual(moderated_object.moderation_reason, "Reason")
+        self.assertEqual(self.profile.moderated_object.moderated_by, self.user)
+        self.assertEqual(self.profile.moderated_object.moderation_reason,
+                         "Reason")
         
     def test_approve_moderated_object(self):
         """test if after object approval new data is saved."""
@@ -162,10 +164,9 @@ class ModerateTestCase(SettingsTestCase):
                     url='http://www.test.com',
                     user=User.objects.get(username='user1'))
         
-        moderated_object = ModeratedObject(content_object=profile)
-        moderated_object.save()
+        profile.save()
         
-        moderated_object.approve(self.user)
+        profile.moderated_object.approve(self.user)
         
         user_profile = UserProfile.objects.get(url='http://www.test.com')
         
@@ -175,18 +176,12 @@ class ModerateTestCase(SettingsTestCase):
         self.profile.description = 'New description'
         self.profile.save()
         
-        moderated_object = ModeratedObject(content_object=self.profile)
-        moderated_object.save()
-        
-        self.profile.description = "Old description"
-        self.profile.save()
-        
-        moderated_object.reject(self.user)
+        self.profile.moderated_object.reject(self.user)
         
         user_profile = UserProfile.objects.get(user__username='moderator')
         
         self.assertEqual(user_profile.description, "Old description")
-        self.assertEqual(moderated_object.moderation_status,
+        self.assertEqual(self.profile.moderated_object.moderation_status,
                          MODERATION_STATUS_REJECTED)
 
     def test_is_not_equal_instance_should_be_true(self):
@@ -262,7 +257,7 @@ class AutoModerateTestCase(SettingsTestCase):
 
         self.assertEqual(status,
                          MODERATION_STATUS_REJECTED)
-        self.assertEqual(profile.description, 'Profile description')
+        self.assertEqual(profile.description, u'Old description')
 
     def test_model_not_registered_with_moderation(self):
         obj = ModelWithSlugField2(slug='test')

@@ -138,10 +138,18 @@ class ModeratedObject(models.Model):
         self.moderation_date = datetime.datetime.now()
         self.moderated_by = moderated_by
         self.moderation_reason = reason
-        self.save()
-
+        
         if status == MODERATION_STATUS_APPROVED:
+            
+            if self.moderator.visibility_column:
+                setattr(self.changed_object, self.moderator.visibility_column,
+                        True)
+
+            self.save()
             self.changed_object.save()
+        else:
+            self.save()
+            
         if self.changed_by:
             self.moderator.inform_user(self.content_object, self.changed_by)
 

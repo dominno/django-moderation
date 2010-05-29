@@ -77,7 +77,7 @@ class RegistrationTestCase(SettingsTestCase):
         
         old_profile = UserProfile.objects.get(pk=profile.pk)
         
-        self.assertEqual(old_profile.description, 'Profile description')
+        self.assertEqual(old_profile.description, u'Old description')
 
     def test_register(self):
         """Tests if after creation of new model instance new 
@@ -102,16 +102,18 @@ class RegisterMultipleManagersTestCase(SettingsTestCase):
 
     def setUp(self):
         self.moderation = ModerationManager()
-        
+
         class ModelWithMultipleManagersModerator(GenericModerator):
             manager_names = ['objects', 'men', 'women']
-        
-        self.moderation.register(ModelWithMultipleManagers,
-                                 ModelWithMultipleManagersModerator)
+
+        self.moderation, self.old_moderation = setup_moderation([
+                            (ModelWithMultipleManagers,
+                             ModelWithMultipleManagersModerator)])
 
     def tearDown(self):
-        self.moderation.unregister(ModelWithMultipleManagers)
-        
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [ModelWithMultipleManagers])
+
     def test_multiple_managers(self):
         obj = ModelWithMultipleManagers(gender=0)
         obj.save()
@@ -130,11 +132,12 @@ class IntegrityErrorTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        self.moderation = ModerationManager()
-        self.moderation.register(ModelWithSlugField)
+        self.moderation, self.old_moderation = setup_moderation(
+                                                    [ModelWithSlugField])
 
     def tearDown(self):
-        self.moderation.unregister(ModelWithSlugField)
+        teardown_moderation(self.moderation, self.old_moderation,
+                            [ModelWithSlugField])
 
     def test_raise_integrity_error_model_registered_with_moderation(self):
         m1 = ModelWithSlugField(slug='test')
@@ -308,7 +311,7 @@ class ModerationManagerTestCase(SettingsTestCase):
         
         self.assertNotEqual(object.pk, None)
         self.assertEqual(object.changed_object.description, 
-                         u'Profile description')
+                         u'Old description')
 
     def test_get_or_create_moderated_object_does_not_exist(self):
         profile = UserProfile.objects.get(user__username='moderator')
@@ -321,7 +324,7 @@ class ModerationManagerTestCase(SettingsTestCase):
 
         self.assertEqual(object.pk, None)
         self.assertEqual(object.changed_object.description,
-                         u'Profile description')
+                         u'Old description')
 
     def test_get_unchanged_object(self):
         profile = UserProfile.objects.get(user__username='moderator')
@@ -330,7 +333,7 @@ class ModerationManagerTestCase(SettingsTestCase):
         object = self.moderation._get_unchanged_object(profile)
         
         self.assertEqual(object.description,
-                         u'Profile description')
+                         u'Old description')
         
         
 class LoadingFixturesTestCase(SettingsTestCase):
@@ -479,7 +482,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
         self.assertEqual(orginal_object.description,
                          'New description of user profile')
         self.assertEqual(UserProfile.objects.get(pk=profile.pk).description,
-                         "Profile description")
+                         u'Old description')
 
         signals.pre_save.disconnect(self.moderation.pre_save_handler,
                                     UserProfile)
@@ -502,7 +505,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
         content_object = moderated_object.content_object
         
         self.assertEqual(orginal_object.description,
-                         "Profile description")
+                         u'Old description')
         self.assertEqual(content_object.description,
                          'New description of user profile')
         
