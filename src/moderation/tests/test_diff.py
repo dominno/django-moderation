@@ -2,14 +2,75 @@
 
 import unittest
 from moderation.diff import get_changes_between_models, html_to_list,\
-    html_diff, generate_diff
+    TextChange, get_diff_operations, ImageChange
 from django.test.testcases import TestCase
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User
-from moderation.tests.test_app.models import UserProfile, ModelWIthDateField
+from django.db.models import fields
+from moderation.tests.test_app.models import UserProfile, ModelWIthDateField,\
+                                            ModelWithImage
 from moderation.models import ModeratedObject
 import re
+
+
+class TextChangeObjectTestCase(unittest.TestCase):
+    
+    def setUp(self):
+        self.change = TextChange(verbose_name='description',
+                             field=fields.CharField,
+                             change=('test1', 'test2'))
+    
+    def test_verbose_name(self):
+        self.assertEqual(self.change.verbose_name, 'description')
+        
+    def test_field(self):
+        self.assertEqual(self.change.field, fields.CharField)
+    
+    def test_change(self):
+        self.assertEqual(self.change.change, ('test1', 'test2'))
+    
+    def test_diff_text_change(self):
+        self.assertEqual(self.change.diff,
+                         u'test\n\t\n\n\t\n\t\t<del class="diff modified">1'\
+                         u'</del><ins class="diff modified">2</ins>\n')
+    
+    def test_render_diff(self):
+        diff_operations = get_diff_operations('test1', 'test2')
+        self.assertEqual(self.change.render_diff('moderation/html_diff.html',
+                        {'diff_operations': diff_operations}),
+                        u'test\n\t\n\n\t\n\t\t<del class="diff modified">'\
+                        u'1</del><ins class="diff modified">2</ins>\n')
+
+
+class ImageChangeObjectTestCase(unittest.TestCase):
+
+    def setUp(self):
+        image1 = ModelWithImage(image='my_image.jpg')
+        image1.save()
+        image2 = ModelWithImage(image='my_image2.jpg')
+        image2.save()
+        self.left_image = image1.image
+        self.right_image = image2.image 
+        self.change = ImageChange(verbose_name='image',
+                             field=fields.files.ImageField,
+                             change=(self.left_image, self.right_image))
+
+    def test_verbose_name(self):
+        self.assertEqual(self.change.verbose_name, 'image')
+
+    def test_field(self):
+        self.assertEqual(self.change.field, fields.files.ImageField)
+
+    def test_change(self):
+        self.assertEqual(self.change.change, (self.left_image,
+                                              self.right_image))
+
+    def test_diff(self):
+        self.assertEqual(self.change.diff,
+                         u'<img src="/media/my_image.jpg">'\
+                         u'<img style="margin-left: 10px;" '\
+                         u'src="/media/my_image2.jpg">')
 
 
 class DiffModeratedObjectTestCase(SettingsTestCase):
@@ -26,38 +87,27 @@ class DiffModeratedObjectTestCase(SettingsTestCase):
         
         self.profile = UserProfile.objects.get(user__username='moderator')
         
-        diff = get_changes_between_models(moderated_object.changed_object,
+        changes = get_changes_between_models(moderated_object.changed_object,
                                    self.profile)
 
-        self.assertEqual(diff, {'description': ('New description',
-                                                u'Old description')})
+        self.assertEqual(unicode(changes),
+                         u'[Change object: New description - Old description,'\
+                         u' Change object: http://www.google.com - '\
+                         u'http://www.google.com]')
+
+    def test_get_changes_between_models_image(self):
+        '''Verify proper diff for ImageField fields''' 
         
-    def test_generate_diff(self):
-        self.profile.description = 'New description'
-        self.profile.url = 'http://new_url.com'
-
-        moderated_object = ModeratedObject(content_object=self.profile)
-        moderated_object.save()
-
-        self.profile = UserProfile.objects.get(user__username='moderator')
-        self.profile.description = 'Old description'
-        self.profile.url = 'http://old_url.com'
-       
-        fields_diff = generate_diff(self.profile,
-                                    moderated_object.changed_object)
-
-        description_diff = u'<del class="diff modified">Old </del>'\
-                           u'<ins class="diff modified">New </ins>description'
-        url_diff = u'http<del class="diff modified">old_url</del>'\
-                   u'<ins class="diff modified">new_url</ins>.com'
- 
-        self.assertEqual(fields_diff, [
-                                        {
-                                         'verbose_name':'description',
-                                         'diff': description_diff},
-                                        {
-                                         'verbose_name':'url',
-                                         'diff': url_diff}])
+        image1 = ModelWithImage(image='tmp/test1.jpg')
+        image1.save()
+        image2 = ModelWithImage(image='tmp/test2.jpg')
+        image2.save()
+        
+        changes = get_changes_between_models(image1, image2)
+        self.assertEqual(changes[0].diff,
+                         u'<img src="/media/tmp/test1.jpg">'\
+                         u'<img style="margin-left: 10px;" '\
+                         u'src="/media/tmp/test2.jpg">')
 
 
 class DiffTestCase(unittest.TestCase):
@@ -102,25 +152,6 @@ class DiffTestCase(unittest.TestCase):
                                               '</div>',
                                               ])
 
-    def test_html_diff(self):
-        text_a = '<p>Lorem ipsum dolor <b>sit</b> amet, consectetur\n'\
-                 'adipiscing elit. Curabitur consequat <h1>risus</h1> '\
-                 'a nisl commodo interdum.</p>'
-
-        text_b = '<p>Lorem ipsum dolor <b>lorem</b> amet, consectetur\n'\
-                 'adipiscing elit. Curabitur tellus consequat <h1>risus</h1>'\
-                 ' a nisl commodo.</p>'
-
-        diff_html = '<p>Lorem ipsum dolor <b><del class="diff modified">sit'\
-                    '</del><ins class="diff modified">lorem</ins></b> amet,'\
-                    ' consectetur\nadipiscing elit. Curabitur '\
-                    '<ins class="diff">tellus </ins>consequat <h1>risus</h1>'\
-                    ' a nisl <del class="diff modified">commodo '\
-                    'interdum</del><ins class="diff modified">'\
-                    'commodo</ins>.</p>'
-
-        self.assertEqual(html_diff(text_a, text_b), diff_html)
-
 
 class DateFieldTestCase(SettingsTestCase):
     fixtures = ['test_users.json']
@@ -138,9 +169,8 @@ class DateFieldTestCase(SettingsTestCase):
            changes between models, all changes should be unicode.
         '''
         changes = get_changes_between_models(self.obj1, self.obj2)
-
-        self.assertTrue(isinstance(changes['date'][0], unicode))
-        self.assertTrue(isinstance(changes['date'][1], unicode))
+        self.assertTrue(isinstance(changes[0].change[0], unicode))
+        self.assertTrue(isinstance(changes[0].change[1], unicode))
 
     def test_html_to_list_should_return_list(self):
         '''Test if changes dict generated from model that has non unicode field
@@ -148,8 +178,8 @@ class DateFieldTestCase(SettingsTestCase):
         '''
         changes = get_changes_between_models(self.obj1, self.obj2)
         
-        changes_list1 = html_to_list(changes['date'][0])
-        changes_list2 = html_to_list(changes['date'][1])
+        changes_list1 = html_to_list(changes[0].change[0])
+        changes_list2 = html_to_list(changes[0].change[1])
         
         self.assertTrue(isinstance(changes_list1, list))
         self.assertTrue(isinstance(changes_list2, list))

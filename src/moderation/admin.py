@@ -6,10 +6,10 @@ from moderation.models import ModeratedObject, MODERATION_DRAFT_STATE,\
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED,\
     MODERATION_STATUS_APPROVED
 from moderation import moderation
-from moderation.diff import generate_diff
 from django.utils.translation import ugettext as _
 from moderation.forms import BaseModeratedObjectForm
 from moderation.helpers import automoderate
+from moderation.diff import get_changes_between_models
 
 
 def approve_objects(modeladmin, request, queryset):
@@ -126,7 +126,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
         changed_object = moderated_object.changed_object
 
-        fields_diff = generate_diff(
+        changes = get_changes_between_models(
                                 moderated_object.get_object_for_this_type(),
                                 changed_object)
         if request.POST:
@@ -139,7 +139,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                 elif 'reject' in request.POST:
                     moderated_object.reject(request.user, reason)
 
-        extra_context = {'fields_diff': fields_diff,
+        extra_context = {'changes': changes,
                          'django_version': django.get_version()[:3]}
         return super(ModeratedObjectAdmin, self).change_view(request,
                                                              object_id,

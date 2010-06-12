@@ -3,23 +3,74 @@
 import re
 import difflib
 
+from django.db.models import fields
+
+
+class BaseChange(object):
+    
+    def __repr__(self):
+
+        value1, value2 = self.change
+        return u'Change object: %s - %s' % (value1, value2)
+    
+    def __init__(self, verbose_name, field, change):
+        self.verbose_name = verbose_name
+        self.field = field
+        self.change = change
+
+    def render_diff(self, template, context):
+        from django.template.loader import render_to_string
+
+        return render_to_string(template, context)
+
+
+class TextChange(BaseChange):
+    
+    @property
+    def diff(self):
+        value1, value2 = self.change
+        if value1 == value2:
+            return value1
+        
+        return self.render_diff(
+                    'moderation/html_diff.html',
+                    {'diff_operations': get_diff_operations(*self.change)})
+
+
+class ImageChange(BaseChange):
+    
+    @property
+    def diff(self):
+        left_image, right_image = self.change
+        return self.render_diff(
+                    'moderation/image_diff.html',
+                    {'left_image': left_image,
+                     'right_image': right_image})
+
 
 def get_changes_between_models(model1, model2, excludes=[]):
-    from django.db.models import fields
-    changes = {}
+    changes = []
     for field in model1._meta.fields:
         if not (isinstance(field, (fields.AutoField,
-                                   fields.related.RelatedField))
+                                   fields.related.RelatedField,
+                                   ))
                 or field.name in excludes):
-            value2 = unicode(field.value_from_object(model2))
-            value1 = unicode(field.value_from_object(model1))
-            if value1 != value2:
-                changes[field.verbose_name] = (value1, value2)
+
+            value2 = field.value_from_object(model2)
+            value1 = field.value_from_object(model1)
+
+            change = get_change_for_type(
+                                field.verbose_name, 
+                                (value1, value2),
+                                field)
+
+            changes.append(change)
+
     return changes
 
 
-def get_diff(a, b):
-    out = []
+def get_diff_operations(a, b):
+    operations = []
     sequence_matcher = difflib.SequenceMatcher(None, a, b)
     for opcode in sequence_matcher.get_opcodes():
 
@@ -28,27 +79,10 @@ def get_diff(a, b):
         deleted = ''.join(a[start_a:end_a])
         inserted = ''.join(b[start_b:end_b])
         
-        if operation == "replace":
-            out.append('<del class="diff modified">%s</del>'\
-                       '<ins class="diff modified">%s</ins>' % (deleted,
-                                                                inserted))
-        elif operation == "delete":
-            out.append('<del class="diff">%s</del>' % deleted)
-        elif operation == "insert":
-            out.append('<ins class="diff">%s</ins>' % inserted)
-        elif operation == "equal":
-            out.append(inserted)
-
-    return out
-
-
-def html_diff(a, b):
-    """Takes in strings a and b and returns a human-readable HTML diff."""
-
-    a, b = html_to_list(a), html_to_list(b)
-    diff = get_diff(a, b)
-
-    return u"".join(diff)
+        operations.append({'operation': operation,
+                           'deleted': deleted,
+                           'inserted': inserted})
+    return operations
 
 
 def html_to_list(html):
@@ -60,27 +94,18 @@ def html_to_list(html):
                                                    pattern.findall(html))]
 
 
-def generate_diff(instance1, instance2):
-    from django.db.models import fields
+def get_change_for_type(verbose_name, change, field):
+    if isinstance(field, fields.files.ImageField):
+        change = ImageChange(
+                    u"Current %(verbose_name)s / "\
+                    u"New %(verbose_name)s" % {'verbose_name': verbose_name},
+                    field,
+                    change)
+    else:
+        value1, value2 = change
+        change = TextChange(verbose_name,
+                            field,
+                            (unicode(value1), unicode(value2)),
+                            )
     
-    changes = get_changes_between_models(instance1, instance2, excludes=['ID'])
-    
-    fields_diff = []
-
-    for field in instance1._meta.fields:
-        if (isinstance(field, (fields.AutoField,
-                                   fields.related.RelatedField))):
-            continue
-        
-        field_changes = changes.get(field.verbose_name, None)
-        if field_changes:
-            change1, change2 = field_changes
-            diff = {'verbose_name': field.verbose_name,
-                    'diff': html_diff(change1, change2)}
-            fields_diff.append(diff)
-        else:
-            diff = {'verbose_name': field.verbose_name,
-                    'diff': field.value_from_object(instance1)}
-            fields_diff.append(diff)
-
-    return fields_diff
+    return change

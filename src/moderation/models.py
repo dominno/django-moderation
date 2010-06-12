@@ -153,12 +153,19 @@ class ModeratedObject(models.Model):
         if self.changed_by:
             self.moderator.inform_user(self.content_object, self.changed_by)
 
-    def _is_not_equal_instance(self, instance):
-        changes = get_changes_between_models(self.changed_object, instance)
-        if changes:
-            return True
-        else:
-            return False
+    def has_object_been_changed(self, oryginal_obj):
+        from django.db.models import fields
+        changes = {}
+        for field in oryginal_obj._meta.fields:
+            if not (isinstance(field, (fields.AutoField,
+                                   fields.related.RelatedField,
+                                   ))):
+                value2 = unicode(field.value_from_object(oryginal_obj))
+                value1 = unicode(field.value_from_object(self.changed_object))
+                if value1 != value2:
+                    return True
+        
+        return False
 
     def approve(self, moderated_by=None, reason=None):
         pre_moderation.send(sender=self.content_object.__class__,

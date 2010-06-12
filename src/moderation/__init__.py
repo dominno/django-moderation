@@ -309,7 +309,7 @@ class ModerationManager(object):
             moderated_object\
              = ModeratedObject.objects.get_for_instance(instance)
 
-            if moderated_object._is_not_equal_instance(instance):
+            if moderated_object.has_object_been_changed(instance):
                 moderated_object.changed_object = unchanged_obj
 
         except ObjectDoesNotExist:
@@ -355,7 +355,7 @@ class ModerationManager(object):
                and moderator.bypass_moderation_after_approval:
                 return
 
-            if moderated_obj._is_not_equal_instance(instance):
+            if moderated_obj.has_object_been_changed(instance):
                 copied_instance = self._copy_model_instance(instance)
                 # save instance with data from changed_object
                 moderated_obj.changed_object.save_base(raw=True)

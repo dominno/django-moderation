@@ -184,7 +184,7 @@ class ModerateTestCase(SettingsTestCase):
         self.assertEqual(self.profile.moderated_object.moderation_status,
                          MODERATION_STATUS_REJECTED)
 
-    def test_is_not_equal_instance_should_be_true(self):
+    def test_has_object_been_changed_should_be_true(self):
         self.profile.description = 'New description'
 
         moderated_object = ModeratedObject(content_object=self.profile)
@@ -192,15 +192,15 @@ class ModerateTestCase(SettingsTestCase):
 
         user_profile = UserProfile.objects.get(user__username='moderator')
 
-        value = moderated_object._is_not_equal_instance(user_profile)
+        value = moderated_object.has_object_been_changed(user_profile)
 
         self.assertEqual(value, True)
 
-    def test_is_not_equal_instance_should_be_false(self):
+    def test_has_object_been_changed_should_be_false(self):
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
 
-        value = moderated_object._is_not_equal_instance(self.profile)
+        value = moderated_object.has_object_been_changed(self.profile)
 
         self.assertEqual(value, False)
 

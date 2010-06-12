@@ -62,3 +62,7 @@ class ModelWithWrongVisibilityField(models.Model):
     
     def __unicode__(self):
         return u'%s - is public %s' % (self.test, self.is_public)
+
+
+class ModelWithImage(models.Model):
+    image = models.ImageField(upload_to='tmp')

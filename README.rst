@@ -20,6 +20,7 @@ Features:
 - configurable email notifications
 - custom model form that allows to edit changed data of object
 - auto approve/reject for selected user groups or user types
+- support for ImageField model fields on moderate object page
 - 100% PEP8 correct code
 - test coverage > 80% 
 

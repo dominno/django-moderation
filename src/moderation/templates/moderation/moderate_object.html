@@ -41,10 +41,10 @@ background:#BBFFBB none repeat scroll 0 0;
 	<fieldset class="module aligned ">
 	<h2>Object differences</h2>
 
-	{% for field in fields_diff %}
-	<div class="form-row {{ field.label }}">
+	{% for change in changes %}
+	<div class="form-row {{ change.verbose_name }}">
 		<div>
-			<label>{{ field.verbose_name }}</label><p style="width:615px;">{{ field.diff|safe }}</p>
+			<label>{{ change.verbose_name }}</label><p style="width:800px;">{{ change.diff|safe }}</p>
 		</div>
 		
 	</div>
