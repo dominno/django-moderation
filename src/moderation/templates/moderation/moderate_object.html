@@ -22,19 +22,8 @@ background:#BBFFBB none repeat scroll 0 0;
 </style>
 {% endblock %}
 {% block content %}
-{% block object-tools %}
-{% if change %}{% if not is_popup %}
-  <ul class="object-tools">
-    {% if has_absolute_url %}
-        <li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">
-            {% trans "View on site" %}</a>
-        </li>
-    {% endif%}
-  </ul>
-{% endif %}{% endif %}
-{% endblock %}
-
-<form enctype="multipart/form-data" action="" method="post" id="moderatedobject_form">
+<form enctype="multipart/form-data" action="" method="post"
+id="moderatedobject_form">{% csrf_token %}
 	
 	
 <div>
@@ -44,7 +33,7 @@ background:#BBFFBB none repeat scroll 0 0;
 	{% for change in changes %}
 	<div class="form-row {{ change.verbose_name }}">
 		<div>
-			<label>{{ change.verbose_name }}</label><p style="width:800px;">{{ change.diff|safe }}</p>
+			<label style="font-size: 14px; font-weight: bold;">{{ change.verbose_name }}</label><p style="width:800px;">{{ change.diff|safe }}</p>
 		</div>
 		
 	</div>
