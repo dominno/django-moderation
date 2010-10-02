@@ -1,12 +1,12 @@
-from moderation.tests.test_register import *
-from moderation.tests.test_menagers import *
-from moderation.tests.test_models import *
-from moderation.tests.test_utils_functions import *
-from moderation.tests.test_admin import *
-from moderation.tests.test_diff import *
-from moderation.tests.test_forms import *
-from moderation.tests.test_generic_moderator import *
-from moderation.tests.regresion_tests import *
+from moderation.tests.unit.register import *
+from moderation.tests.unit.menagers import *
+from moderation.tests.unit.models import *
+from moderation.tests.unit.utils import *
+from moderation.tests.unit.admin import *
+from moderation.tests.unit.diff import *
+from moderation.tests.unit.forms import *
+from moderation.tests.unit.moderator import *
+from moderation.tests.regresion import *
 from moderation.tests.acceptance.exclude import *
 
 
