@@ -179,6 +179,10 @@ Moderation registration options
     Class that subclasses GenericModerator class. It Encapsulates moderation
     options for a given model. Example::
     
+    
+        from moderation.moderator import GenericModerator
+        
+        
         class UserProfileModerator(GenericModerator):
             notify_user = False
             auto_approve_for_superusers = True
