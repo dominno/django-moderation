@@ -73,3 +73,19 @@ class SerializedObjectField(models.TextField):
                             self._deserialize(value))
                 else:
                     setattr(kwargs['instance'], self.attname, None)
+
+
+try:
+    from south.modelsinspector import add_introspection_rules
+    add_introspection_rules([
+        (
+            [SerializedObjectField], # Class(es) these apply to
+            [],         # Positional arguments (not used)
+            {           # Keyword argument
+                "serialize_format": ["serialize_format", {"default": "json"}],
+            },
+        ),
+    ], ["^moderation\.fields\.SerializedObjectField"])
+except ImportError:
+    pass
+    
