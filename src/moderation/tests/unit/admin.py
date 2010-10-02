@@ -9,7 +9,7 @@ from moderation.models import ModeratedObject, MODERATION_READY_STATE,\
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import User
 
-from moderation import ModerationManager
+from moderation.register import ModerationManager 
 from moderation.tests.test_app.models import UserProfile, ModelWithSlugField,\
     ModelWithSlugField2
 from django.core.exceptions import ObjectDoesNotExist

@@ -1,4 +1,4 @@
-from moderation import ModerationManager
+from moderation.register import ModerationManager 
 
 
 def setup_moderation(models=[]):

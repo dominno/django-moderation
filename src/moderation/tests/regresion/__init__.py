@@ -1,5 +1,5 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
-from moderation import ModerationManager
+from moderation.register import ModerationManager 
 from moderation.tests.test_app.models import UserProfile
 from django.contrib.auth.models import User
 from moderation.models import MODERATION_STATUS_APPROVED

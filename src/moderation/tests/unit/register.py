@@ -4,8 +4,8 @@ from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.manager import Manager
 
-from moderation import RegistrationError,\
-    ModerationManager, GenericModerator
+from moderation.register import ModerationManager, RegistrationError
+from moderation.moderator import GenericModerator
 from moderation.managers import ModerationObjectsManager
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from moderation.signals import pre_moderation, post_moderation

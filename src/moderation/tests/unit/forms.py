@@ -1,7 +1,7 @@
 
 from moderation.tests.test_app.models import UserProfile
 from moderation.forms import BaseModeratedObjectForm
-from moderation import ModerationManager
+from moderation.register import ModerationManager 
 from django.contrib.auth.models import User
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.utils import setup_moderation, teardown_moderation

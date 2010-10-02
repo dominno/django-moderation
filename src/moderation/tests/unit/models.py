@@ -6,7 +6,8 @@ from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED, \
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED
 from django.core.exceptions import ObjectDoesNotExist
 from moderation.fields import SerializedObjectField
-from moderation import ModerationManager, GenericModerator, RegistrationError
+from moderation.register import ModerationManager, RegistrationError
+from moderation.moderator import GenericModerator
 from moderation.helpers import automoderate
 from moderation.tests.utils import setup_moderation, teardown_moderation
 

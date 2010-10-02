@@ -1,4 +1,4 @@
-from moderation import RegistrationError
+from moderation.register import RegistrationError
 
 
 def automoderate(instance, user):

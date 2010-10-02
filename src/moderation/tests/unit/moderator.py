@@ -1,7 +1,8 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.test_app.models import UserProfile,\
     ModelWithVisibilityField, ModelWithWrongVisibilityField
-from moderation import GenericModerator, ModerationManager
+from moderation.register import ModerationManager 
+from moderation.moderator import GenericModerator
 from moderation.managers import ModerationObjectsManager
 from django.core import mail
 from django.contrib.auth.models import User, Group

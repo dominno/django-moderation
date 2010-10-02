@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from moderation import ModerationManager, GenericModerator
+from moderation.register import ModerationManager 
+from moderation.moderator import GenericModerator
 from moderation.tests.test_app.models import UserProfile
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.utils import setup_moderation, teardown_moderation

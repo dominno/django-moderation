@@ -12,7 +12,8 @@ from moderation.managers import ModerationObjectsManager
 from django.db.models.manager import Manager
 from moderation.models import ModeratedObject
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from moderation import ModerationManager, GenericModerator
+from moderation.register import ModerationManager 
+from moderation.moderator import GenericModerator
 from django.contrib.contenttypes import generic
 from django.db.models.query import EmptyQuerySet
 from moderation.tests.utils import setup_moderation, teardown_moderation
