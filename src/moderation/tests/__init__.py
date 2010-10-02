@@ -7,3 +7,6 @@ from moderation.tests.test_diff import *
 from moderation.tests.test_forms import *
 from moderation.tests.test_generic_moderator import *
 from moderation.tests.regresion_tests import *
+from moderation.tests.acceptance.exclude import *
+
+

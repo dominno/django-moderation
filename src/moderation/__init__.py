@@ -25,6 +25,8 @@ class GenericModerator(object):
     moderation_manager_class = ModerationObjectsManager
     bypass_moderation_after_approval = False
     
+    fields_exclude = []
+    
     visibility_column = None
 
     auto_approve_for_superusers = True

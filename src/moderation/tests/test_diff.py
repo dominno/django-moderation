@@ -91,9 +91,9 @@ class DiffModeratedObjectTestCase(SettingsTestCase):
                                    self.profile)
 
         self.assertEqual(unicode(changes),
-                         u'[Change object: New description - Old description,'\
-                         u' Change object: http://www.google.com - '\
-                         u'http://www.google.com]')
+                u"{u'userprofile__url': Change object: http://www.google.com"\
+                u" - http://www.google.com, u'userprofile__description': "\
+                u"Change object: New description - Old description}")
 
     def test_get_changes_between_models_image(self):
         '''Verify proper diff for ImageField fields''' 
@@ -104,10 +104,25 @@ class DiffModeratedObjectTestCase(SettingsTestCase):
         image2.save()
         
         changes = get_changes_between_models(image1, image2)
-        self.assertEqual(changes[0].diff,
+        self.assertEqual(changes['modelwithimage__image'].diff,
                          u'<img src="/media/tmp/test1.jpg">'\
                          u'<img style="margin-left: 10px;" '\
                          u'src="/media/tmp/test2.jpg">')
+    
+    def test_excluded_fields_should_be_excluded_from_changes(self):
+        self.profile.description = 'New description'
+        moderated_object = ModeratedObject(content_object=self.profile)
+        moderated_object.save()
+        
+        self.profile = UserProfile.objects.get(user__username='moderator')
+        
+        changes = get_changes_between_models(moderated_object.changed_object,
+                                   self.profile, excludes=['description'])
+
+        self.assertEqual(unicode(changes),
+                        u"{u'userprofile__url': Change object: "\
+                        u"http://www.google.com - http://www.google.com}")
+        
 
 
 class DiffTestCase(unittest.TestCase):
@@ -169,8 +184,11 @@ class DateFieldTestCase(SettingsTestCase):
            changes between models, all changes should be unicode.
         '''
         changes = get_changes_between_models(self.obj1, self.obj2)
-        self.assertTrue(isinstance(changes[0].change[0], unicode))
-        self.assertTrue(isinstance(changes[0].change[1], unicode))
+        
+        date_change = changes['modelwithdatefield__date']
+        
+        self.assertTrue(isinstance(date_change.change[0], unicode))
+        self.assertTrue(isinstance(date_change.change[1], unicode))
 
     def test_html_to_list_should_return_list(self):
         '''Test if changes dict generated from model that has non unicode field
@@ -178,8 +196,10 @@ class DateFieldTestCase(SettingsTestCase):
         '''
         changes = get_changes_between_models(self.obj1, self.obj2)
         
-        changes_list1 = html_to_list(changes[0].change[0])
-        changes_list2 = html_to_list(changes[0].change[1])
+        date_change = changes['modelwithdatefield__date']
+        
+        changes_list1 = html_to_list(date_change.change[0])
+        changes_list2 = html_to_list(date_change.change[1])
         
         self.assertTrue(isinstance(changes_list1, list))
         self.assertTrue(isinstance(changes_list2, list))

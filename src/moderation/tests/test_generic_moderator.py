@@ -67,6 +67,9 @@ class GenericModeratorTestCase(SettingsTestCase):
         self.moderator = GenericModerator(UserProfile)
         self.moderator.inform_user(self.user, self.user)
         self.assertEqual(len(mail.outbox), 1)
+        
+    def test_moderator_should_have_field_exclude(self):
+        self.assertTrue(hasattr(self.moderator, 'fields_exclude'))
 
 
 class AutoModerateModeratorTestCase(TestCase):

@@ -154,18 +154,17 @@ class ModeratedObject(models.Model):
             self.moderator.inform_user(self.content_object, self.changed_by)
 
     def has_object_been_changed(self, oryginal_obj):
-        from django.db.models import fields
-        changes = {}
-        for field in oryginal_obj._meta.fields:
-            if not (isinstance(field, (fields.AutoField,
-                                   fields.related.RelatedField,
-                                   ))):
-                value2 = unicode(field.value_from_object(oryginal_obj))
-                value1 = unicode(field.value_from_object(self.changed_object))
-                if value1 != value2:
-                    return True
+        changes = get_changes_between_models(oryginal_obj,
+                                             self.changed_object,
+                                             self.moderator.fields_exclude)
         
+        for change in changes:
+            left_change, right_change = changes[change].change
+            if left_change != right_change:
+                return True
+            
         return False
+        
 
     def approve(self, moderated_by=None, reason=None):
         pre_moderation.send(sender=self.content_object.__class__,

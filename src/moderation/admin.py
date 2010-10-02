@@ -5,7 +5,7 @@ import django
 from moderation.models import ModeratedObject, MODERATION_DRAFT_STATE,\
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED,\
     MODERATION_STATUS_APPROVED
-from moderation import moderation
+
 from django.utils.translation import ugettext as _
 from moderation.forms import BaseModeratedObjectForm
 from moderation.helpers import automoderate
@@ -122,13 +122,17 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
         return ModeratedObjectForm
 
     def change_view(self, request, object_id, extra_context=None):
+        from moderation import moderation
         moderated_object = ModeratedObject.objects.get(pk=object_id)
 
         changed_object = moderated_object.changed_object
 
+        moderator = moderation.get_moderator(changed_object.__class__)
+
         changes = get_changes_between_models(
                                 moderated_object.get_object_for_this_type(),
-                                changed_object)
+                                changed_object,
+                                moderator.fields_exclude).values()
         if request.POST:
             admin_form = self.get_form(request, moderated_object)(request.POST)
 

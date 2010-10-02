@@ -48,25 +48,43 @@ class ImageChange(BaseChange):
                      'right_image': right_image})
 
 
+
+def get_change(model1, model2, field):    
+    try:
+        value1 = getattr(model1, "get_%s_display" % field.name)()
+        value2 = getattr(model2, "get_%s_display" % field.name)()
+    except AttributeError:
+        value1 = field.value_from_object(model1)
+        value2 = field.value_from_object(model2)
+        
+    change = get_change_for_type(
+                                    field.verbose_name, 
+                                    (value1, value2),
+                                    field,
+                                    )
+    
+    return change
+
+
 def get_changes_between_models(model1, model2, excludes=[]):
-    changes = []
+    changes = {}
+    
     for field in model1._meta.fields:
         if not (isinstance(field, (fields.AutoField,
                                    fields.related.RelatedField,
                                    ))
-                or field.name in excludes):
-
-            value2 = field.value_from_object(model2)
-            value1 = field.value_from_object(model1)
-
-            change = get_change_for_type(
-                                field.verbose_name, 
-                                (value1, value2),
-                                field)
-
-            changes.append(change)
+                ):
+            
+            if field.name in excludes:
+                continue
+            
+            name = u"%s__%s" % (model1.__class__.__name__.lower(), field.name)
+            
+            changes[name] = get_change(model1, model2, field)
+    
 
     return changes
+
 
 
 def get_diff_operations(a, b):

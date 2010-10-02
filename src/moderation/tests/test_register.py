@@ -299,6 +299,7 @@ class ModerationManagerTestCase(SettingsTestCase):
         self.moderation._remove_fields(moderator)
 
     def test_get_or_create_moderated_object_exist(self):
+        self.moderation.register(UserProfile)
         profile = UserProfile.objects.get(user__username='moderator')
         
         ModeratedObject(content_object=profile).save()
@@ -312,6 +313,8 @@ class ModerationManagerTestCase(SettingsTestCase):
         self.assertNotEqual(object.pk, None)
         self.assertEqual(object.changed_object.description, 
                          u'Old description')
+        
+        self.moderation.unregister(UserProfile)
 
     def test_get_or_create_moderated_object_does_not_exist(self):
         profile = UserProfile.objects.get(user__username='moderator')

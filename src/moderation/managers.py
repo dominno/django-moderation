@@ -2,8 +2,6 @@ from django.db.models.manager import Manager
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
-from moderation.diff import get_changes_between_models
-
 
 class MetaClass(type):
 

@@ -199,6 +199,9 @@ GenericModerator options
 ``visibility_column``
     If you want a performance boost, define visibility field on your model and add option ``visibility_column = 'your_field'`` on moderator class. Field must by a BooleanField. The manager that decides which model objects should be excluded when it were rejected, will first use this option to properly display (or hide) objects that are registered with moderation. Use this option if you can define visibility column in your model and want to boost performance. By default when accessing model objects that are under moderation, one extra query is executed per object in query set to determine if object should be excluded from query set. This method benefit those who do not want to add any fields to their Models. Default: None.
 
+``fields_exclude``
+    Fields to exclude from object change list. Default: []
+
 ``auto_approve_for_superusers``
     Auto approve objects changed by superusers. Default: True
 
