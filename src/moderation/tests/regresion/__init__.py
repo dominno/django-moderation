@@ -1,6 +1,6 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.register import ModerationManager 
-from moderation.tests.test_app.models import UserProfile
+from moderation.tests.apps.test_app1.models import UserProfile
 from django.contrib.auth.models import User
 from moderation.models import MODERATION_STATUS_APPROVED
 import django
@@ -12,15 +12,14 @@ django_version = django.get_version()[:3]
 
 class CSRFMiddlewareTestCase(SettingsTestCase):
     fixtures = ['test_users.json']
-    urls = 'moderation.tests.test_urls'
+    urls = 'moderation.tests.urls.default'
     test_settings = 'moderation.tests.settings.csrf_middleware'
     
     def setUp(self):
-        self.moderation, self.old_moderation = setup_moderation([UserProfile])
+        setup_moderation([UserProfile])
 
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [UserProfile])
+        teardown_moderation()
 
     def test_csrf_token(self):
         profile = UserProfile(description='Profile for new user',
@@ -56,13 +55,12 @@ class AutomoderationRuntimeErrorRegresionTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
     
     def setUp(self):
-        self.moderation, self.old_moderation = setup_moderation([UserProfile])
+        setup_moderation([UserProfile])
 
         self.user = User.objects.get(username='admin')
 
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [UserProfile])
+        teardown_moderation()
 
     def test_RuntimeError(self):
         from moderation.helpers import automoderate

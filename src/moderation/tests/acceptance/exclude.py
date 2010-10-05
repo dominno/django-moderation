@@ -3,10 +3,11 @@ from django.core.urlresolvers import reverse
 
 from moderation.register import ModerationManager 
 from moderation.moderator import GenericModerator
-from moderation.tests.test_app.models import UserProfile
+from moderation.tests.apps.test_app1.models import UserProfile
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.utils import setup_moderation, teardown_moderation
 from moderation.diff import get_changes_between_models
+from moderation import moderation
 
 
 
@@ -17,21 +18,20 @@ class ExcludeAcceptanceTestCase(SettingsTestCase):
     '''
     fixtures = ['test_users.json', 'test_moderation.json']
     test_settings = 'moderation.tests.settings.generic'
-    urls = 'moderation.tests.test_urls'
+    urls = 'moderation.tests.urls.default'
     
     def setUp(self):
-        self.moderation, self.old_moderation = setup_moderation()
+        setup_moderation()
         
         self.client.login(username='admin', password='aaaa')
         
         class UserProfileModerator(GenericModerator):
             fields_exclude = ['url']
             
-        self.moderation.register(UserProfile, UserProfileModerator)
+        moderation.register(UserProfile, UserProfileModerator)
     
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [UserProfile])
+        teardown_moderation()
         
     def test_excluded_field_shoud_not_be_moderated_when_object_is_edited(self):
         '''

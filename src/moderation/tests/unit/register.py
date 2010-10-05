@@ -9,11 +9,13 @@ from moderation.moderator import GenericModerator
 from moderation.managers import ModerationObjectsManager
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from moderation.signals import pre_moderation, post_moderation
-from moderation.tests.test_app.models import UserProfile, ModelWithSlugField,\
+from moderation.tests.apps.test_app1.models import UserProfile, ModelWithSlugField,\
     ModelWithSlugField2, ModelWithMultipleManagers
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.utils import setup_moderation
 from moderation.tests.utils import teardown_moderation
+from moderation.helpers import import_moderator
+from moderation.tests.apps.test_app2.models import Book
 
 import unittest
 from django.db import IntegrityError
@@ -24,13 +26,11 @@ class RegistrationTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        self.moderation, self.old_moderation \
-           = setup_moderation([UserProfile])
+        self.moderation = setup_moderation([UserProfile])
         self.user = User.objects.get(username='moderator')
         
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [UserProfile])
+        teardown_moderation()
 
     def test_get_moderator(self):
         moderator = self.moderation.get_moderator(UserProfile)
@@ -95,7 +95,24 @@ class RegistrationTestCase(SettingsTestCase):
     def test_exception_is_raised_when_class_is_registered(self):
         self.assertRaises(RegistrationError, self.moderation.register,
                           UserProfile)
+        
 
+class AutoDiscoverTestCase(SettingsTestCase):
+    test_settings = 'moderation.tests.settings.auto_discover'
+    
+    def setUp(self):
+        setup_moderation()
+        
+    def tearDown(self):
+        teardown_moderation() 
+        
+    def test_models_should_be_registered_if_moderator_in_module(self):
+        module = import_moderator('moderation.tests.apps.test_app2')
+        
+        self.assertTrue(module.moderation._registered_models.has_key(Book))
+        self.assertEqual(module.__name__,
+                         'moderation.tests.apps.test_app2.moderator')
+            
 
 class RegisterMultipleManagersTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
@@ -106,13 +123,11 @@ class RegisterMultipleManagersTestCase(SettingsTestCase):
         class ModelWithMultipleManagersModerator(GenericModerator):
             manager_names = ['objects', 'men', 'women']
 
-        self.moderation, self.old_moderation = setup_moderation([
-                            (ModelWithMultipleManagers,
-                             ModelWithMultipleManagersModerator)])
+        setup_moderation([(ModelWithMultipleManagers,
+                           ModelWithMultipleManagersModerator)])
 
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [ModelWithMultipleManagers])
+        teardown_moderation()
 
     def test_multiple_managers(self):
         obj = ModelWithMultipleManagers(gender=0)
@@ -132,12 +147,10 @@ class IntegrityErrorTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        self.moderation, self.old_moderation = setup_moderation(
-                                                    [ModelWithSlugField])
+        self.moderation = setup_moderation([ModelWithSlugField])
 
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [ModelWithSlugField])
+        teardown_moderation()
 
     def test_raise_integrity_error_model_registered_with_moderation(self):
         m1 = ModelWithSlugField(slug='test')
@@ -213,11 +226,11 @@ class ModerationManagerTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
     
     def setUp(self):
-        self.moderation, self.old_moderation = setup_moderation()
+        self.moderation = setup_moderation()
         self.user = User.objects.get(username='moderator')
         
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation)
+        teardown_moderation()
         
     def test_unregister(self):
         """Tests if model class is sucessfuly unregistered from moderation"""
@@ -344,13 +357,11 @@ class LoadingFixturesTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
     
     def setUp(self):
-        self.new_moderation, self.old_moderation \
-           = setup_moderation([UserProfile])
+        self.new_moderation = setup_moderation([UserProfile])
         self.user = User.objects.get(username='moderator')
 
     def tearDown(self):
-        teardown_moderation(self.new_moderation, self.old_moderation,
-                            [UserProfile])
+        teardown_moderation()
 
     def test_loading_fixture_for_moderated_model(self):
         management.call_command('loaddata', 'test_moderation.json',
@@ -386,8 +397,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
         class UserProfileModerator(GenericModerator):
             notify_moderator = False
         
-        self.moderation, self.old_moderation \
-           = setup_moderation([(UserProfile, UserProfileModerator)])
+        self.moderation = setup_moderation([(UserProfile, UserProfileModerator)])
         
         self.moderation._disconnect_signals(UserProfile)
         
@@ -395,8 +405,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
         self.profile = UserProfile.objects.get(user__username='moderator')
 
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [UserProfile])
+        teardown_moderation()
 
     def test_send_pre_moderation_signal(self):
         """check if custom_approve_handler function was called when """

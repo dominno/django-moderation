@@ -1,7 +1,7 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User, Group
-from moderation.tests.test_app.models import UserProfile, ModelWithSlugField2
+from moderation.tests.apps.test_app1.models import UserProfile, ModelWithSlugField2
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED, \
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED
 from django.core.exceptions import ObjectDoesNotExist
@@ -26,7 +26,7 @@ class SerializationTestCase(SettingsTestCase):
         json_field = SerializedObjectField()
         
         self.assertEqual(json_field._serialize(self.profile),
-                    '[{"pk": 1, "model": "test_app.userprofile", "fields": '\
+                    '[{"pk": 1, "model": "test_app1.userprofile", "fields": '\
                     '{"url": "http://www.google.com", "user": 1, '\
                     '"description": "Old description"}}]',
                          )
@@ -41,15 +41,15 @@ class SerializationTestCase(SettingsTestCase):
         json_field = SerializedObjectField()
         
         self.assertEqual(json_field._serialize(UserProfile.objects.all()),
-                       '[{"pk": 1, "model": "test_app.userprofile", '\
+                       '[{"pk": 1, "model": "test_app1.userprofile", '\
                        '"fields": {"url": "http://www.google.com",'\
                        ' "user": 1, "description": "Old description"}},'\
-                       ' {"pk": 2, "model": "test_app.userprofile", "fields":'\
+                       ' {"pk": 2, "model": "test_app1.userprofile", "fields":'\
                        ' {"url": "http://www.test.com", "user": 2, '\
                        '"description": "Profile for new user"}}]')
 
     def test_deserialize(self):
-        value = '[{"pk": 1, "model": "test_app.userprofile", "fields": '\
+        value = '[{"pk": 1, "model": "test_app1.userprofile", "fields": '\
                 '{"url": "http://www.google.com", "user": 1, '\
                 '"description": "Profile description"}}]'
         json_field = SerializedObjectField()
@@ -60,10 +60,10 @@ class SerializationTestCase(SettingsTestCase):
         self.assertTrue(isinstance(object, UserProfile))
 
     def test_deserialize_many_objects(self):
-        value = '[{"pk": 1, "model": "test_app.userprofile", '\
+        value = '[{"pk": 1, "model": "test_app1.userprofile", '\
                 '"fields": {"url": "http://www.google.com",'\
                 ' "user": 1, "description": "Profile description"}},'\
-                ' {"pk": 2, "model": "test_app.userprofile", "fields":'\
+                ' {"pk": 2, "model": "test_app1.userprofile", "fields":'\
                 ' {"url": "http://www.yahoo.com", "user": 2, '\
                 '"description": "Profile description 2"}}]'
 
@@ -114,15 +114,15 @@ class SerializationTestCase(SettingsTestCase):
 class ModerateTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     test_settings = 'moderation.tests.settings.generic'
+    urls = 'moderation.tests.urls.default'
     
     def setUp(self):
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
-        self.moderation, self.old_moderation = setup_moderation([UserProfile])
+        self.moderation = setup_moderation([UserProfile])
         
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [UserProfile])
+        teardown_moderation()
         
     def test_approval_status_pending(self):
         """test if before object approval status is pending"""
@@ -221,16 +221,11 @@ class AutoModerateTestCase(SettingsTestCase):
 
         self.moderation.register(UserProfile, UserProfileModerator)
 
-        self.old_moderation = moderation
-        setattr(moderation, 'moderation', self.moderation)
-
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
 
     def tearDown(self):
-        import moderation
-        self.moderation.unregister(UserProfile)
-        setattr(moderation, 'moderation', self.old_moderation)
+        teardown_moderation()
 
     def test_auto_approve_helper_status_approved(self):
         self.profile.description = 'New description'

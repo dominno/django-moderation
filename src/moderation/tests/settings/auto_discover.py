@@ -9,10 +9,10 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.sites',
     'moderation',
-    'moderation.tests.apps.test_app1',
+    'moderation.tests.apps.test_app2',
 )
 
-ROOT_URLCONF = 'moderation.tests.urls.default.py'
+ROOT_URLCONF = 'moderation.tests.urls.auto_register.py'
 
 DJANGO_MODERATION_MODERATORS = (
                                'test@example.com',

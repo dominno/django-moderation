@@ -93,8 +93,13 @@ Configuration
         pass
         
     moderation.register(YourModel)
+    
+4. Add function ``auto_discover`` in to main urls.py::
 
-4. Register admin class with your Model::
+    from moderation.helpers import auto_discover
+    auto_discover() 
+
+5. Register admin class with your Model::
     
     from django.contrib import admin
     from moderation.admin import ModerationAdmin

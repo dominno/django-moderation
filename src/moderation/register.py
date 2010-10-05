@@ -9,11 +9,26 @@ class RegistrationError(Exception):
     """Exception thrown when registration with Moderation goes wrong."""
 
 
-class ModerationManager(object):
+class ModerationManagerSingleton(type):
+    def __init__(cls, name, bases, dict):
+        super(ModerationManagerSingleton, cls).__init__(name, bases, dict)
+        cls.instance = None
+ 
+    def __call__(cls, *args, **kw):
+        if cls.instance is None:
+            cls.instance = super(ModerationManagerSingleton, cls).__call__(*args, **kw)
+ 
+        return cls.instance
+    
 
-    def __init__(self):
+class ModerationManager(object):
+    __metaclass__ = ModerationManagerSingleton
+
+    def __init__(self, *args, **kwargs):
         """Initializes the moderation manager."""
         self._registered_models = {}
+        
+        super(ModerationManager, self).__init__(*args, **kwargs)
 
     def register(self, model_class, moderator_class=None):
         """Registers model class with moderation"""
@@ -40,8 +55,11 @@ class ModerationManager(object):
         signals.post_save.connect(self.post_save_handler,
                                       sender=model_class)
     
-    def _add_moderated_object_to_class(self, model_class):
-        relation_object = generic.GenericRelation(ModeratedObject,
+    def _add_moderated_object_to_class(self, model_class):    
+        if hasattr(model_class, '_relation_object'):
+            relation_object = getattr(model_class, '_relation_object')
+        else:
+            relation_object = generic.GenericRelation(ModeratedObject,
                                                object_id_field='object_pk')
         
         model_class.add_to_class('_relation_object', relation_object)

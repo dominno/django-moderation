@@ -8,7 +8,7 @@ from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User
 from django.db.models import fields
-from moderation.tests.test_app.models import UserProfile, ModelWIthDateField,\
+from moderation.tests.apps.test_app1.models import UserProfile, ModelWIthDateField,\
                                             ModelWithImage
 from moderation.models import ModeratedObject
 import re

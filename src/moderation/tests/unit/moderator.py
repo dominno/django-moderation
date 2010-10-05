@@ -1,5 +1,5 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
-from moderation.tests.test_app.models import UserProfile,\
+from moderation.tests.apps.test_app1.models import UserProfile,\
     ModelWithVisibilityField, ModelWithWrongVisibilityField
 from moderation.register import ModerationManager 
 from moderation.moderator import GenericModerator
@@ -181,16 +181,14 @@ class ByPassModerationTestCase(SettingsTestCase):
         class UserProfileModerator(GenericModerator):
             bypass_moderation_after_approval = True
 
-        self.moderation, self.old_moderation =\
-                 setup_moderation([(UserProfile,
+        self.moderation = setup_moderation([(UserProfile,
                                     UserProfileModerator)])
 
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
 
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [UserProfile])
+        teardown_moderation()
         
     def test_bypass_moderation_after_approval(self):
         profile = UserProfile(description='Profile for new user',
@@ -248,16 +246,14 @@ class VisibilityColumnTestCase(SettingsTestCase):
         class UserProfileModerator(GenericModerator):
             visibility_column = 'is_public'
 
-        self.moderation, self.old_moderation =\
-                 setup_moderation([(ModelWithVisibilityField,
+        self.moderation = setup_moderation([(ModelWithVisibilityField,
                                     UserProfileModerator)])
 
         self.user = User.objects.get(username='moderator')
         #self.profile = UserProfile.objects.get(user__username='moderator')
 
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [ModelWithVisibilityField])
+        teardown_moderation()
     
     def _create_userprofile(self):
         profile = ModelWithVisibilityField(test='Profile for new user')

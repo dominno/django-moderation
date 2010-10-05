@@ -6,7 +6,7 @@ Created on 2009-12-10
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User
-from moderation.tests.test_app.models import UserProfile, ModelWithSlugField2,\
+from moderation.tests.apps.test_app1.models import UserProfile, ModelWithSlugField2,\
     ModelWithVisibilityField
 from moderation.managers import ModerationObjectsManager
 from django.db.models.manager import Manager
@@ -21,7 +21,7 @@ from moderation.tests.utils import setup_moderation, teardown_moderation
 
 class ModerationObjectsManagerTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    urls = 'moderation.tests.test_urls'
+    urls = 'moderation.tests.urls.default'
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
@@ -32,12 +32,11 @@ class ModerationObjectsManagerTestCase(SettingsTestCase):
         class UserProfileModerator(GenericModerator):
             visibility_column = 'is_public'
         
-        self.moderation, self.old_moderation = setup_moderation([UserProfile,
+        self.moderation = setup_moderation([UserProfile,
                             (ModelWithVisibilityField, UserProfileModerator)])
 
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [UserProfile, ModelWithVisibilityField])
+        teardown_moderation()
         
     def test_moderation_objects_manager(self):
         ManagerClass = ModerationObjectsManager()(Manager)
@@ -93,14 +92,12 @@ class ModeratedObjectManagerTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        self.moderation, self.old_moderation =\
-             setup_moderation([UserProfile, ModelWithSlugField2])
+        self.moderation = setup_moderation([UserProfile, ModelWithSlugField2])
 
         self.user = User.objects.get(username='admin')
 
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [UserProfile, ModelWithSlugField2])
+        teardown_moderation()
 
     def test_objects_with_same_object_id(self):
         model1 = ModelWithSlugField2(slug='test')

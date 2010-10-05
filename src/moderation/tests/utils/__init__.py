@@ -2,26 +2,24 @@ from moderation.register import ModerationManager
 
 
 def setup_moderation(models=[]):
-    import moderation
-    new_moderation = ModerationManager()
+    from moderation import moderation
 
+    moderation._registered_models = {}
+    
     for model in models:
         try:
             model_class, generic_moderator = model
-            new_moderation.register(model_class, generic_moderator)
+            moderation.register(model_class, generic_moderator)
         except TypeError:
-            new_moderation.register(model)
+            moderation.register(model)
 
-    old_moderation = moderation
-    setattr(moderation, 'moderation', new_moderation)
-
-    return new_moderation, old_moderation
+    return moderation
 
 
-def teardown_moderation(new_moderation, old_moderation, models=[]):
-    import moderation
+def teardown_moderation():
+    from moderation import moderation
 
-    for model in models:
-        new_moderation.unregister(model)
+    for model in moderation._registered_models.keys():
+        moderation.unregister(model)
 
-    setattr(moderation, 'moderation', old_moderation)
+    

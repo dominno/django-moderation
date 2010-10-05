@@ -14,3 +14,42 @@ def automoderate(instance, user):
         raise RegistrationError(msg)
 
     return status
+
+
+def import_moderator(app):
+    '''
+    Import moderator module and register all models it contains with moderation
+    '''
+    from django.utils.importlib import import_module
+    import imp
+    import sys
+
+    try:
+        app_path = import_module(app).__path__
+    except AttributeError:
+        return None
+
+    try:
+        imp.find_module('moderator', app_path)
+    except ImportError:
+        return None
+    
+    module = import_module("%s.moderator" % app)
+    
+    try:
+        reload(module)
+    except:
+        pass
+    
+    return module
+
+
+def auto_discover():
+    '''
+    Auto register all apps that have module moderator with moderation
+    '''
+    from django.conf import settings
+    
+    for app in settings.INSTALLED_APPS:
+        import_moderator(app)
+    

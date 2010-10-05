@@ -10,17 +10,18 @@ from django.contrib.admin.sites import site
 from django.contrib.auth.models import User
 
 from moderation.register import ModerationManager 
-from moderation.tests.test_app.models import UserProfile, ModelWithSlugField,\
+from moderation.tests.apps.test_app1.models import UserProfile, ModelWithSlugField,\
     ModelWithSlugField2
 from django.core.exceptions import ObjectDoesNotExist
 from moderation.filterspecs import ContentTypeFilterSpec
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.utils import setup_moderation, teardown_moderation
+from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 
 
 class ModeratedObjectAdminTestCase(TestCase):
     fixtures = ['test_users.json']
-    urls = 'moderation.tests.test_urls'
+    urls = 'moderation.tests.urls.default'
     
     def setUp(self):
         rf = RequestFactory()
@@ -60,7 +61,7 @@ class AdminActionsTestCase(TestCase):
         self.request.user = User.objects.get(username='admin')
         self.admin = ModeratedObjectAdmin(ModeratedObject, site)
         
-        self.moderation, self.old_moderation = setup_moderation([User])
+        self.moderation = setup_moderation([User])
         
         for user in User.objects.all():
             ModeratedObject(content_object=user).save()
@@ -68,8 +69,7 @@ class AdminActionsTestCase(TestCase):
         self.moderated_objects = ModeratedObject.objects.all()
     
     def tearDown(self):
-        teardown_moderation(self.moderation, self.old_moderation,
-                            [User])
+        teardown_moderation()
 
     def test_queryset_should_return_only_moderation_ready_objects(self):
         qs = self.admin.queryset(self.request)
@@ -104,9 +104,10 @@ class AdminActionsTestCase(TestCase):
                              MODERATION_STATUS_PENDING)
 
 
-class ModerationAdminSendMessageTestCase(TestCase):
+class ModerationAdminSendMessageTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    urls = 'moderation.tests.test_urls'
+    urls = 'moderation.tests.urls.default'
+    test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
         rf = RequestFactory()
@@ -166,7 +167,7 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
 class ContentTypeFilterSpecTextCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    urls = 'moderation.tests.test_urls'
+    urls = 'moderation.tests.urls.default'
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
@@ -178,7 +179,7 @@ class ContentTypeFilterSpecTextCase(SettingsTestCase):
         self.admin = ModerationAdmin(UserProfile, site)
 
         models = [ModelWithSlugField, ModelWithSlugField2]
-        self.new_moderation, self.old_moderation = setup_moderation(models)
+        self.moderation = setup_moderation(models)
         
         self.m1 = ModelWithSlugField(slug='test')
         self.m1.save()
@@ -187,9 +188,7 @@ class ContentTypeFilterSpecTextCase(SettingsTestCase):
         self.m2.save()
         
     def tearDown(self):
-        from moderation.tests import teardown_moderation
-        teardown_moderation(self.new_moderation, self.old_moderation,
-                            [ModelWithSlugField, ModelWithSlugField2])
+        teardown_moderation()
         
     def test_content_types(self):
         f = ModeratedObject._meta.get_field('content_type')

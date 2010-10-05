@@ -1,7 +1,7 @@
 [
     {
         "pk": 1, 
-        "model": "test_app.userprofile", 
+        "model": "test_app1.userprofile", 
         "fields": {
             "url": "http://www.google.com", 
             "user": 1, 
