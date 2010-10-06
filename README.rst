@@ -83,23 +83,22 @@ Configuration
 
     ``moderation``
 2. Run command ``manage.py syncdb``
-3. Register Models with moderation::
+3. Register Models with moderation, put these models in module ``moderator.py`` in side of your app, ex ``myapp.moderator``::
 
     from django.db import models
-    from moderation import moderation
-    
-    
-    class YourModel(models.Model):
-        pass
+    from yourapp.models import YourModel
+   
         
     moderation.register(YourModel)
+    
+
     
 4. Add function ``auto_discover`` in to main urls.py::
 
     from moderation.helpers import auto_discover
     auto_discover() 
 
-5. Register admin class with your Model::
+5. If you want to enable integration with Django Admin, then register admin class with your Model::
     
     from django.contrib import admin
     from moderation.admin import ModerationAdmin
@@ -109,14 +108,7 @@ Configuration
         """Admin settings go here."""
 
     admin.site.register(YourModel, YourModelAdmin)
-    
-If you want to disable integration of moderation in admin,
-add admin_integration_enabled = False to your admin class::
 
-    class YourModelAdmin(ModerationAdmin):
-        admin_integration_enabled = False
-    
-    admin.site.register(YourModel, YourModelAdmin)
     
 If admin_integration_enabled is enabled then when saving object in admin, data
 will not be saved in model instance but it will be stored in moderation queue.
