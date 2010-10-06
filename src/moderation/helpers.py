@@ -36,11 +36,6 @@ def import_moderator(app):
     
     module = import_module("%s.moderator" % app)
     
-    try:
-        reload(module)
-    except:
-        pass
-    
     return module
 
 
