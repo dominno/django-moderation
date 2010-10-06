@@ -96,12 +96,30 @@ class RegistrationTestCase(SettingsTestCase):
         self.assertRaises(RegistrationError, self.moderation.register,
                           UserProfile)
         
+    def test_custom_moderator_should_be_registered_with_moderation(self):
+        from moderation.moderator import GenericModerator
+        from django.db import models
+         
+        class MyModel(models.Model):
+            pass
+        
+        class MyModelModerator(GenericModerator):
+            pass
+            
+        self.moderation.register(MyModel, MyModelModerator)
+        
+        moderator_instance = self.moderation._registered_models[MyModel]
+        
+        self.assertTrue(isinstance(moderator_instance, MyModelModerator))
+        
+        
+        
 
 class AutoDiscoverTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.auto_discover'
     
     def setUp(self):
-        setup_moderation()
+        self.moderation = setup_moderation()
         
     def tearDown(self):
         teardown_moderation() 
@@ -109,7 +127,12 @@ class AutoDiscoverTestCase(SettingsTestCase):
     def test_models_should_be_registered_if_moderator_in_module(self):
         module = import_moderator('moderation.tests.apps.test_app2')
         
-        self.assertTrue(module.moderation._registered_models.has_key(Book))
+        try: # force module reload
+            reload(module)
+        except:
+            pass
+        
+        self.assertTrue(self.moderation._registered_models.has_key(Book))
         self.assertEqual(module.__name__,
                          'moderation.tests.apps.test_app2.moderator')
             
