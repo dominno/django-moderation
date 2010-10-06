@@ -3,8 +3,9 @@ from example_project.example_app.models import ExampleUserProfile
 from moderation.admin import ModerationAdmin
 
 
-class ExampleUserProfileAdmin(ModerationAdmin):
-    admin_integration_enabled = True
+class ExampleUserProfileAdmin(admin.ModelAdmin):
+    pass
+    
     
 admin.site.register(ExampleUserProfile, ExampleUserProfileAdmin)
 

@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib import admin
-from moderation import moderation
+
 
 class ExampleUserProfile(models.Model):
     user = models.ForeignKey(User)
@@ -13,7 +13,7 @@ class ExampleUserProfile(models.Model):
     
     def get_absolute_url(self):
         return '/test/'
-    
 
-moderation.register(ExampleUserProfile)
+
+
 
