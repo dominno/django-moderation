@@ -153,10 +153,12 @@ class ModeratedObject(models.Model):
         if self.changed_by:
             self.moderator.inform_user(self.content_object, self.changed_by)
 
-    def has_object_been_changed(self, oryginal_obj):
+    def has_object_been_changed(self, oryginal_obj, fields_exclude=None):
+        if fields_exclude is None:
+            fields_exclude = self.moderator.fields_exclude
         changes = get_changes_between_models(oryginal_obj,
                                              self.changed_object,
-                                             self.moderator.fields_exclude)
+                                             fields_exclude)
         
         for change in changes:
             left_change, right_change = changes[change].change
