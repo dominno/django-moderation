@@ -85,7 +85,7 @@ Configuration
 2. Run command ``manage.py syncdb``
 3. Register Models with moderation, put these models in module ``moderator.py`` in side of your app, ex ``myapp.moderator``::
 
-    from django.db import models
+    from moderation import moderation
     from yourapp.models import YourModel
    
         
