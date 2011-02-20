@@ -8,9 +8,8 @@ import moderation
 
 
 class ContentTypeFilterSpec(RelatedFilterSpec):
-    def __init__(self, f, request, params, model, model_admin):
-        super(ContentTypeFilterSpec, self).__init__(f, request, params,
-                                                    model, model_admin)
+    def __init__(self, *args, **kwargs):
+        super(ContentTypeFilterSpec, self).__init__(*args, **kwargs)
         self.content_types = self._get_content_types()
         self.lookup_choices = [(ct.id, ct.name.capitalize()) \
                                for ct in self.content_types]
