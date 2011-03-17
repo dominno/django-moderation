@@ -1,1 +1,10 @@
-<img src="{{ left_image.url }}"><img style="margin-left: 10px;" src="{{ right_image.url }}">
+{% if left_image %}
+<img src="{{ left_image.url }}">
+{% else %}
+None
+{% endif %}
+{% if right_image %}
+<img style="margin-left: 10px;" src="{{ right_image.url }}">
+{% else %}
+None
+{% endif %}
