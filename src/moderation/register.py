@@ -217,6 +217,5 @@ class ModerationManager(object):
 
     def _copy_model_instance(self, obj):
         initial = dict([(f.name, getattr(obj, f.name))
-                    for f in obj._meta.fields
-                    if not f in obj._meta.parents.values()])
+                    for f in obj._meta.fields])
         return obj.__class__(**initial)

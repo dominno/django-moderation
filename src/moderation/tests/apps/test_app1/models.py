@@ -15,6 +15,13 @@ class UserProfile(models.Model):
         return "%s - %s" % (self.user, self.url)
 
 
+class SuperUserProfile(UserProfile):
+    super_power = models.TextField()
+
+    def __unicode__(self):
+        return "%s - %s - %s" % (self.user, self.url, self.super_power)
+
+
 class ModelWithSlugField(models.Model):
     slug = models.SlugField(unique=True)
 

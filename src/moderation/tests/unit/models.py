@@ -1,7 +1,8 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User, Group
-from moderation.tests.apps.test_app1.models import UserProfile, ModelWithSlugField2
+from moderation.tests.apps.test_app1.models import UserProfile, \
+    SuperUserProfile, ModelWithSlugField2
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED, \
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED
 from django.core.exceptions import ObjectDoesNotExist
@@ -31,22 +32,22 @@ class SerializationTestCase(SettingsTestCase):
                     '"description": "Old description"}}]',
                          )
  
-    def test_serialize_of_many_objects(self):
+    def test_serialize_with_inheritance(self):
         """Test if object is propertly serialized to json"""
 
-        profile = UserProfile(description='Profile for new user',
+        profile = SuperUserProfile(description='Profile for new super user',
                     url='http://www.test.com',
-                    user=User.objects.get(username='user1'))
+                    user=User.objects.get(username='user1'),
+                    super_power='invisibility')
         profile.save()
         json_field = SerializedObjectField()
         
-        self.assertEqual(json_field._serialize(UserProfile.objects.all()),
-                       '[{"pk": 1, "model": "test_app1.userprofile", '\
-                       '"fields": {"url": "http://www.google.com",'\
-                       ' "user": 1, "description": "Old description"}},'\
-                       ' {"pk": 2, "model": "test_app1.userprofile", "fields":'\
-                       ' {"url": "http://www.test.com", "user": 2, '\
-                       '"description": "Profile for new user"}}]')
+        self.assertEqual(json_field._serialize(profile),
+                        '[{"pk": 2, "model": "test_app1.superuserprofile",'\
+                        ' "fields": {"super_power": "invisibility"}}, '\
+                        '{"pk": 2, "model": "test_app1.userprofile", "fields":'\
+                        ' {"url": "http://www.test.com", "user": 2,'\
+                        ' "description": "Profile for new super user"}}]')
 
     def test_deserialize(self):
         value = '[{"pk": 1, "model": "test_app1.userprofile", "fields": '\
@@ -59,26 +60,19 @@ class SerializationTestCase(SettingsTestCase):
                          '<UserProfile: moderator - http://www.google.com>')
         self.assertTrue(isinstance(object, UserProfile))
 
-    def test_deserialize_many_objects(self):
-        value = '[{"pk": 1, "model": "test_app1.userprofile", '\
-                '"fields": {"url": "http://www.google.com",'\
-                ' "user": 1, "description": "Profile description"}},'\
-                ' {"pk": 2, "model": "test_app1.userprofile", "fields":'\
-                ' {"url": "http://www.yahoo.com", "user": 2, '\
-                '"description": "Profile description 2"}}]'
+    def test_deserialize_with_inheritance(self):
+        value = '[{"pk": 2, "model": "test_app1.superuserprofile",'\
+                ' "fields": {"super_power": "invisibility"}}, '\
+                '{"pk": 2, "model": "test_app1.userprofile", "fields":'\
+                ' {"url": "http://www.test.com", "user": 2,'\
+                ' "description": "Profile for new super user"}}]'
 
         json_field = SerializedObjectField()
-        objects = json_field._deserialize(value)
+        object = json_field._deserialize(value)
 
-        self.assertTrue(isinstance(objects, list))
-
-        self.assertTrue(isinstance(objects[0], UserProfile))
-        self.assertEqual(repr(objects[0]),
-                         '<UserProfile: moderator - http://www.google.com>')
-
-        self.assertTrue(isinstance(objects[1], UserProfile))
-        self.assertEqual(repr(objects[1]),
-                         '<UserProfile: user1 - http://www.yahoo.com>')
+        self.assertTrue(isinstance(object, SuperUserProfile))
+        self.assertEqual(repr(object),
+                '<SuperUserProfile: user1 - http://www.test.com - invisibility>')
 
     def test_deserialzed_object(self):
         moderated_object = ModeratedObject(content_object=self.profile)

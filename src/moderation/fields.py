@@ -36,19 +36,22 @@ class SerializedObjectField(models.TextField):
         if not value:
             return ''
         
-        if not isinstance(value, QuerySet):
-            value = [value]
+        value_set = [value]
+        if value._meta.parents:
+            value_set += [getattr(value, f.name)
+                            for f in value._meta.parents.values()]
             
-        return serializers.serialize(self.serialize_format, value)
+        return serializers.serialize(self.serialize_format, value_set)
  
     def _deserialize(self, value):
-        objs = [obj for obj in serializers.deserialize(self.serialize_format,
-                                value.encode(settings.DEFAULT_CHARSET))]
+        obj_generator = serializers.deserialize(self.serialize_format,
+                                value.encode(settings.DEFAULT_CHARSET))
         
-        if len(objs) == 1:
-            return objs[0].object
-        else:
-            return [obj.object for obj in objs]
+        obj = obj_generator.next().object
+        for parent in obj_generator:
+            for f in parent.object._meta.fields:
+                setattr(obj, f.name, getattr(parent.object, f.name))
+        return obj
  
     def db_type(self):
         return 'text'
