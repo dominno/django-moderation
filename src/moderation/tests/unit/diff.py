@@ -3,7 +3,7 @@
 import unittest
 from moderation.diff import get_changes_between_models, html_to_list,\
     TextChange, get_diff_operations, ImageChange
-from django.test.testcases import TestCase
+from django.test.testcases import TestCase, OutputChecker
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User
@@ -12,6 +12,11 @@ from moderation.tests.apps.test_app1.models import UserProfile, ModelWIthDateFie
                                             ModelWithImage
 from moderation.models import ModeratedObject
 import re
+
+
+_norm_whitespace_re = re.compile(r'\s+')
+def norm_whitespace(s):
+    return _norm_whitespace_re.sub(' ', s).strip()
 
 
 class TextChangeObjectTestCase(unittest.TestCase):
@@ -67,10 +72,10 @@ class ImageChangeObjectTestCase(unittest.TestCase):
                                               self.right_image))
 
     def test_diff(self):
-        self.assertEqual(self.change.diff,
-                         u'<img src="/media/my_image.jpg">'\
-                         u'<img style="margin-left: 10px;" '\
-                         u'src="/media/my_image2.jpg">')
+        self.assertEqual(norm_whitespace(self.change.diff),
+                         norm_whitespace(u'<img src="/media/my_image.jpg"> '
+                         u'<img style="margin-left: 10px;" '
+                         u'src="/media/my_image2.jpg">'))
 
 
 class DiffModeratedObjectTestCase(SettingsTestCase):
@@ -104,10 +109,10 @@ class DiffModeratedObjectTestCase(SettingsTestCase):
         image2.save()
         
         changes = get_changes_between_models(image1, image2)
-        self.assertEqual(changes['modelwithimage__image'].diff,
-                         u'<img src="/media/tmp/test1.jpg">'\
-                         u'<img style="margin-left: 10px;" '\
-                         u'src="/media/tmp/test2.jpg">')
+        self.assertEqual(norm_whitespace(changes['modelwithimage__image'].diff),
+                         norm_whitespace(u'<img src="/media/tmp/test1.jpg"> '
+                         u'<img style="margin-left: 10px;" '
+                         u'src="/media/tmp/test2.jpg">'))
     
     def test_excluded_fields_should_be_excluded_from_changes(self):
         self.profile.description = 'New description'
