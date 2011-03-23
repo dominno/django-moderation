@@ -1,5 +1,6 @@
 
 from moderation.tests.apps.test_app1.models import UserProfile
+from django.forms import CharField
 from moderation.forms import BaseModeratedObjectForm
 from moderation.register import ModerationManager 
 from django.contrib.auth.models import User
@@ -15,6 +16,7 @@ class FormsTestCase(SettingsTestCase):
         self.user = User.objects.get(username='moderator')
 
         class ModeratedObjectForm(BaseModeratedObjectForm):
+            extra = CharField(required=False)
 
             class Meta:
                 model = UserProfile
@@ -67,3 +69,15 @@ class FormsTestCase(SettingsTestCase):
         form = self.ModeratedObjectForm(instance=profile)
 
         self.assertEqual(form.initial['description'], u'old description')
+
+    def test_if_form_is_initialized_new_object_with_initial(self):
+        profile = UserProfile(description="New description",
+                    url='http://test.com',
+                    user=self.user)
+        profile.save()
+
+        form = self.ModeratedObjectForm(initial={'extra': 'value'},
+                instance=profile)
+
+        self.assertEqual(form.initial['description'], u'New description')
+        self.assertEqual(form.initial['extra'], u'value')

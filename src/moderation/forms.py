@@ -15,7 +15,8 @@ class BaseModeratedObjectForm(ModelForm):
                 [MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED]:
                     initial = \
                     instance.moderated_object.changed_object.__dict__
-                    kwargs['initial'] = initial
+                    kwargs.setdefault('initial', {})
+                    kwargs['initial'].update(initial)
             except ObjectDoesNotExist:
                 pass
 
