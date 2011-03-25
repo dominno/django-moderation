@@ -214,6 +214,7 @@ class ModerationManager(object):
                 moderated_obj.moderation_status = MODERATION_STATUS_PENDING
                 moderated_obj.save()
                 moderator.inform_moderator(instance)
+                instance._moderated_object = moderated_obj
 
     def _copy_model_instance(self, obj):
         initial = dict([(f.name, getattr(obj, f.name))
