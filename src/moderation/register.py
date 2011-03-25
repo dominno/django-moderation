@@ -205,8 +205,10 @@ class ModerationManager(object):
 
             if moderated_obj.has_object_been_changed(instance):
                 copied_instance = self._copy_model_instance(instance)
-                # save instance with data from changed_object
-                moderated_obj.changed_object.save_base(raw=True)
+
+                if not moderator.visible_until_rejected:
+                    # save instance with data from changed_object
+                    moderated_obj.changed_object.save_base(raw=True)
 
                 # save new data in moderated object
                 moderated_obj.changed_object = copied_instance

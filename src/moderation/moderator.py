@@ -18,6 +18,7 @@ class GenericModerator(object):
     manager_names = ['objects']
     moderation_manager_class = ModerationObjectsManager
     bypass_moderation_after_approval = False
+    visible_until_rejected = False
     
     fields_exclude = []
     
