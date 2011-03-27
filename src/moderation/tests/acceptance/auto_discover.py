@@ -5,7 +5,7 @@ from moderation.tests.apps.test_app2.models import Book
 
 class AutoDiscoverAcceptanceTestCase(SettingsTestCase):
     '''
-    As a developer i want to have a way auto discover all apps that have module
+    As a developer I want to have a way auto discover all apps that have module
     moderator and register it with moderation.
     '''
     test_settings = 'moderation.tests.settings.auto_discover'

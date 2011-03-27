@@ -256,7 +256,7 @@ class ModerationManagerTestCase(SettingsTestCase):
         teardown_moderation()
         
     def test_unregister(self):
-        """Tests if model class is sucessfuly unregistered from moderation"""
+        """Tests if model class is successfully unregistered from moderation"""
         from django.db.models import signals
         
         old_pre_save_receivers = [r for r in signals.pre_save.receivers]
