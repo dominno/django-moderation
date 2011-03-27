@@ -48,7 +48,6 @@ class ImageChange(BaseChange):
                      'right_image': right_image})
 
 
-
 def get_change(model1, model2, field):    
     try:
         value1 = getattr(model1, "get_%s_display" % field.name)()
@@ -82,9 +81,7 @@ def get_changes_between_models(model1, model2, excludes=[]):
             
             changes[name] = get_change(model1, model2, field)
     
-
     return changes
-
 
 
 def get_diff_operations(a, b):

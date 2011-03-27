@@ -2,6 +2,7 @@ from django.db.models.manager import Manager
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
+
 class MetaClass(type):
 
     def __new__(cls, name, bases, attrs):

@@ -166,7 +166,6 @@ class ModeratedObject(models.Model):
                 return True
             
         return False
-        
 
     def approve(self, moderated_by=None, reason=None):
         pre_moderation.send(sender=self.content_object.__class__,
