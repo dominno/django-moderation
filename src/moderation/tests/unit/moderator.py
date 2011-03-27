@@ -54,7 +54,7 @@ class GenericModeratorTestCase(SettingsTestCase):
         self.moderator.send(self.user,
             subject_template='moderation/notification_subject_moderator.txt',
             message_template='moderation/notification_message_moderator.txt',
-            recipient_list=['test@eample.com'])
+            recipient_list=['test@example.com'])
         
         self.assertEqual(len(mail.outbox), 1)
         

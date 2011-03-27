@@ -1,5 +1,5 @@
 from moderation.tests.unit.register import *
-from moderation.tests.unit.menagers import *
+from moderation.tests.unit.managers import *
 from moderation.tests.unit.models import *
 from moderation.tests.unit.utils import *
 from moderation.tests.unit.admin import *

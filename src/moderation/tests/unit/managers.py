@@ -61,7 +61,7 @@ class ModerationObjectsManagerTestCase(SettingsTestCase):
 
     def test_filter_moderated_objects_returns_object(self):
         """Test if filter_moderated_objects return object when object 
-        doesnt have moderated object or deserialised object is <> object"""
+        doesn't have moderated object or deserialised object is <> object"""
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
 

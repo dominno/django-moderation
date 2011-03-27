@@ -13,7 +13,7 @@ from moderation import moderation
 
 class ExcludeAcceptanceTestCase(SettingsTestCase):
     '''
-    As developer i want to have way to ignore/exclude model fields from 
+    As developer I want to have way to ignore/exclude model fields from 
     moderation
     '''
     fixtures = ['test_users.json', 'test_moderation.json']
