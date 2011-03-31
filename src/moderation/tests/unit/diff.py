@@ -98,7 +98,8 @@ class DiffModeratedObjectTestCase(SettingsTestCase):
         self.assertEqual(unicode(changes),
                 u"{u'userprofile__url': Change object: http://www.google.com"\
                 u" - http://www.google.com, u'userprofile__description': "\
-                u"Change object: New description - Old description}")
+                u"Change object: New description - Old description, "\
+                u"u'userprofile__user': Change object: 1 - 1}")
 
     def test_get_changes_between_models_image(self):
         '''Verify proper diff for ImageField fields''' 
@@ -126,7 +127,8 @@ class DiffModeratedObjectTestCase(SettingsTestCase):
 
         self.assertEqual(unicode(changes),
                         u"{u'userprofile__url': Change object: "\
-                        u"http://www.google.com - http://www.google.com}")
+                        u"http://www.google.com - http://www.google.com, "\
+                        u"u'userprofile__user': Change object: 1 - 1}")
         
 
 
