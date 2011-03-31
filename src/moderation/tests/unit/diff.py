@@ -101,6 +101,22 @@ class DiffModeratedObjectTestCase(SettingsTestCase):
                 u"Change object: New description - Old description, "\
                 u"u'userprofile__user': Change object: 1 - 1}")
 
+    def test_foreign_key_changes(self):
+        self.profile.user = User.objects.get(username='admin')
+        moderated_object = ModeratedObject(content_object=self.profile)
+        moderated_object.save()
+        
+        self.profile = UserProfile.objects.get(user__username='moderator')
+        
+        changes = get_changes_between_models(moderated_object.changed_object,
+                                   self.profile)
+
+        self.assertEqual(unicode(changes),
+                u"{u'userprofile__url': Change object: http://www.google.com"\
+                u" - http://www.google.com, u'userprofile__description': "\
+                u"Change object: Old description - Old description, "\
+                u"u'userprofile__user': Change object: 4 - 1}")
+
     def test_get_changes_between_models_image(self):
         '''Verify proper diff for ImageField fields''' 
         
