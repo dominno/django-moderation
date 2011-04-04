@@ -146,7 +146,8 @@ class ModeratedObject(models.Model):
                         True)
 
             self.save()
-            self.changed_object.save()
+            if not self.moderator.visible_until_rejected:
+                self.changed_object.save()
         else:
             self.save()
             
