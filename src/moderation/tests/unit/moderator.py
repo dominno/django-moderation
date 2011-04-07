@@ -289,7 +289,7 @@ class VisibilityColumnTestCase(SettingsTestCase):
                           ModelWithWrongVisibilityField,
                           UserProfileModerator)
 
-    def test_model_should_be_saved_propertly(self):
+    def test_model_should_be_saved_properly(self):
         '''Verify that after approve of object that has visibility column '''\
         '''value is changed from False to True'''
         profile = self._create_userprofile()

@@ -16,7 +16,7 @@ class AutoDiscoverAcceptanceTestCase(SettingsTestCase):
     def tearDown(self):
         teardown_moderation()
 
-    def test_all_app_containg_moderator_module_should_be_registered(self):
+    def test_all_app_containing_moderator_module_should_be_registered(self):
         import moderation.tests.urls.auto_discover
         from moderation import moderation
         

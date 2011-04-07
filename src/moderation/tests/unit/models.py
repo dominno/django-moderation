@@ -22,7 +22,7 @@ class SerializationTestCase(SettingsTestCase):
         self.profile = UserProfile.objects.get(user__username='moderator')
 
     def test_serialize_of_object(self):
-        """Test if object is propertly serialized to json"""
+        """Test if object is properly serialized to json"""
 
         json_field = SerializedObjectField()
         
@@ -33,7 +33,7 @@ class SerializationTestCase(SettingsTestCase):
                          )
  
     def test_serialize_with_inheritance(self):
-        """Test if object is propertly serialized to json"""
+        """Test if object is properly serialized to json"""
 
         profile = SuperUserProfile(description='Profile for new super user',
                     url='http://www.test.com',

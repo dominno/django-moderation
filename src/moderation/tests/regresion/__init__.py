@@ -50,7 +50,7 @@ class CSRFMiddlewareTestCase(SettingsTestCase):
                          MODERATION_STATUS_APPROVED)
 
 
-class AutomoderationRuntimeErrorRegresionTestCase(SettingsTestCase):
+class AutomoderationRuntimeErrorRegressionTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     test_settings = 'moderation.tests.settings.generic'
     

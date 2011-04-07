@@ -61,9 +61,9 @@ class RegistrationTestCase(SettingsTestCase):
 
         profile.save()
         
-        modearated_object = ModeratedObject.objects.get_for_instance(profile)
+        moderated_object = ModeratedObject.objects.get_for_instance(profile)
         
-        self.assertEqual(unicode(modearated_object), 
+        self.assertEqual(unicode(moderated_object), 
                          u"user1 - http://www.yahoo.com")
 
     def test_get_of_existing_object_should_return_old_version_of_object(self):
@@ -199,7 +199,7 @@ class IntegrityErrorTestCase(SettingsTestCase):
         self.assertEqual(ModeratedObject.objects.all().count(), 0)
 
 
-class IntegrityErrorRegresionTestCase(SettingsTestCase):
+class IntegrityErrorRegressionTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
@@ -499,7 +499,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
         self.assertRaises(ObjectDoesNotExist, ModeratedObject.objects.get,
                           object_pk=profile.pk)
 
-    def test_post_save_handler_for_exinsting_object(self):
+    def test_post_save_handler_for_existing_object(self):
         from django.db.models import signals
         signals.pre_save.connect(self.moderation.pre_save_handler,
                                  sender=UserProfile)
@@ -513,8 +513,8 @@ class ModerationSignalsTestCase(SettingsTestCase):
 
         moderated_object = ModeratedObject.objects.get_for_instance(profile)
 
-        orginal_object = moderated_object.changed_object
-        self.assertEqual(orginal_object.description,
+        original_object = moderated_object.changed_object
+        self.assertEqual(original_object.description,
                          'New description of user profile')
         self.assertEqual(UserProfile.objects.get(pk=profile.pk).description,
                          u'Old description')
@@ -524,7 +524,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
         signals.post_save.disconnect(self.moderation.post_save_handler,
                                      UserProfile)
 
-    def test_pre_save_handler_for_exinsting_object(self):
+    def test_pre_save_handler_for_existing_object(self):
         from django.db.models import signals
         signals.pre_save.connect(self.moderation.pre_save_handler,
                                  sender=UserProfile)
@@ -536,10 +536,10 @@ class ModerationSignalsTestCase(SettingsTestCase):
 
         moderated_object = ModeratedObject.objects.get_for_instance(profile)
 
-        orginal_object = moderated_object.changed_object
+        original_object = moderated_object.changed_object
         content_object = moderated_object.content_object
         
-        self.assertEqual(orginal_object.description,
+        self.assertEqual(original_object.description,
                          u'Old description')
         self.assertEqual(content_object.description,
                          'New description of user profile')

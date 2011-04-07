@@ -6,7 +6,7 @@ from moderation.tests.unit.admin import *
 from moderation.tests.unit.diff import *
 from moderation.tests.unit.forms import *
 from moderation.tests.unit.moderator import *
-from moderation.tests.regresion import *
+from moderation.tests.regression import *
 from moderation.tests.acceptance.exclude import *
 from moderation.tests.acceptance.auto_discover import *
 

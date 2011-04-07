@@ -1,5 +1,5 @@
 """
-TestSetttingsManager class for making temporary changes to 
+TestSettingsManager class for making temporary changes to 
 settings for the purposes of a unittest or doctest. 
 It will keep track of the original settings and let 
 easily revert them back when you're done.

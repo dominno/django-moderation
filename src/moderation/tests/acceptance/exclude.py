@@ -33,7 +33,7 @@ class ExcludeAcceptanceTestCase(SettingsTestCase):
     def tearDown(self):
         teardown_moderation()
         
-    def test_excluded_field_shoud_not_be_moderated_when_object_is_edited(self):
+    def test_excluded_field_should_not_be_moderated_when_object_is_edited(self):
         '''
         Change field that is excluded from moderation,
         go to moderation admin
@@ -55,7 +55,7 @@ class ExcludeAcceptanceTestCase(SettingsTestCase):
         self.assertEqual(changes[0].change, ('Old description',
                                              'Old description'))
         
-    def test_non_excluded_field_shoud_be_moderated_when_object_is_edited(self):
+    def test_non_excluded_field_should_be_moderated_when_object_is_edited(self):
         '''
         Change field that is not excluded from moderation,
         go to moderation admin
@@ -78,7 +78,7 @@ class ExcludeAcceptanceTestCase(SettingsTestCase):
         self.assertEqual(changes[0].change, ('Old description',
                                              'New description'))
         
-    def test_excluded_field_shoud_not_be_moderated_when_object_is_created(self):
+    def test_excluded_field_should_not_be_moderated_when_object_is_created(self):
         '''
         Create new object, only non excluded fields are used by moderation system
         '''
