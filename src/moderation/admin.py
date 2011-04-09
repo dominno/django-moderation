@@ -129,9 +129,16 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
         moderator = moderation.get_moderator(changed_object.__class__)
 
+        if moderator.visible_until_rejected:
+            old_object = changed_object
+            new_object = moderated_object.get_object_for_this_type()
+        else:
+            old_object = moderated_object.get_object_for_this_type()
+            new_object = changed_object
+
         changes = get_changes_between_models(
-                                moderated_object.get_object_for_this_type(),
-                                changed_object,
+                                old_object,
+                                new_object,
                                 moderator.fields_exclude).values()
         if request.POST:
             admin_form = self.get_form(request, moderated_object)(request.POST)
