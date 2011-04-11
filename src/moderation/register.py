@@ -133,6 +133,10 @@ class ModerationManager(object):
         unchanged_obj = self._get_unchanged_object(instance)
         moderator = self.get_moderator(sender)
         if unchanged_obj:
+            if moderator.visible_until_rejected:
+                old_instance = instance
+                instance = unchanged_obj
+                unchanged_obj = old_instance
             moderated_obj = self._get_or_create_moderated_object(instance,
                                                                 unchanged_obj)
             if moderated_obj.moderation_status != MODERATION_STATUS_APPROVED\
@@ -210,8 +214,8 @@ class ModerationManager(object):
                     # save instance with data from changed_object
                     moderated_obj.changed_object.save_base(raw=True)
 
-                # save new data in moderated object
-                moderated_obj.changed_object = copied_instance
+                    # save new data in moderated object
+                    moderated_obj.changed_object = copied_instance
 
                 moderated_obj.moderation_status = MODERATION_STATUS_PENDING
                 moderated_obj.save()
