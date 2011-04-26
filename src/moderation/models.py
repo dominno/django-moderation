@@ -88,8 +88,12 @@ class ModeratedObject(models.Model):
         else:
             self.changed_by = user
         
+        if self.moderator.visible_until_rejected:
+            changed_object = self.get_object_for_this_type()
+        else:
+            changed_object = self.changed_object
         moderate_status, reason = self._get_moderation_status_and_reason(
-                                                        self.changed_object,
+                                                        changed_object,
                                                         user)
 
         if moderate_status == MODERATION_STATUS_REJECTED:
