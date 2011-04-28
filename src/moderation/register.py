@@ -133,12 +133,9 @@ class ModerationManager(object):
         unchanged_obj = self._get_unchanged_object(instance)
         moderator = self.get_moderator(sender)
         if unchanged_obj:
-            if moderator.visible_until_rejected:
-                old_instance = instance
-                instance = unchanged_obj
-                unchanged_obj = old_instance
             moderated_obj = self._get_or_create_moderated_object(instance,
-                                                                unchanged_obj)
+                                                                unchanged_obj,
+                                                                moderator)
             if moderated_obj.moderation_status != MODERATION_STATUS_APPROVED\
               and not moderator.bypass_moderation_after_approval:
                 moderated_obj.save()
@@ -151,7 +148,7 @@ class ModerationManager(object):
         except ObjectDoesNotExist:
             return None
 
-    def _get_or_create_moderated_object(self, instance, unchanged_obj):
+    def _get_or_create_moderated_object(self, instance, unchanged_obj, moderator):
         """
         Get or create ModeratedObject instance.
         If moderated object is not equal instance then serialize unchanged
@@ -162,7 +159,10 @@ class ModerationManager(object):
              = ModeratedObject.objects.get_for_instance(instance)
 
             if moderated_object.has_object_been_changed(instance):
-                moderated_object.changed_object = unchanged_obj
+                if moderator.visible_until_rejected:
+                    moderated_object.changed_object = instance
+                else:
+                    moderated_object.changed_object = unchanged_obj
 
         except ObjectDoesNotExist:
             moderated_object = ModeratedObject(content_object=unchanged_obj)
