@@ -12,6 +12,8 @@ INSTALLED_APPS = (
     'moderation.tests.apps.test_app1',
 )
 
+SERIALIZATION_MODULES = {}
+
 ROOT_URLCONF = 'moderation.tests.urls.default.py'
 
 DJANGO_MODERATION_MODERATORS = (
