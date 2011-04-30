@@ -45,6 +45,12 @@ class GenericModerator(object):
         self._validate_options()
         self.base_managers = self._get_base_managers()
 
+        moderated_fields = getattr(model_class, 'moderated_fields', None)
+        if moderated_fields:
+            for field in model_class._meta.fields:
+                if field.name not in moderated_fields:
+                    self.fields_exclude.append(field.name)
+
     def is_auto_approve(self, obj, user):
         '''
         Checks if change on obj by user need to be auto approved
