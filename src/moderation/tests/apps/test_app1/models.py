@@ -30,25 +30,25 @@ class ModelWithSlugField2(models.Model):
     slug = models.SlugField(unique=True)
 
 
-class MenMenager(Manager):
+class MenManager(Manager):
     
     def get_query_set(self):
-        query_set = super(MenMenager, self).get_query_set()
+        query_set = super(MenManager, self).get_query_set()
         return query_set.filter(gender=1)
 
 
-class WomenMenager(Manager):
+class WomenManager(Manager):
     
     def get_query_set(self):
-        query_set = super(WomenMenager, self).get_query_set()
+        query_set = super(WomenManager, self).get_query_set()
         return query_set.filter(gender=0)
 
 
 class ModelWithMultipleManagers(models.Model):
     gender = models.SmallIntegerField()
     objects = Manager()
-    men = MenMenager()
-    women = WomenMenager()
+    men = MenManager()
+    women = WomenManager()
 
 
 class ModelWIthDateField(models.Model):
