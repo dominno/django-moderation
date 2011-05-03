@@ -52,8 +52,10 @@ class ModerationAdmin(admin.ModelAdmin):
         try:
             obj = self.model.objects.get(pk=object_id)
             moderated_obj = ModeratedObject.objects.get_for_instance(obj)
+            moderator = moderated_obj.moderator
             msg = self.get_moderation_message(moderated_obj.moderation_status,
-                                              moderated_obj.moderation_reason)
+                                              moderated_obj.moderation_reason,
+                                              moderator.visible_until_rejected)
         except ModeratedObject.DoesNotExist:
             msg = self.get_moderation_message()
 
@@ -63,10 +65,15 @@ class ModerationAdmin(admin.ModelAdmin):
         obj.save()
         automoderate(obj, request.user)
 
-    def get_moderation_message(self, moderation_status=None, reason=None):
+    def get_moderation_message(self, moderation_status=None, reason=None,
+            visible_until_rejected=False):
         if moderation_status == MODERATION_STATUS_PENDING:
-            return _(u"Object is not viewable on site, "\
-                    "it will be visible when moderator will accept it")
+            if visible_until_rejected:
+                return _(u"Object is viewable on site, "\
+                        "it will be removed if moderator rejects it")
+            else:
+                return _(u"Object is not viewable on site, "\
+                        "it will be visible if moderator accepts it")
         elif moderation_status == MODERATION_STATUS_REJECTED:
             return _(u"Object has been rejected by moderator, "\
                     "reason: %s" % reason)
