@@ -73,3 +73,11 @@ class ModelWithWrongVisibilityField(models.Model):
 
 class ModelWithImage(models.Model):
     image = models.ImageField(upload_to='tmp')
+
+
+class ModelWithModeratedFields(models.Model):
+    moderated = models.CharField(max_length=20)
+    also_moderated = models.CharField(max_length=20)
+    unmoderated = models.CharField(max_length=20)
+
+    moderated_fields = ('moderated', 'also_moderated')
