@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core import serializers
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 
 
@@ -50,7 +51,15 @@ class SerializedObjectField(models.TextField):
         obj = obj_generator.next().object
         for parent in obj_generator:
             for f in parent.object._meta.fields:
-                setattr(obj, f.name, getattr(parent.object, f.name))
+                try:
+                    setattr(obj, f.name, getattr(parent.object, f.name))
+                except ObjectDoesNotExist:
+                    try:
+                        # Try to set non-existant foreign key reference to None
+                        setattr(obj, f.name, None)
+                    except ValueError:
+                        # Return None for changed_object if None not allowed
+                        return None
         return obj
  
     def db_type(self):
