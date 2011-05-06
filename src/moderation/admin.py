@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.forms.models import ModelForm
+from django.contrib.contenttypes.models import ContentType
+from django.core import urlresolvers
 import django
 
 from moderation.models import ModeratedObject, MODERATION_DRAFT_STATE,\
@@ -143,8 +145,17 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                 elif 'reject' in request.POST:
                     moderated_object.reject(request.user, reason)
 
+        content_type = ContentType.objects.get_for_model(changed_object.__class__)
+        try:
+            object_admin_url = urlresolvers.reverse("admin:%s_%s_change" %
+                    (content_type.app_label, content_type.model),
+                args=(changed_object.pk,))
+        except urlresolvers.NoReverseMatch:
+            object_admin_url = None
+
         extra_context = {'changes': changes,
-                         'django_version': django.get_version()[:3]}
+                         'django_version': django.get_version()[:3],
+                         'object_admin_url': object_admin_url}
         return super(ModeratedObjectAdmin, self).change_view(request,
                                                              object_id,
                                                              extra_context)
