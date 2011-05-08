@@ -27,7 +27,7 @@ Features:
 Known issues
 ============
 
-- foreign-key and m2m relations in models are not currently supported
+- m2m relations in models are not currently supported
 
 Road map
 ========
