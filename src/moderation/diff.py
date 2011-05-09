@@ -83,13 +83,15 @@ def get_changes_between_models(model1, model2, excludes=[]):
 
 def get_diff_operations(a, b):
     operations = []
-    sequence_matcher = difflib.SequenceMatcher(None, a, b)
+    a_words = re.split('(\W+)', a)
+    b_words = re.split('(\W+)', b)
+    sequence_matcher = difflib.SequenceMatcher(None, a_words, b_words)
     for opcode in sequence_matcher.get_opcodes():
 
         operation, start_a, end_a, start_b, end_b = opcode
 
-        deleted = ''.join(a[start_a:end_a])
-        inserted = ''.join(b[start_b:end_b])
+        deleted = ''.join(a_words[start_a:end_a])
+        inserted = ''.join(b_words[start_b:end_b])
         
         operations.append({'operation': operation,
                            'deleted': deleted,
