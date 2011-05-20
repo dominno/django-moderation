@@ -153,10 +153,10 @@ class ModeratedObject(models.Model):
                 try:
                     obj_class = self.changed_object.__class__
                     pk = self.changed_object.pk
-                    unchaged_obj = obj_class._default_manager.get(pk=pk)
+                    unchanged_obj = obj_class._default_manager.get(pk=pk)
                 except obj_class.DoesNotExist:
                     unchanged_obj = None
-                self.changed_object = unchaged_obj
+                self.changed_object = unchanged_obj
             else:
                 self.changed_object.save()
             self.save()
