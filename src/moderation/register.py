@@ -140,7 +140,7 @@ class ModerationManager(object):
                 moderated_obj.save()
 
     def _get_unchanged_object(self, instance):
-        if pk is None:
+        if instance.pk is None:
             return None
         pk = instance.pk
         try:
