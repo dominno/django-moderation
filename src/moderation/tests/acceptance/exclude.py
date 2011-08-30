@@ -109,9 +109,7 @@ class ModeratedFieldsAcceptanceTestCase(SettingsTestCase):
     urls = 'moderation.tests.urls.default'
 
     def setUp(self):
-        setup_moderation()
-
-        moderation.register(ModelWithModeratedFields, GenericModerator)
+        setup_moderation([ModelWithModeratedFields])
 
     def tearDown(self):
         teardown_moderation()
