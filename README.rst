@@ -190,6 +190,8 @@ Moderation registration options
 GenericModerator options
 ------------------------
 
+``visible_until_rejected``
+    By default moderation stores objects pending moderation in the ``changed_object`` field in the object's corresponding ``ModeratedObject`` instance. If ``visible_until_rejected`` is set to True, objects pending moderation will be stored in their original model as usual and the most recently approved version of the object will be stored in ``changed_object``. Default: False
 
 ``manager_names``
     List of manager names on which moderation manager will be enabled. Default: ['objects']
