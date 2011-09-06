@@ -134,7 +134,8 @@ class ModerationManager(object):
         moderator = self.get_moderator(sender)
         if unchanged_obj:
             moderated_obj = self._get_or_create_moderated_object(instance,
-                                                                unchanged_obj)
+                                                                unchanged_obj,
+                                                                moderator)
             if moderated_obj.moderation_status != MODERATION_STATUS_APPROVED\
               and not moderator.bypass_moderation_after_approval:
                 moderated_obj.save()
@@ -149,7 +150,7 @@ class ModerationManager(object):
         except ObjectDoesNotExist:
             return None
 
-    def _get_or_create_moderated_object(self, instance, unchanged_obj):
+    def _get_or_create_moderated_object(self, instance, unchanged_obj, moderator):
         """
         Get or create ModeratedObject instance.
         If moderated object is not equal instance then serialize unchanged
@@ -158,6 +159,12 @@ class ModerationManager(object):
         try:
             moderated_object\
              = ModeratedObject.objects.get_for_instance(instance)
+
+            if moderated_object.has_object_been_changed(instance):
+                if moderator.visible_until_rejected:
+                    moderated_object.changed_object = instance
+                else:
+                    moderated_object.changed_object = unchanged_obj
 
         except ObjectDoesNotExist:
             moderated_object = ModeratedObject(content_object=unchanged_obj)
@@ -208,11 +215,13 @@ class ModerationManager(object):
 
             if moderated_obj.has_object_been_changed(instance):
                 copied_instance = self._copy_model_instance(instance)
-                # save instance with data from changed_object
-                moderated_obj.changed_object.save_base(raw=True)
 
-                # save new data in moderated object
-                moderated_obj.changed_object = copied_instance
+                if not moderator.visible_until_rejected:
+                    # save instance with data from changed_object
+                    moderated_obj.changed_object.save_base(raw=True)
+
+                    # save new data in moderated object
+                    moderated_obj.changed_object = copied_instance
 
                 moderated_obj.moderation_status = MODERATION_STATUS_PENDING
                 moderated_obj.save()

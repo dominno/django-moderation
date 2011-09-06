@@ -55,8 +55,10 @@ class ModerationAdmin(admin.ModelAdmin):
             content_type = ContentType.objects.get_for_model(self.model)
             moderated_obj = ModeratedObject.objects.get(object_pk=object_id,
                                                         content_type=content_type)
+            moderator = moderated_obj.moderator
             msg = self.get_moderation_message(moderated_obj.moderation_status,
-                                              moderated_obj.moderation_reason)
+                                              moderated_obj.moderation_reason,
+                                              moderator.visible_until_rejected)
         except ModeratedObject.DoesNotExist:
             msg = self.get_moderation_message()
 
@@ -66,10 +68,15 @@ class ModerationAdmin(admin.ModelAdmin):
         obj.save()
         automoderate(obj, request.user)
 
-    def get_moderation_message(self, moderation_status=None, reason=None):
+    def get_moderation_message(self, moderation_status=None, reason=None,
+            visible_until_rejected=False):
         if moderation_status == MODERATION_STATUS_PENDING:
-            return _(u"Object is not viewable on site, "\
-                    "it will be visible when moderator will accept it")
+            if visible_until_rejected:
+                return _(u"Object is viewable on site, "\
+                        "it will be removed if moderator rejects it")
+            else:
+                return _(u"Object is not viewable on site, "\
+                        "it will be visible if moderator accepts it")
         elif moderation_status == MODERATION_STATUS_REJECTED:
             return _(u"Object has been rejected by moderator, "\
                     "reason: %s" % reason)
@@ -136,9 +143,16 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
         moderator = moderation.get_moderator(changed_object.__class__)
 
+        if moderator.visible_until_rejected:
+            old_object = changed_object
+            new_object = moderated_object.get_object_for_this_type()
+        else:
+            old_object = moderated_object.get_object_for_this_type()
+            new_object = changed_object
+
         changes = get_changes_between_models(
-                                moderated_object.get_object_for_this_type(),
-                                changed_object,
+                                old_object,
+                                new_object,
                                 moderator.fields_exclude).values()
         if request.POST:
             admin_form = self.get_form(request, moderated_object)(request.POST)

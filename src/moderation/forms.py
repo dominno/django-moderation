@@ -12,7 +12,8 @@ class BaseModeratedObjectForm(ModelForm):
         if instance:
             try:
                 if instance.moderated_object.moderation_status in \
-                [MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED]:
+                [MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED] and \
+                not instance.moderated_object.moderator.visible_until_rejected:
                     initial = \
                     instance.moderated_object.changed_object.__dict__
                     kwargs.setdefault('initial', {})
