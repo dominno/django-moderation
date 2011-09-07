@@ -160,19 +160,16 @@ class ModerationManager(object):
             moderated_object\
              = ModeratedObject.objects.get_for_instance(instance)
 
-            if moderated_object.has_object_been_changed(instance):
-                if moderator.visible_until_rejected:
-                    moderated_object.changed_object = instance
-                else:
-                    moderated_object.changed_object = unchanged_obj
-
         except ObjectDoesNotExist:
             moderated_object = ModeratedObject(content_object=unchanged_obj)
             moderated_object.changed_object = unchanged_obj
 
         else:
             if moderated_object.has_object_been_changed(instance):
-                moderated_object.changed_object = unchanged_obj
+                if moderator.visible_until_rejected:
+                    moderated_object.changed_object = instance
+                else:
+                    moderated_object.changed_object = unchanged_obj
 
         return moderated_object
 
