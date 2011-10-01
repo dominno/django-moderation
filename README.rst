@@ -42,9 +42,10 @@ Contributors
 
 Special thanks to all persons that contributed to this project.
 
-- jonwd7 http://github.com/jonwd7 - Thank you for all ideas, bug fixes, patches.
+- jonwd7 http://github.com/jonwd7
+- treyhunner http://github.com/treyhunner
 
-Thank you very much.
+Thank you for all ideas, bug fixes, patches.
 
 
 Screenshots
