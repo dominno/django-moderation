@@ -142,12 +142,8 @@ class ModeratedObject(models.Model):
         self.moderation_date = datetime.datetime.now()
         self.moderated_by = moderated_by
         self.moderation_reason = reason
-        
+
         if status == MODERATION_STATUS_APPROVED:
-            
-            if self.moderator.visibility_column:
-                setattr(self.changed_object, self.moderator.visibility_column,
-                        True)
 
             if self.moderator.visible_until_rejected:
                 try:
@@ -157,9 +153,14 @@ class ModeratedObject(models.Model):
                 except obj_class.DoesNotExist:
                     unchanged_obj = None
                 self.changed_object = unchanged_obj
-            else:
-                self.changed_object.save()
+
+            if self.moderator.visibility_column:
+                setattr(self.changed_object, self.moderator.visibility_column,
+                        True)
+
             self.save()
+            self.changed_object.save()
+
         else:
             self.save()
         if status == MODERATION_STATUS_REJECTED and \
