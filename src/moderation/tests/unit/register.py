@@ -337,6 +337,8 @@ class ModerationManagerTestCase(SettingsTestCase):
     def test_get_or_create_moderated_object_exist(self):
         self.moderation.register(UserProfile)
         profile = UserProfile.objects.get(user__username='moderator')
+
+        moderator = self.moderation.get_moderator(UserProfile)
         
         ModeratedObject(content_object=profile).save()
         
@@ -344,7 +346,8 @@ class ModerationManagerTestCase(SettingsTestCase):
         
         unchanged_obj = self.moderation._get_unchanged_object(profile)
         object = self.moderation._get_or_create_moderated_object(profile,
-                                                                unchanged_obj)
+                                                                unchanged_obj,
+                                                                moderator)
         
         self.assertNotEqual(object.pk, None)
         self.assertEqual(object.changed_object.description, 
@@ -355,15 +358,21 @@ class ModerationManagerTestCase(SettingsTestCase):
     def test_get_or_create_moderated_object_does_not_exist(self):
         profile = UserProfile.objects.get(user__username='moderator')
         profile.description = "New description"
+
+        self.moderation.register(UserProfile)
+        moderator = self.moderation.get_moderator(UserProfile)
         
         unchanged_obj = self.moderation._get_unchanged_object(profile)
 
         object = self.moderation._get_or_create_moderated_object(profile,
-                                                                unchanged_obj)
+                                                                unchanged_obj,
+                                                                moderator)
 
         self.assertEqual(object.pk, None)
         self.assertEqual(object.changed_object.description,
                          u'Old description')
+
+        self.moderation.unregister(UserProfile)
 
     def test_get_unchanged_object(self):
         profile = UserProfile.objects.get(user__username='moderator')
