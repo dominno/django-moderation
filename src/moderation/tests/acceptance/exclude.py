@@ -1,14 +1,11 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from moderation.register import ModerationManager 
 from moderation.moderator import GenericModerator
 from moderation.tests.apps.test_app1.models import UserProfile, \
         ModelWithModeratedFields
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.utils import setup_moderation, teardown_moderation
-from moderation.diff import get_changes_between_models
-from moderation import moderation
 
 
 
@@ -22,14 +19,12 @@ class ExcludeAcceptanceTestCase(SettingsTestCase):
     urls = 'moderation.tests.urls.default'
     
     def setUp(self):
-        setup_moderation()
-        
         self.client.login(username='admin', password='aaaa')
         
         class UserProfileModerator(GenericModerator):
             fields_exclude = ['url']
-            
-        moderation.register(UserProfile, UserProfileModerator)
+
+        setup_moderation([(UserProfile, UserProfileModerator)])
     
     def tearDown(self):
         teardown_moderation()
@@ -44,17 +39,15 @@ class ExcludeAcceptanceTestCase(SettingsTestCase):
         profile.url = 'http://dominno.pl'
         
         profile.save()
-        
+
         url = reverse('admin:moderation_moderatedobject_change',
                       args=(profile.moderated_object.pk,))
 
         response = self.client.get(url, {})
         
-        changes = response.context['changes']
-        
-        self.assertEqual(len(changes), 1)
-        self.assertEqual(changes[0].change, ('Old description',
-                                             'Old description'))
+        changes = [change.change for change in response.context['changes']]
+
+        self.assertFalse((u'http://www.google.com', u'http://dominno.pl') in changes)
         
     def test_non_excluded_field_should_be_moderated_when_object_is_edited(self):
         '''
@@ -73,12 +66,10 @@ class ExcludeAcceptanceTestCase(SettingsTestCase):
         
         response = self.client.get(url, {})
         
-        changes = response.context['changes']
-        
-        self.assertEqual(len(changes), 1)
-        self.assertEqual(changes[0].change, ('Old description',
-                                             'New description'))
-        
+        changes = [change.change for change in response.context['changes']]
+
+        self.assertTrue(("Old description", 'New description') in changes)
+
     def test_excluded_field_should_not_be_moderated_when_object_is_created(self):
         '''
         Create new object, only non excluded fields are used by moderation system
@@ -94,11 +85,9 @@ class ExcludeAcceptanceTestCase(SettingsTestCase):
         
         response = self.client.get(url, {})
         
-        changes = response.context['changes']
-        
-        self.assertEqual(len(changes), 1)
-        self.assertEqual(changes[0].change, ('Profile for new user',
-                                             'Profile for new user'))        
+        changes = [change.change for change in response.context['changes']]
+
+        self.assertFalse((u'http://www.dominno.com', u'http://www.dominno.com') in changes)
 
 
 class ModeratedFieldsAcceptanceTestCase(SettingsTestCase):
