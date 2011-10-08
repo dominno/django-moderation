@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 
 from moderation.register import ModerationManager 
 from moderation.tests.apps.test_app1.models import UserProfile, ModelWithSlugField,\
-    ModelWithSlugField2
+    ModelWithSlugField2, SuperUserProfile
 from django.core.exceptions import ObjectDoesNotExist
 from moderation.filterspecs import ContentTypeFilterSpec
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
@@ -110,6 +110,8 @@ class ModerationAdminSendMessageTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
+        self.moderation = setup_moderation([UserProfile])
+
         rf = RequestFactory()
         rf.login(username='admin', password='aaaa')
         self.request = rf.get('/admin/moderation/')
@@ -120,12 +122,18 @@ class ModerationAdminSendMessageTestCase(SettingsTestCase):
         self.moderated_obj = ModeratedObject(content_object=self.profile)
         self.moderated_obj.save()
 
+    def tearDown(self):
+        teardown_moderation()
+
     def test_send_message_when_object_has_no_moderated_object(self):
-        profile = UserProfile(description='Profile for new user',
+        profile = SuperUserProfile(description='Profile for new user',
                     url='http://www.yahoo.com',
-                    user=User.objects.get(username='user1'))
+                    user=User.objects.get(username='user1'),
+                    super_power='text')
 
         profile.save()
+
+        self.moderation.register(SuperUserProfile)
 
         self.admin.send_message(self.request, profile.pk)
 
@@ -140,8 +148,7 @@ class ModerationAdminSendMessageTestCase(SettingsTestCase):
         self.admin.send_message(self.request, self.profile.pk)
 
         message = self.request.user.message_set.get()
-        self.assertEqual(unicode(message), u"Object is not viewable on site,"\
-                         u" it will be visible when moderator will accept it")
+        self.assertEqual(unicode(message), u"Object is not viewable on site, it will be visible if moderator accepts it")
 
     def test_send_message_status_rejected(self):
         self.moderated_obj.moderation_status = MODERATION_STATUS_REJECTED
