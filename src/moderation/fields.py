@@ -62,7 +62,7 @@ class SerializedObjectField(models.TextField):
                         return None
         return obj
  
-    def db_type(self, connection):
+    def db_type(self, connection=None):
         return 'text'
  
     def pre_save(self, model_instance, add):
