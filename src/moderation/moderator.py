@@ -121,7 +121,9 @@ class GenericModerator(object):
         send_mail(subject=subject,
                   message=message,
                   from_email=settings.DEFAULT_FROM_EMAIL,
-                  recipient_list=recipient_list)
+                  recipient_list=recipient_list,
+                  fail_silently=True
+                  )
 
     def inform_moderator(self,
             content_object,
