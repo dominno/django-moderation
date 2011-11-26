@@ -51,6 +51,7 @@ class ModerationObjectsManagerTestCase(SettingsTestCase):
 
         ManagerClass = ModerationObjectsManager()(Manager)
         manager = ManagerClass()
+        manager.model = UserProfile
 
         query_set = UserProfile._default_manager.all()
         moderated_object = ModeratedObject(content_object=self.profile)
