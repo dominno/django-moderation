@@ -9,17 +9,15 @@ class AutoDiscoverAcceptanceTestCase(SettingsTestCase):
     moderator and register it with moderation.
     '''
     test_settings = 'moderation.tests.settings.auto_discover'
-    
+
     def setUp(self):
         setup_moderation()
-        
+
     def tearDown(self):
         teardown_moderation()
 
     def test_all_app_containing_moderator_module_should_be_registered(self):
         import moderation.tests.urls.auto_discover
         from moderation import moderation
-        
-        self.assertTrue(moderation._registered_models.has_key(Book))
-        
-        
+
+        self.assertTrue(Book in moderation._registered_models)

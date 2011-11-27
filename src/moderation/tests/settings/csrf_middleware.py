@@ -12,42 +12,42 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'moderation',
     'moderation.tests.apps.test_app1',
-)
+    )
 
 ROOT_URLCONF = 'moderation.tests.urls.default.py'
 
 DJANGO_MODERATION_MODERATORS = (
-                               'test@example.com',
-                               )
+    'test@example.com',
+    )
 
 version = django.get_version()[:3]
 
 if version == '1.2':
     MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
 
-    #'django.middleware.doc.XViewMiddleware',
-    )
+        #'django.middleware.doc.XViewMiddleware',
+        )
 
 elif version == '1.1':
     MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.csrf.middleware.CsrfViewMiddleware',
-    'django.contrib.csrf.middleware.CsrfResponseMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.middleware.doc.XViewMiddleware',
-   
-    )
+        'django.middleware.common.CommonMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.contrib.csrf.middleware.CsrfViewMiddleware',
+        'django.contrib.csrf.middleware.CsrfResponseMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.middleware.doc.XViewMiddleware',
+
+        )
 
 test_module_path = os.sep.join(os.path.dirname(__file__).split(os.sep)[:-1])
 
 TEMPLATE_DIRS = (
     os.path.join(test_module_path, "templates"),
-)
+    )
 
 settings = get_only_settings_locals(locals().copy())

@@ -58,7 +58,7 @@ class ModelWIthDateField(models.Model):
 class ModelWithVisibilityField(models.Model):
     test = models.CharField(max_length=20)
     is_public = models.BooleanField(default=False)
-    
+
     def __unicode__(self):
         return u'%s - is public %s' % (self.test, self.is_public)
 
@@ -66,7 +66,7 @@ class ModelWithVisibilityField(models.Model):
 class ModelWithWrongVisibilityField(models.Model):
     test = models.CharField(max_length=20)
     is_public = models.IntegerField()
-    
+
     def __unicode__(self):
         return u'%s - is public %s' % (self.test, self.is_public)
 

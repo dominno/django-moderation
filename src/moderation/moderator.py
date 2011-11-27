@@ -19,9 +19,9 @@ class GenericModerator(object):
     moderation_manager_class = ModerationObjectsManager
     bypass_moderation_after_approval = False
     visible_until_rejected = False
-    
+
     fields_exclude = []
-    
+
     visibility_column = None
 
     auto_approve_for_superusers = True
@@ -35,9 +35,9 @@ class GenericModerator(object):
     notify_user = True
 
     subject_template_moderator\
-     = 'moderation/notification_subject_moderator.txt'
+    = 'moderation/notification_subject_moderator.txt'
     message_template_moderator\
-     = 'moderation/notification_message_moderator.txt'
+    = 'moderation/notification_message_moderator.txt'
     subject_template_user = 'moderation/notification_subject_user.txt'
     message_template_user = 'moderation/notification_message_user.txt'
 
@@ -60,8 +60,8 @@ class GenericModerator(object):
         
         Overwrite this method if you want to provide your custom logic.
         '''
-        if self.auto_approve_for_groups \
-           and self._check_user_in_groups(user, self.auto_approve_for_groups):
+        if self.auto_approve_for_groups\
+        and self._check_user_in_groups(user, self.auto_approve_for_groups):
             return self.reason(u'Auto-approved: User in allowed group')
         if self.auto_approve_for_superusers and user.is_superuser:
             return self.reason(u'Auto-approved: Superuser')
@@ -78,14 +78,14 @@ class GenericModerator(object):
         
         Overwrite this method if you want to provide your custom logic.
         '''
-        if self.auto_reject_for_groups \
-         and self._check_user_in_groups(user, self.auto_reject_for_groups):
+        if self.auto_reject_for_groups\
+        and self._check_user_in_groups(user, self.auto_reject_for_groups):
             return self.reason(u'Auto-rejected: User in disallowed group')
         if self.auto_reject_for_anonymous and user.is_anonymous():
             return self.reason(u'Auto-rejected: Anonymous User')
 
         return False
-    
+
     def reason(self, reason, user=None, obj=None):
         '''Returns moderation reason for auto moderation.  Optional user 
         and object can be passed for a more custom reason.
@@ -98,19 +98,19 @@ class GenericModerator(object):
                 group = Group.objects.get(name=group)
             except ObjectDoesNotExist:
                 return False
-            
+
             if group in user.groups.all():
                 return True
-            
+
         return False
 
     def send(self, content_object, subject_template, message_template,
-                           recipient_list, extra_context=None):
+             recipient_list, extra_context=None):
         context = {
-                'moderated_object': content_object.moderated_object,
-                'content_object': content_object,
-                'site': Site.objects.get_current(),
-                'content_type': content_object.moderated_object.content_type}
+            'moderated_object': content_object.moderated_object,
+            'content_object': content_object,
+            'site': Site.objects.get_current(),
+            'content_type': content_object.moderated_object.content_type}
 
         if extra_context:
             context.update(extra_context)
@@ -122,23 +122,23 @@ class GenericModerator(object):
                   message=message,
                   from_email=settings.DEFAULT_FROM_EMAIL,
                   recipient_list=recipient_list,
-                  fail_silently=True
-                  )
+                  fail_silently=True)
 
     def inform_moderator(self,
-            content_object,
-            extra_context=None):
+                         content_object,
+                         extra_context=None):
         '''Send notification to moderator'''
         from moderation.conf.settings import MODERATORS
+
         if self.notify_moderator:
             self.send(content_object=content_object,
-                  subject_template=self.subject_template_moderator,
-                  message_template=self.message_template_moderator,
-                  recipient_list=MODERATORS)
+                      subject_template=self.subject_template_moderator,
+                      message_template=self.message_template_moderator,
+                      recipient_list=MODERATORS)
 
     def inform_user(self, content_object,
-                user,
-                extra_context=None):
+                    user,
+                    extra_context=None):
         '''Send notification to user when object is approved or rejected'''
         if extra_context:
             extra_context.update({'user': user})
@@ -146,21 +146,21 @@ class GenericModerator(object):
             extra_context = {'user': user}
         if self.notify_user:
             self.send(content_object=content_object,
-                  subject_template=self.subject_template_user,
-                  message_template=self.message_template_user,
-                  recipient_list=[user.email],
-                   extra_context=extra_context)
-    
+                      subject_template=self.subject_template_user,
+                      message_template=self.message_template_user,
+                      recipient_list=[user.email],
+                      extra_context=extra_context)
+
     def _get_base_managers(self):
         base_managers = []
-        
+
         for manager_name in self.manager_names:
             base_managers.append(
-                        (manager_name,
-                        self._get_base_manager(self.model_class,
-                                               manager_name)))
+                    (manager_name,
+                     self._get_base_manager(self.model_class,
+                                            manager_name)))
         return base_managers
-    
+
     def _get_base_manager(self, model_class, manager_name):
         """Returns base manager class for given model class """
         if hasattr(model_class, manager_name):
@@ -173,12 +173,12 @@ class GenericModerator(object):
     def _validate_options(self):
         if self.visibility_column:
             field_type = type(self.model_class._meta.get_field_by_name(
-                                                self.visibility_column)[0])
-            
+                self.visibility_column)[0])
+
             if field_type != BooleanField:
                 msg = 'visibility_column field: %s on model %s should '\
                       'be BooleanField type but is %s' % (
-                                            self.moderator.visibility_column,
-                                            self.changed_object.__class__,
-                                            field_type)
+                    self.moderator.visibility_column,
+                    self.changed_object.__class__,
+                    field_type)
                 raise AttributeError(msg)

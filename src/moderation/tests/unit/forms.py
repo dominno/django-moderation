@@ -1,8 +1,7 @@
-
 from moderation.tests.apps.test_app1.models import UserProfile
 from django.forms import CharField
 from moderation.forms import BaseModeratedObjectForm
-from moderation.register import ModerationManager 
+from moderation.register import ModerationManager
 from django.contrib.auth.models import User
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.utils import setup_moderation, teardown_moderation
@@ -23,7 +22,7 @@ class FormsTestCase(SettingsTestCase):
 
         self.ModeratedObjectForm = ModeratedObjectForm
         self.moderation = setup_moderation([UserProfile])
-        
+
     def tearDown(self):
         teardown_moderation()
 
@@ -33,8 +32,8 @@ class FormsTestCase(SettingsTestCase):
 
     def test_if_form_is_initialized_new_object(self):
         profile = UserProfile(description="New description",
-                    url='http://test.com',
-                    user=self.user)
+                              url='http://test.com',
+                              user=self.user)
         profile.save()
 
         form = self.ModeratedObjectForm(instance=profile)
@@ -42,8 +41,8 @@ class FormsTestCase(SettingsTestCase):
 
     def test_if_form_is_initialized_existing_object(self):
         profile = UserProfile(description="old description",
-                    url='http://test.com',
-                    user=self.user)
+                              url='http://test.com',
+                              user=self.user)
         profile.save()
 
         profile.moderated_object.approve(moderated_by=self.user)
@@ -61,8 +60,8 @@ class FormsTestCase(SettingsTestCase):
     def test_form_when_obj_has_no_moderated_obj(self):
         self.moderation.unregister(UserProfile)
         profile = UserProfile(description="old description",
-                    url='http://test.com',
-                    user=self.user)
+                              url='http://test.com',
+                              user=self.user)
         profile.save()
         self.moderation.register(UserProfile)
 
@@ -72,12 +71,12 @@ class FormsTestCase(SettingsTestCase):
 
     def test_if_form_is_initialized_new_object_with_initial(self):
         profile = UserProfile(description="New description",
-                    url='http://test.com',
-                    user=self.user)
+                              url='http://test.com',
+                              user=self.user)
         profile.save()
 
         form = self.ModeratedObjectForm(initial={'extra': 'value'},
-                instance=profile)
+                                        instance=profile)
 
         self.assertEqual(form.initial['description'], u'New description')
         self.assertEqual(form.initial['extra'], u'value')

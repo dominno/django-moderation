@@ -10,11 +10,11 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'moderation',
     'moderation.tests.apps.test_app2',
-)
+    )
 
 ROOT_URLCONF = 'moderation.tests.urls.auto_register.py'
 
 DJANGO_MODERATION_MODERATORS = (
-                               'test@example.com',
-                               )
+    'test@example.com',
+    )
 settings = get_only_settings_locals(locals().copy())

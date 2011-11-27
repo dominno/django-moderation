@@ -10,16 +10,18 @@ class RegistrationError(Exception):
 
 
 class ModerationManagerSingleton(type):
+
     def __init__(cls, name, bases, dict):
         super(ModerationManagerSingleton, cls).__init__(name, bases, dict)
         cls.instance = None
- 
+
     def __call__(cls, *args, **kw):
         if cls.instance is None:
-            cls.instance = super(ModerationManagerSingleton, cls).__call__(*args, **kw)
- 
+            cls.instance = super(ModerationManagerSingleton, cls)\
+                                            .__call__(*args, **kw)
+
         return cls.instance
-    
+
 
 class ModerationManager(object):
     __metaclass__ = ModerationManagerSingleton
@@ -27,7 +29,7 @@ class ModerationManager(object):
     def __init__(self, *args, **kwargs):
         """Initializes the moderation manager."""
         self._registered_models = {}
-        
+
         super(ModerationManager, self).__init__(*args, **kwargs)
 
     def register(self, model_class, moderator_class=None):
@@ -50,18 +52,20 @@ class ModerationManager(object):
 
     def _connect_signals(self, model_class):
         from django.db.models import signals
+
         signals.pre_save.connect(self.pre_save_handler,
-                                     sender=model_class)
+                                 sender=model_class)
         signals.post_save.connect(self.post_save_handler,
-                                      sender=model_class)
-    
-    def _add_moderated_object_to_class(self, model_class):    
+                                  sender=model_class)
+
+    def _add_moderated_object_to_class(self, model_class):
         if hasattr(model_class, '_relation_object'):
             relation_object = getattr(model_class, '_relation_object')
         else:
-            relation_object = generic.GenericRelation(ModeratedObject,
-                                               object_id_field='object_pk')
-        
+            relation_object = generic.GenericRelation(
+                                        ModeratedObject,
+                                        object_id_field='object_pk')
+
         model_class.add_to_class('_relation_object', relation_object)
 
         def get_moderated_object(self):
@@ -69,7 +73,7 @@ class ModerationManager(object):
                 self._moderated_object = getattr(self,
                                                  '_relation_object').get()
             return self._moderated_object
-        
+
         model_class.add_to_class('moderated_object',
                                  property(get_moderated_object))
 
@@ -80,9 +84,9 @@ class ModerationManager(object):
            ModerationObjectsManager
         """
         model_class = moderator_class_instance.model_class
-        base_managers = moderator_class_instance.base_managers 
+        base_managers = moderator_class_instance.base_managers
         moderation_manager_class\
-         = moderator_class_instance.moderation_manager_class
+        = moderator_class_instance.moderation_manager_class
 
         for manager_name, mgr_class in base_managers:
             ModerationObjectsManager = moderation_manager_class()(mgr_class)
@@ -90,7 +94,7 @@ class ModerationManager(object):
             model_class.add_to_class('unmoderated_%s' % manager_name,
                                      mgr_class())
             model_class.add_to_class(manager_name, manager)
-            
+
         self._add_moderated_object_to_class(model_class)
 
     def unregister(self, model_class):
@@ -107,18 +111,20 @@ class ModerationManager(object):
     def _remove_fields(self, moderator_class_instance):
         """Removes fields from model class and disconnects signals"""
         from django.db.models import signals
+
         model_class = moderator_class_instance.model_class
         base_managers = moderator_class_instance.base_managers
-        
+
         for manager_name, manager_class in base_managers:
             manager = manager_class()
             delattr(model_class, 'unmoderated_%s' % manager_name)
             model_class.add_to_class(manager_name, manager)
-            
+
         delattr(model_class, 'moderated_object')
 
     def _disconnect_signals(self, model_class):
         from django.db.models import signals
+
         signals.pre_save.disconnect(self.pre_save_handler, model_class)
         signals.post_save.disconnect(self.post_save_handler, model_class)
 
@@ -134,10 +140,10 @@ class ModerationManager(object):
         moderator = self.get_moderator(sender)
         if unchanged_obj:
             moderated_obj = self._get_or_create_moderated_object(instance,
-                                                                unchanged_obj,
-                                                                moderator)
+                                                                 unchanged_obj,
+                                                                 moderator)
             if moderated_obj.moderation_status != MODERATION_STATUS_APPROVED\
-              and not moderator.bypass_moderation_after_approval:
+            and not moderator.bypass_moderation_after_approval:
                 moderated_obj.save()
 
     def _get_unchanged_object(self, instance):
@@ -150,7 +156,8 @@ class ModerationManager(object):
         except ObjectDoesNotExist:
             return None
 
-    def _get_or_create_moderated_object(self, instance, unchanged_obj, moderator):
+    def _get_or_create_moderated_object(self, instance,
+                                        unchanged_obj, moderator):
         """
         Get or create ModeratedObject instance.
         If moderated object is not equal instance then serialize unchanged
@@ -158,7 +165,7 @@ class ModerationManager(object):
         """
         try:
             moderated_object\
-             = ModeratedObject.objects.get_for_instance(instance)
+            = ModeratedObject.objects.get_for_instance(instance)
 
         except ObjectDoesNotExist:
             moderated_object = ModeratedObject(content_object=unchanged_obj)
@@ -179,7 +186,7 @@ class ModerationManager(object):
         except KeyError:
             msg = "%r has not been registered with Moderation." % model_class
             raise RegistrationError(msg)
-        
+
         return moderator_instance
 
     def post_save_handler(self, sender, instance, **kwargs):
@@ -192,7 +199,7 @@ class ModerationManager(object):
 
         if kwargs['raw']:
             return
-        
+
         pk = instance.pk
         moderator = self.get_moderator(sender)
 
@@ -202,12 +209,11 @@ class ModerationManager(object):
             moderated_obj.save()
             moderator.inform_moderator(instance)
         else:
-            
-            moderated_obj \
-             = ModeratedObject.objects.get_for_instance(instance)
-             
+            moderated_obj\
+            = ModeratedObject.objects.get_for_instance(instance)
+
             if moderated_obj.moderation_status == MODERATION_STATUS_APPROVED\
-               and moderator.bypass_moderation_after_approval:
+            and moderator.bypass_moderation_after_approval:
                 return
 
             if moderated_obj.has_object_been_changed(instance):
@@ -227,5 +233,5 @@ class ModerationManager(object):
 
     def _copy_model_instance(self, obj):
         initial = dict([(f.name, getattr(obj, f.name))
-                    for f in obj._meta.fields])
+        for f in obj._meta.fields])
         return obj.__class__(**initial)

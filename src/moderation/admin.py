@@ -37,11 +37,11 @@ set_objects_as_pending.short_description = "Set selected moderated objects "\
 
 class ModerationAdmin(admin.ModelAdmin):
     admin_integration_enabled = True
-    
+
     def get_form(self, request, obj=None):
         if obj and self.admin_integration_enabled:
             return self.get_moderated_object_form(obj.__class__)
-        
+
         return super(ModerationAdmin, self).get_form(request, obj)
 
     def change_view(self, request, object_id, extra_context=None):
@@ -68,20 +68,20 @@ class ModerationAdmin(admin.ModelAdmin):
         automoderate(obj, request.user)
 
     def get_moderation_message(self, moderation_status=None, reason=None,
-            visible_until_rejected=False):
+                               visible_until_rejected=False):
         if moderation_status == MODERATION_STATUS_PENDING:
             if visible_until_rejected:
                 return _(u"Object is viewable on site, "\
-                        "it will be removed if moderator rejects it")
+                         "it will be removed if moderator rejects it")
             else:
                 return _(u"Object is not viewable on site, "\
-                        "it will be visible if moderator accepts it")
+                         "it will be visible if moderator accepts it")
         elif moderation_status == MODERATION_STATUS_REJECTED:
             return _(u"Object has been rejected by moderator, "\
-                    "reason: %s" % reason)
+                     "reason: %s" % reason)
         elif moderation_status == MODERATION_STATUS_APPROVED:
             return _(u"Object has been approved by moderator "\
-                    "and is visible on site")
+                     "and is visible on site")
         elif moderation_status is None:
             return _("This object is not registered with "\
                      "the moderation system.")
@@ -98,14 +98,14 @@ class ModerationAdmin(admin.ModelAdmin):
 
 class ModeratedObjectAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_created'
-    list_display = ('content_object', 'content_type', 'date_created', 
+    list_display = ('content_object', 'content_type', 'date_created',
                     'moderation_status', 'moderated_by', 'moderation_date')
     list_filter = ['content_type', 'moderation_status']
     change_form_template = 'moderation/moderate_object.html'
     change_list_template = 'moderation/moderated_objects_list.html'
     actions = [reject_objects, approve_objects, set_objects_as_pending]
     fieldsets = (
-        ('Object moderation', {'fields': ('moderation_reason',)}),
+            ('Object moderation', {'fields': ('moderation_reason',)}),
         )
 
     def get_actions(self, request):
@@ -128,7 +128,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
     def get_moderated_object_form(self, model_class):
 
         class ModeratedObjectForm(ModelForm):
-
+            
             class Meta:
                 model = model_class
 
@@ -136,23 +136,24 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, extra_context=None):
         from moderation import moderation
+
         moderated_object = ModeratedObject.objects.get(pk=object_id)
 
-        changed_object = moderated_object.changed_object
+        changed_obj = moderated_object.changed_object
 
-        moderator = moderation.get_moderator(changed_object.__class__)
+        moderator = moderation.get_moderator(changed_obj.__class__)
 
         if moderator.visible_until_rejected:
-            old_object = changed_object
+            old_object = changed_obj
             new_object = moderated_object.get_object_for_this_type()
         else:
             old_object = moderated_object.get_object_for_this_type()
-            new_object = changed_object
+            new_object = changed_obj
 
         changes = get_changes_between_models(
-                                old_object,
-                                new_object,
-                                moderator.fields_exclude).values()
+            old_object,
+            new_object,
+            moderator.fields_exclude).values()
         if request.POST:
             admin_form = self.get_form(request, moderated_object)(request.POST)
 
@@ -163,11 +164,12 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                 elif 'reject' in request.POST:
                     moderated_object.reject(request.user, reason)
 
-        content_type = ContentType.objects.get_for_model(changed_object.__class__)
+        content_type = ContentType.objects.get_for_model(changed_obj.__class__)
         try:
             object_admin_url = urlresolvers.reverse("admin:%s_%s_change" %
-                    (content_type.app_label, content_type.model),
-                args=(changed_object.pk,))
+                                                    (content_type.app_label,
+                                                     content_type.model),
+                                                    args=(changed_obj.pk,))
         except urlresolvers.NoReverseMatch:
             object_admin_url = None
 

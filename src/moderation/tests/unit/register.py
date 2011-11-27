@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import User
 from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,8 +8,8 @@ from moderation.moderator import GenericModerator
 from moderation.managers import ModerationObjectsManager
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from moderation.signals import pre_moderation, post_moderation
-from moderation.tests.apps.test_app1.models import UserProfile, ModelWithSlugField,\
-    ModelWithSlugField2, ModelWithMultipleManagers
+from moderation.tests.apps.test_app1.models import UserProfile, \
+    ModelWithSlugField, ModelWithSlugField2, ModelWithMultipleManagers
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.utils import setup_moderation
 from moderation.tests.utils import teardown_moderation
@@ -28,26 +27,26 @@ class RegistrationTestCase(SettingsTestCase):
     def setUp(self):
         self.moderation = setup_moderation([UserProfile])
         self.user = User.objects.get(username='moderator')
-        
+
     def tearDown(self):
         teardown_moderation()
 
     def test_get_moderator(self):
         moderator = self.moderation.get_moderator(UserProfile)
-        
+
         self.assertTrue(isinstance(moderator, GenericModerator))
 
     def test_get_of_new_object_should_raise_exception(self):
         """Tests if after register of model class with moderation, 
            when new object is created and getting of object 
            raise ObjectDoesNotExist"""
-        
+
         profile = UserProfile(description='Profile for new user',
-                    url='http://www.yahoo.com',
-                    user=User.objects.get(username='user1'))
-        
+                              url='http://www.yahoo.com',
+                              user=User.objects.get(username='user1'))
+
         profile.save()
-          
+
         self.assertRaises(ObjectDoesNotExist, UserProfile.objects.get,
                           pk=profile.pk)
 
@@ -56,14 +55,14 @@ class RegistrationTestCase(SettingsTestCase):
         Test if after create of new object moderated object should be created
         """
         profile = UserProfile(description='Profile for new user',
-                    url='http://www.yahoo.com',
-                    user=User.objects.get(username='user1'))
+                              url='http://www.yahoo.com',
+                              user=User.objects.get(username='user1'))
 
         profile.save()
-        
+
         moderated_object = ModeratedObject.objects.get_for_instance(profile)
-        
-        self.assertEqual(unicode(moderated_object), 
+
+        self.assertEqual(unicode(moderated_object),
                          u"user1 - http://www.yahoo.com")
 
     def test_get_of_existing_object_should_return_old_version_of_object(self):
@@ -71,12 +70,12 @@ class RegistrationTestCase(SettingsTestCase):
             when existing object is saved, when getting of object returns 
             old version of object"""
         profile = UserProfile.objects.get(user__username='moderator')
-        
+
         profile.description = "New description"
         profile.save()
-        
+
         old_profile = UserProfile.objects.get(pk=profile.pk)
-        
+
         self.assertEqual(old_profile.description, u'Old description')
 
     def test_register(self):
@@ -85,7 +84,7 @@ class RegistrationTestCase(SettingsTestCase):
         UserProfile(description='Profile for new user',
                     url='http://www.yahoo.com',
                     user=User.objects.get(username='user1')).save()
-        
+
         self.assertEqual(ModeratedObject.objects.all().count(),
                          1,
                          "New moderation object was not created"\
@@ -95,47 +94,45 @@ class RegistrationTestCase(SettingsTestCase):
     def test_exception_is_raised_when_class_is_registered(self):
         self.assertRaises(RegistrationError, self.moderation.register,
                           UserProfile)
-        
+
     def test_custom_moderator_should_be_registered_with_moderation(self):
         from moderation.moderator import GenericModerator
         from django.db import models
-         
+
         class MyModel(models.Model):
             pass
-        
+
         class MyModelModerator(GenericModerator):
             pass
-            
+
         self.moderation.register(MyModel, MyModelModerator)
-        
+
         moderator_instance = self.moderation._registered_models[MyModel]
-        
+
         self.assertTrue(isinstance(moderator_instance, MyModelModerator))
-        
-        
-        
+
 
 class AutoDiscoverTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.auto_discover'
-    
+
     def setUp(self):
         self.moderation = setup_moderation()
-        
+
     def tearDown(self):
-        teardown_moderation() 
-        
+        teardown_moderation()
+
     def test_models_should_be_registered_if_moderator_in_module(self):
         module = import_moderator('moderation.tests.apps.test_app2')
-        
+
         try: # force module reload
             reload(module)
         except:
             pass
-        
-        self.assertTrue(self.moderation._registered_models.has_key(Book))
+
+        self.assertTrue(Book in self.moderation._registered_models)
         self.assertEqual(module.__name__,
                          'moderation.tests.apps.test_app2.moderator')
-            
+
 
 class RegisterMultipleManagersTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
@@ -155,13 +152,13 @@ class RegisterMultipleManagersTestCase(SettingsTestCase):
     def test_multiple_managers(self):
         obj = ModelWithMultipleManagers(gender=0)
         obj.save()
-        
+
         obj2 = ModelWithMultipleManagers(gender=1)
         obj2.save()
-        
+
         men = ModelWithMultipleManagers.men.all()
         women = ModelWithMultipleManagers.women.all()
-        
+
         self.assertEqual(men.count(), 0)
         self.assertEqual(women.count(), 0)
 
@@ -207,7 +204,7 @@ class IntegrityErrorRegressionTestCase(SettingsTestCase):
         self.moderation.register(ModelWithSlugField)
         self.filter_moderated_objects\
         = ModelWithSlugField.objects.filter_moderated_objects
-        
+
         def filter_moderated_objects(query_set):
             from moderation.models import MODERATION_STATUS_PENDING,\
                 MODERATION_STATUS_REJECTED
@@ -215,17 +212,17 @@ class IntegrityErrorRegressionTestCase(SettingsTestCase):
             exclude_pks = []
             for obj in query_set:
                 try:
-                    if obj.moderated_object.moderation_status \
-                        in [MODERATION_STATUS_PENDING,
-                            MODERATION_STATUS_REJECTED] \
-                        and obj.__dict__\
-                        == obj.moderated_object.changed_object.__dict__:
+                    if obj.moderated_object.moderation_status\
+                       in [MODERATION_STATUS_PENDING,
+                           MODERATION_STATUS_REJECTED]\
+                    and obj.__dict__\
+                    == obj.moderated_object.changed_object.__dict__:
                         exclude_pks.append(object.pk)
                 except ObjectDoesNotExist:
                     pass
-            
+
             return query_set.exclude(pk__in=exclude_pks)
-        
+
         setattr(ModelWithSlugField.objects,
                 'filter_moderated_objects',
                 filter_moderated_objects)
@@ -247,28 +244,28 @@ class ModerationManagerTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     urls = 'django-moderation.test_urls'
     test_settings = 'moderation.tests.settings.generic'
-    
+
     def setUp(self):
         self.moderation = setup_moderation()
         self.user = User.objects.get(username='moderator')
-        
+
     def tearDown(self):
         teardown_moderation()
-        
+
     def test_unregister(self):
         """Tests if model class is successfully unregistered from moderation"""
         from django.db.models import signals
-        
+
         old_pre_save_receivers = [r for r in signals.pre_save.receivers]
         old_post_save_receivers = [r for r in signals.post_save.receivers]
-        
+
         signals.pre_save.receivers = []
         signals.post_save.receivers = []
         self.moderation.register(UserProfile)
 
         self.assertNotEqual(signals.pre_save.receivers, [])
         self.assertNotEqual(signals.post_save.receivers, [])
-        
+
         UserProfile(description='Profile for new user',
                     url='http://www.yahoo.com',
                     user=User.objects.get(username='user1')).save()
@@ -277,10 +274,10 @@ class ModerationManagerTestCase(SettingsTestCase):
 
         self.assertEqual(signals.pre_save.receivers, [])
         self.assertEqual(signals.post_save.receivers, [])
-        
+
         self.assertEqual(UserProfile.objects.__class__, Manager)
         self.assertEqual(hasattr(UserProfile, 'moderated_object'), False)
-        
+
         signals.pre_save.receivers = old_pre_save_receivers
         signals.post_save.receivers = old_post_save_receivers
 
@@ -308,7 +305,7 @@ class ModerationManagerTestCase(SettingsTestCase):
 
         self.moderation._remove_fields(moderator)
 
-        profile = UserProfile(description='Profile for new user', 
+        profile = UserProfile(description='Profile for new user',
                               url='http://www.yahoo.com',
                               user=User.objects.get(username='user1'))
 
@@ -316,18 +313,18 @@ class ModerationManagerTestCase(SettingsTestCase):
 
         up = UserProfile._default_manager.filter(url='http://www.yahoo.com')
         self.assertEqual(up.count(), 1)
-        
+
     def test_and_fields_to_model_class(self):
         
         class CustomManager(Manager):
-        
             pass
+
         moderator = GenericModerator(UserProfile)
         self.moderation._and_fields_to_model_class(moderator)
 
         manager = ModerationObjectsManager()(CustomManager)()
 
-        self.assertEqual(repr(UserProfile.objects.__class__), 
+        self.assertEqual(repr(UserProfile.objects.__class__),
                          repr(manager.__class__))
         self.assertEqual(hasattr(UserProfile, 'moderated_object'), True)
 
@@ -339,20 +336,20 @@ class ModerationManagerTestCase(SettingsTestCase):
         profile = UserProfile.objects.get(user__username='moderator')
 
         moderator = self.moderation.get_moderator(UserProfile)
-        
+
         ModeratedObject(content_object=profile).save()
-        
+
         profile.description = "New description"
-        
+
         unchanged_obj = self.moderation._get_unchanged_object(profile)
         object = self.moderation._get_or_create_moderated_object(profile,
-                                                                unchanged_obj,
-                                                                moderator)
-        
+                                                                 unchanged_obj,
+                                                                 moderator)
+
         self.assertNotEqual(object.pk, None)
-        self.assertEqual(object.changed_object.description, 
+        self.assertEqual(object.changed_object.description,
                          u'Old description')
-        
+
         self.moderation.unregister(UserProfile)
 
     def test_get_or_create_moderated_object_does_not_exist(self):
@@ -361,12 +358,12 @@ class ModerationManagerTestCase(SettingsTestCase):
 
         self.moderation.register(UserProfile)
         moderator = self.moderation.get_moderator(UserProfile)
-        
+
         unchanged_obj = self.moderation._get_unchanged_object(profile)
 
         object = self.moderation._get_or_create_moderated_object(profile,
-                                                                unchanged_obj,
-                                                                moderator)
+                                                                 unchanged_obj,
+                                                                 moderator)
 
         self.assertEqual(object.pk, None)
         self.assertEqual(object.changed_object.description,
@@ -377,17 +374,17 @@ class ModerationManagerTestCase(SettingsTestCase):
     def test_get_unchanged_object(self):
         profile = UserProfile.objects.get(user__username='moderator')
         profile.description = "New description"
-        
+
         object = self.moderation._get_unchanged_object(profile)
-        
+
         self.assertEqual(object.description,
                          u'Old description')
-        
-        
+
+
 class LoadingFixturesTestCase(SettingsTestCase):
     fixtures = ['test_users.json']
     test_settings = 'moderation.tests.settings.generic'
-    
+
     def setUp(self):
         self.new_moderation = setup_moderation([UserProfile])
         self.user = User.objects.get(username='moderator')
@@ -411,7 +408,7 @@ class LoadingFixturesTestCase(SettingsTestCase):
                           ModeratedObject.objects.get, object_pk=profile.pk)
 
     def test_moderated_object_is_created_when_not_loaded_from_fixture(self):
-        profile = UserProfile(description='Profile for new user', 
+        profile = UserProfile(description='Profile for new user',
                               url='http://www.yahoo.com',
                               user=User.objects.get(username='user1'))
 
@@ -426,13 +423,15 @@ class ModerationSignalsTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
+        
         class UserProfileModerator(GenericModerator):
             notify_moderator = False
-        
-        self.moderation = setup_moderation([(UserProfile, UserProfileModerator)])
-        
+
+        self.moderation = setup_moderation(
+                            [(UserProfile, UserProfileModerator)])
+
         self.moderation._disconnect_signals(UserProfile)
-        
+
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
 
@@ -457,20 +456,20 @@ class ModerationSignalsTestCase(SettingsTestCase):
         self.assertEqual(self.profile.description, 'Change description')
 
     def test_send_post_moderation_signal(self):
-        """check if custom_approve_handler function was called when """ 
+        """check if custom_approve_handler function was called when """
         """moderation_approve signal was send"""
 
         def custom_post_moderation_handler(sender, instance, status, **kwargs):
             # do some stuff with approved instance
             instance.description = 'Change description'
             instance.save()
-        
+
         post_moderation.connect(custom_post_moderation_handler,
                                 sender=UserProfile)
-        
+
         post_moderation.send(sender=UserProfile, instance=self.profile,
                              status=MODERATION_STATUS_APPROVED)
-        
+
         self.assertEqual(self.profile.description, 'Change description')
 
     def test_connect_and_disconnect_signals(self):
@@ -500,8 +499,8 @@ class ModerationSignalsTestCase(SettingsTestCase):
         self.moderation._disconnect_signals(UserProfile)
 
         profile = UserProfile(description='Profile for new user',
-                    url='http://www.yahoo.com',
-                    user=User.objects.get(username='user1'))
+                              url='http://www.yahoo.com',
+                              user=User.objects.get(username='user1'))
 
         profile.save()
 
@@ -510,6 +509,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
 
     def test_post_save_handler_for_existing_object(self):
         from django.db.models import signals
+
         signals.pre_save.connect(self.moderation.pre_save_handler,
                                  sender=UserProfile)
         signals.post_save.connect(self.moderation.post_save_handler,
@@ -535,6 +535,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
 
     def test_pre_save_handler_for_existing_object(self):
         from django.db.models import signals
+
         signals.pre_save.connect(self.moderation.pre_save_handler,
                                  sender=UserProfile)
 
@@ -547,12 +548,12 @@ class ModerationSignalsTestCase(SettingsTestCase):
 
         original_object = moderated_object.changed_object
         content_object = moderated_object.content_object
-        
+
         self.assertEqual(original_object.description,
                          u'Old description')
         self.assertEqual(content_object.description,
                          'New description of user profile')
-        
+
         signals.pre_save.disconnect(self.moderation.pre_save_handler,
                                     UserProfile)
 
@@ -564,11 +565,11 @@ class ModerationSignalsTestCase(SettingsTestCase):
         signals.post_save.connect(self.moderation.post_save_handler,
                                   sender=UserProfile)
         profile = UserProfile(description='Profile for new user',
-                    url='http://www.yahoo.com',
-                    user=User.objects.get(username='user1'))
-        
+                              url='http://www.yahoo.com',
+                              user=User.objects.get(username='user1'))
+
         profile.save()
-        
+
         moderated_object = ModeratedObject.objects.get_for_instance(profile)
 
         self.assertEqual(moderated_object.content_object, profile)
@@ -579,13 +580,13 @@ class ModerationSignalsTestCase(SettingsTestCase):
                                      UserProfile)
 
     def test_pre_save_handler_for_new_object(self):
-        from django.db.models import signals 
-        
+        from django.db.models import signals
+
         signals.pre_save.connect(self.moderation.pre_save_handler,
                                  sender=UserProfile)
         profile = UserProfile(description='Profile for new user',
-                    url='http://www.yahoo.com',
-                    user=User.objects.get(username='user1'))
+                              url='http://www.yahoo.com',
+                              user=User.objects.get(username='user1'))
 
         profile.save()
 

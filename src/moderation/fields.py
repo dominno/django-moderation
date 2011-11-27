@@ -29,25 +29,26 @@ class SerializedObjectField(models.TextField):
        {'field': 'test', 'id': 1}
        
     '''
+
     def __init__(self, serialize_format='json', *args, **kwargs):
         self.serialize_format = serialize_format
         super(SerializedObjectField, self).__init__(*args, **kwargs)
-        
+
     def _serialize(self, value):
         if not value:
             return ''
-        
+
         value_set = [value]
         if value._meta.parents:
             value_set += [getattr(value, f.name)
-                            for f in value._meta.parents.values()]
-            
+                          for f in value._meta.parents.values()]
+
         return serializers.serialize(self.serialize_format, value_set)
- 
+
     def _deserialize(self, value):
         obj_generator = serializers.deserialize(self.serialize_format,
-                                value.encode(settings.DEFAULT_CHARSET))
-        
+                                       value.encode(settings.DEFAULT_CHARSET))
+
         obj = obj_generator.next().object
         for parent in obj_generator:
             for f in parent.object._meta.fields:
@@ -61,25 +62,25 @@ class SerializedObjectField(models.TextField):
                         # Return None for changed_object if None not allowed
                         return None
         return obj
- 
+
     def db_type(self, connection=None):
         return 'text'
- 
+
     def pre_save(self, model_instance, add):
         value = getattr(model_instance, self.attname, None)
         return self._serialize(value)
- 
+
     def contribute_to_class(self, cls, name):
         self.class_name = cls
         super(SerializedObjectField, self).contribute_to_class(cls, name)
         models.signals.post_init.connect(self.post_init)
- 
+
     def post_init(self, **kwargs):
         if 'sender' in kwargs and 'instance' in kwargs:
-            if kwargs['sender'] == self.class_name and \
-            hasattr(kwargs['instance'], self.attname):
+            if kwargs['sender'] == self.class_name and\
+               hasattr(kwargs['instance'], self.attname):
                 value = self.value_from_object(kwargs['instance'])
-                
+
                 if value:
                     setattr(kwargs['instance'], self.attname,
                             self._deserialize(value))
@@ -89,15 +90,15 @@ class SerializedObjectField(models.TextField):
 
 try:
     from south.modelsinspector import add_introspection_rules
+
     add_introspection_rules([
-        (
-            [SerializedObjectField],    # Class(es) these apply to
-            [],                         # Positional arguments (not used)
-            {                           # Keyword argument
-                "serialize_format": ["serialize_format", {"default": "json"}],
-            },
-        ),
-    ], ["^moderation\.fields\.SerializedObjectField"])
+            (
+            [SerializedObjectField], # Class(es) these apply to
+            [], # Positional arguments (not used)
+                {# Keyword argument
+                 "serialize_format": ["serialize_format", {"default": "json"}],
+                 },
+            ),
+             ], ["^moderation\.fields\.SerializedObjectField"])
 except ImportError:
     pass
-    

@@ -1,9 +1,9 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from django.core import management
 from django.contrib.auth.models import User, Group
-from moderation.tests.apps.test_app1.models import UserProfile, \
+from moderation.tests.apps.test_app1.models import UserProfile,\
     SuperUserProfile, ModelWithSlugField2
-from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED, \
+from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED,\
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED
 from django.core.exceptions import ObjectDoesNotExist
 from moderation.fields import SerializedObjectField
@@ -25,29 +25,31 @@ class SerializationTestCase(SettingsTestCase):
         """Test if object is properly serialized to json"""
 
         json_field = SerializedObjectField()
-        
-        self.assertEqual(json_field._serialize(self.profile),
-                    '[{"pk": 1, "model": "test_app1.userprofile", "fields": '\
-                    '{"url": "http://www.google.com", "user": 1, '\
-                    '"description": "Old description"}}]',
-                         )
- 
+
+        self.assertEqual(
+            json_field._serialize(self.profile),
+            '[{"pk": 1, "model": "test_app1.userprofile", "fields": '\
+            '{"url": "http://www.google.com", "user": 1, '\
+            '"description": "Old description"}}]',
+            )
+
     def test_serialize_with_inheritance(self):
         """Test if object is properly serialized to json"""
 
         profile = SuperUserProfile(description='Profile for new super user',
-                    url='http://www.test.com',
-                    user=User.objects.get(username='user1'),
-                    super_power='invisibility')
+                                   url='http://www.test.com',
+                                   user=User.objects.get(username='user1'),
+                                   super_power='invisibility')
         profile.save()
         json_field = SerializedObjectField()
-        
-        self.assertEqual(json_field._serialize(profile),
-                        '[{"pk": 2, "model": "test_app1.superuserprofile",'\
-                        ' "fields": {"super_power": "invisibility"}}, '\
-                        '{"pk": 2, "model": "test_app1.userprofile", "fields":'\
-                        ' {"url": "http://www.test.com", "user": 2,'\
-                        ' "description": "Profile for new super user"}}]')
+
+        self.assertEqual(
+            json_field._serialize(profile),
+            '[{"pk": 2, "model": "test_app1.superuserprofile",'\
+            ' "fields": {"super_power": "invisibility"}}, '\
+            '{"pk": 2, "model": "test_app1.userprofile", "fields":'\
+            ' {"url": "http://www.test.com", "user": 2,'\
+            ' "description": "Profile for new super user"}}]')
 
     def test_deserialize(self):
         value = '[{"pk": 1, "model": "test_app1.userprofile", "fields": '\
@@ -71,8 +73,9 @@ class SerializationTestCase(SettingsTestCase):
         object = json_field._deserialize(value)
 
         self.assertTrue(isinstance(object, SuperUserProfile))
-        self.assertEqual(repr(object),
-                '<SuperUserProfile: user1 - http://www.test.com - invisibility>')
+        self.assertEqual(
+            repr(object),
+            '<SuperUserProfile: user1 - http://www.test.com - invisibility>')
 
     def test_deserialzed_object(self):
         moderated_object = ModeratedObject(content_object=self.profile)
@@ -109,72 +112,72 @@ class ModerateTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     test_settings = 'moderation.tests.settings.generic'
     urls = 'moderation.tests.urls.default'
-    
+
     def setUp(self):
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
         self.moderation = setup_moderation([UserProfile])
-        
+
     def tearDown(self):
         teardown_moderation()
-        
+
     def test_approval_status_pending(self):
         """test if before object approval status is pending"""
-        
+
         self.profile.description = 'New description'
         self.profile.save()
-        
+
         self.assertEqual(self.profile.moderated_object.moderation_status,
                          MODERATION_STATUS_PENDING)
-        
+
     def test_moderate(self):
         self.profile.description = 'New description'
         self.profile.save()
-        
+
         self.profile.moderated_object._moderate(MODERATION_STATUS_APPROVED,
-                                   self.user, "Reason")
-        
+                                                self.user, "Reason")
+
         self.assertEqual(self.profile.moderated_object.moderation_status,
                          MODERATION_STATUS_APPROVED)
         self.assertEqual(self.profile.moderated_object.moderated_by, self.user)
         self.assertEqual(self.profile.moderated_object.moderation_reason,
                          "Reason")
-        
+
     def test_approve_moderated_object(self):
         """test if after object approval new data is saved."""
         self.profile.description = 'New description'
-        
+
         moderated_object = ModeratedObject(content_object=self.profile)
-        
+
         moderated_object.save()
-        
+
         moderated_object.approve(moderated_by=self.user)
-     
+
         user_profile = UserProfile.objects.get(user__username='moderator')
-        
+
         self.assertEqual(user_profile.description, 'New description')
-        
+
     def test_approve_moderated_object_new_model_instance(self):
         profile = UserProfile(description='Profile for new user',
-                    url='http://www.test.com',
-                    user=User.objects.get(username='user1'))
-        
+                              url='http://www.test.com',
+                              user=User.objects.get(username='user1'))
+
         profile.save()
-        
+
         profile.moderated_object.approve(self.user)
-        
+
         user_profile = UserProfile.objects.get(url='http://www.test.com')
-        
+
         self.assertEqual(user_profile.description, 'Profile for new user')
-        
+
     def test_reject_moderated_object(self):
         self.profile.description = 'New description'
         self.profile.save()
-        
+
         self.profile.moderated_object.reject(self.user)
-        
+
         user_profile = UserProfile.objects.get(user__username='moderator')
-        
+
         self.assertEqual(user_profile.description, "Old description")
         self.assertEqual(self.profile.moderated_object.moderation_status,
                          MODERATION_STATUS_REJECTED)
@@ -205,7 +208,6 @@ class AutoModerateTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        import moderation
         self.moderation = ModerationManager()
 
         class UserProfileModerator(GenericModerator):
@@ -252,5 +254,5 @@ class AutoModerateTestCase(SettingsTestCase):
     def test_model_not_registered_with_moderation(self):
         obj = ModelWithSlugField2(slug='test')
         obj.save()
-        
+
         self.assertRaises(RegistrationError, automoderate, obj, self.user)

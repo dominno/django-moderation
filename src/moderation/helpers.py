@@ -33,9 +33,9 @@ def import_moderator(app):
         imp.find_module('moderator', app_path)
     except ImportError:
         return None
-    
+
     module = import_module("%s.moderator" % app)
-    
+
     return module
 
 
@@ -44,7 +44,6 @@ def auto_discover():
     Auto register all apps that have module moderator with moderation
     '''
     from django.conf import settings
-    
+
     for app in settings.INSTALLED_APPS:
         import_moderator(app)
-    

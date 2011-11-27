@@ -23,7 +23,7 @@ class RequestFactory(Client):
     just as if that view had been hooked up using a URLconf.
     
     """
-    
+
     def request(self, **request):
         """
         Similar to parent class, but returns the request object as soon as it
@@ -38,7 +38,7 @@ class RequestFactory(Client):
             'SERVER_NAME': 'testserver',
             'SERVER_PORT': 80,
             'SERVER_PROTOCOL': 'HTTP/1.1',
-        }
+            }
         environ.update(self.defaults)
         environ.update(request)
         return WSGIRequest(environ)

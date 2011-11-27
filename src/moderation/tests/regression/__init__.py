@@ -1,5 +1,5 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
-from moderation.register import ModerationManager 
+from moderation.register import ModerationManager
 from moderation.tests.apps.test_app1.models import UserProfile
 from django.contrib.auth.models import User
 from moderation.models import MODERATION_STATUS_APPROVED
@@ -14,7 +14,7 @@ class CSRFMiddlewareTestCase(SettingsTestCase):
     fixtures = ['test_users.json']
     urls = 'moderation.tests.urls.default'
     test_settings = 'moderation.tests.settings.csrf_middleware'
-    
+
     def setUp(self):
         setup_moderation([UserProfile])
 
@@ -23,8 +23,8 @@ class CSRFMiddlewareTestCase(SettingsTestCase):
 
     def test_csrf_token(self):
         profile = UserProfile(description='Profile for new user',
-                    url='http://www.yahoo.com',
-                    user=User.objects.get(username='user1'))
+                              url='http://www.yahoo.com',
+                              user=User.objects.get(username='user1'))
 
         profile.save()
 
@@ -34,6 +34,7 @@ class CSRFMiddlewareTestCase(SettingsTestCase):
 
         if django_version == '1.1':
             from django.contrib.csrf.middleware import _make_token
+
             csrf_token = _make_token(self.client.session.session_key)
             post_data = {'approve': 'Approve',
                          'csrfmiddlewaretoken': csrf_token}
@@ -53,7 +54,7 @@ class CSRFMiddlewareTestCase(SettingsTestCase):
 class AutomoderationRuntimeErrorRegressionTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     test_settings = 'moderation.tests.settings.generic'
-    
+
     def setUp(self):
         setup_moderation([UserProfile])
 

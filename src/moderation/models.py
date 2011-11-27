@@ -4,7 +4,6 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-
 from moderation.diff import get_changes_between_models
 from moderation.fields import SerializedObjectField
 from moderation.signals import post_moderation, pre_moderation
@@ -24,19 +23,19 @@ MODERATION_STATUS_APPROVED = 1
 MODERATION_STATUS_PENDING = 2
 
 MODERATION_STATES = (
-                     (MODERATION_READY_STATE, 'Ready for moderation'),
-                     (MODERATION_DRAFT_STATE, 'Draft'),
-                     )
+        (MODERATION_READY_STATE, 'Ready for moderation'),
+        (MODERATION_DRAFT_STATE, 'Draft'),
+    )
 
 STATUS_CHOICES = (
-    (MODERATION_STATUS_APPROVED, "Approved"),
-    (MODERATION_STATUS_PENDING, "Pending"),
-    (MODERATION_STATUS_REJECTED, "Rejected"),
-)
+        (MODERATION_STATUS_APPROVED, "Approved"),
+        (MODERATION_STATUS_PENDING, "Pending"),
+        (MODERATION_STATUS_REJECTED, "Rejected"),
+    )
 
 
 class ModeratedObject(models.Model):
-    content_type = models.ForeignKey(ContentType, null=True, blank=True, 
+    content_type = models.ForeignKey(ContentType, null=True, blank=True,
                                      editable=False)
     object_pk = models.PositiveIntegerField(null=True, blank=True,
                                             editable=False)
@@ -44,20 +43,23 @@ class ModeratedObject(models.Model):
                                                fk_field="object_pk")
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     moderation_state = models.SmallIntegerField(choices=MODERATION_STATES,
-                                               default=MODERATION_READY_STATE,
-                                               editable=False)
-    moderation_status = models.SmallIntegerField(choices=STATUS_CHOICES,
-                                            default=MODERATION_STATUS_PENDING,
-                                                 editable=False)
-    moderated_by = models.ForeignKey(User, blank=True, null=True, 
-                            editable=False, related_name='moderated_by_set')
-    moderation_date = models.DateTimeField(editable=False, blank=True, 
+                                                default=MODERATION_READY_STATE,
+                                                editable=False)
+    moderation_status = models.SmallIntegerField(
+        choices=STATUS_CHOICES,
+        default=MODERATION_STATUS_PENDING,
+        editable=False)
+    moderated_by = models.ForeignKey(
+        User, blank=True, null=True,
+        editable=False, related_name='moderated_by_set')
+    moderation_date = models.DateTimeField(editable=False, blank=True,
                                            null=True)
     moderation_reason = models.TextField(blank=True, null=True)
     changed_object = SerializedObjectField(serialize_format='json',
                                            editable=False)
-    changed_by = models.ForeignKey(User, blank=True, null=True, 
-                                editable=True, related_name='changed_by_set')
+    changed_by = models.ForeignKey(
+        User, blank=True, null=True,
+        editable=True, related_name='changed_by_set')
 
     objects = ModeratedObjectManager()
 
@@ -87,14 +89,14 @@ class ModeratedObject(models.Model):
             user = self.changed_by
         else:
             self.changed_by = user
-        
+
         if self.moderator.visible_until_rejected:
             changed_object = self.get_object_for_this_type()
         else:
             changed_object = self.changed_object
         moderate_status, reason = self._get_moderation_status_and_reason(
-                                                        changed_object,
-                                                        user)
+            changed_object,
+            user)
 
         if moderate_status == MODERATION_STATUS_REJECTED:
             self.reject(moderated_by=self.moderated_by, reason=reason)
@@ -102,7 +104,7 @@ class ModeratedObject(models.Model):
             self.approve(moderated_by=self.moderated_by, reason=reason)
 
         return moderate_status
-    
+
     def _get_moderation_status_and_reason(self, obj, user):
         '''
         Returns tuple of moderation status and reason for auto moderation
@@ -133,6 +135,7 @@ class ModeratedObject(models.Model):
     @property
     def moderator(self):
         from moderation import moderation
+
         model_class = self.content_object.__class__
 
         return moderation.get_moderator(model_class)
@@ -144,7 +147,6 @@ class ModeratedObject(models.Model):
         self.moderation_reason = reason
 
         if status == MODERATION_STATUS_APPROVED:
-
             if self.moderator.visible_until_rejected:
                 try:
                     obj_class = self.changed_object.__class__
@@ -163,10 +165,10 @@ class ModeratedObject(models.Model):
 
         else:
             self.save()
-        if status == MODERATION_STATUS_REJECTED and \
-        self.moderator.visible_until_rejected:
+        if status == MODERATION_STATUS_REJECTED and\
+           self.moderator.visible_until_rejected:
             self.changed_object.save()
-            
+
         if self.changed_by:
             self.moderator.inform_user(self.content_object, self.changed_by)
 
@@ -176,12 +178,12 @@ class ModeratedObject(models.Model):
         changes = get_changes_between_models(original_obj,
                                              self.changed_object,
                                              fields_exclude)
-        
+
         for change in changes:
             left_change, right_change = changes[change].change
             if left_change != right_change:
                 return True
-            
+
         return False
 
     def approve(self, moderated_by=None, reason=None):
@@ -192,8 +194,8 @@ class ModeratedObject(models.Model):
         self._moderate(MODERATION_STATUS_APPROVED, moderated_by, reason)
 
         post_moderation.send(sender=self.content_object.__class__,
-                            instance=self.content_object,
-                            status=MODERATION_STATUS_APPROVED)
+                             instance=self.content_object,
+                             status=MODERATION_STATUS_APPROVED)
 
     def reject(self, moderated_by=None, reason=None):
         pre_moderation.send(sender=self.content_object.__class__,
@@ -201,5 +203,5 @@ class ModeratedObject(models.Model):
                             status=MODERATION_STATUS_REJECTED)
         self._moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)
         post_moderation.send(sender=self.content_object.__class__,
-                            instance=self.content_object,
-                            status=MODERATION_STATUS_REJECTED)
+                             instance=self.content_object,
+                             status=MODERATION_STATUS_REJECTED)

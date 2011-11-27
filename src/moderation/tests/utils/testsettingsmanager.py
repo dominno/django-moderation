@@ -25,7 +25,7 @@ class TestSettingsManager(object):
     modified.
 
     """
-    
+
     def __init__(self):
         self._original_settings = {}
 
@@ -62,21 +62,21 @@ class SettingsTestCase(TestCase):
 
     """
     test_settings = ''
-    
+
     def __init__(self, *args, **kwargs):
         super(SettingsTestCase, self).__init__(*args, **kwargs)
         self.settings_manager = TestSettingsManager()
-        
+
     def _pre_setup(self):
         if self.test_settings:
             settings_module = import_module(self.test_settings)
             self.settings_manager.set(**settings_module.settings)
         super(SettingsTestCase, self)._pre_setup()
-    
+
     def _post_teardown(self):
         if self.test_settings:
             self.settings_manager.revert()
-        
+
         super(SettingsTestCase, self)._post_teardown()
 
 
