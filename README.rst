@@ -404,7 +404,14 @@ How to run django-moderation tests
 
     bin/buildout 
 
-4. Run tests for Django 1.1 and Django 1.2::
+4. Run tests for Django 1.1, 1.2, 1.3::
 
-    bin/test-1.1
-    bin/test-1.2
+    bin/test.sh
+
+
+Continuous Integration system
+=============================
+
+Continuous Integration system for django-moderation is available at:
+
+https://continuous.io/dominno/django-moderation/
