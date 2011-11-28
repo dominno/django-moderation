@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 class BaseModeratedObjectForm(ModelForm):
-    
+
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance', None)
 

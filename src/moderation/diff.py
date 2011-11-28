@@ -7,7 +7,7 @@ from django.db.models import fields
 
 
 class BaseChange(object):
-    
+
     def __repr__(self):
         value1, value2 = self.change
         return u'Change object: %s - %s' % (value1, value2)
@@ -24,7 +24,7 @@ class BaseChange(object):
 
 
 class TextChange(BaseChange):
-    
+
     @property
     def diff(self):
         value1, value2 = self.change

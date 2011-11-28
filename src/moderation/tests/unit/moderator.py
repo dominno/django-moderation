@@ -159,13 +159,13 @@ class AutoModerateModeratorTestCase(TestCase):
         self.assertFalse(self.moderator.is_auto_reject(self.obj, self.user))
 
     def test_overwrite_automoderation_method(self):
-        
+
         def akismet_spam_check(obj):
             return True
 
         class UserProfileModerator(GenericModerator):
             # Inside MyModelModerator, which is registered with MyModel
-            
+
             def is_auto_reject(self, obj, user):
                 # Auto reject spam
                 if akismet_spam_check(obj):  # Check body of object for spam
@@ -184,7 +184,7 @@ class ByPassModerationTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        
+
         class UserProfileModerator(GenericModerator):
             bypass_moderation_after_approval = True
 
@@ -213,7 +213,7 @@ class ByPassModerationTestCase(SettingsTestCase):
 
 
 class BaseManagerTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         from django.db import models
 
@@ -249,7 +249,7 @@ class VisibilityColumnTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        
+
         class UserProfileModerator(GenericModerator):
             visibility_column = 'is_public'
 
@@ -288,7 +288,7 @@ class VisibilityColumnTestCase(SettingsTestCase):
     def test_invalid_visibility_column_field_should_rise_exception(self):
         '''Verify correct exception is raised when model has '''\
         '''invalid visibility column'''
-        
+
         class UserProfileModerator(GenericModerator):
             visibility_column = 'is_public'
 

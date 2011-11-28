@@ -128,7 +128,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
     def get_moderated_object_form(self, model_class):
 
         class ModeratedObjectForm(ModelForm):
-            
+
             class Meta:
                 model = model_class
 

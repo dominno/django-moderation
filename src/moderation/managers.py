@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 class MetaClass(type):
-    
+
     def __new__(cls, name, bases, attrs):
         return super(MetaClass, cls).__new__(cls, name, bases, attrs)
 
@@ -77,7 +77,7 @@ class ModerationObjectsManager(Manager):
 
 
 class ModeratedObjectManager(Manager):
-    
+
     def get_for_instance(self, instance):
         '''Returns ModeratedObject for given model instance'''
         return self.get(

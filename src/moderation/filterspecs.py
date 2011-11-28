@@ -8,7 +8,7 @@ import moderation
 
 
 class ContentTypeFilterSpec(RelatedFilterSpec):
-    
+
     def __init__(self, *args, **kwargs):
         super(ContentTypeFilterSpec, self).__init__(*args, **kwargs)
         self.content_types = self._get_content_types()

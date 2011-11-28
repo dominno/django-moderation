@@ -124,7 +124,7 @@ class AutoDiscoverTestCase(SettingsTestCase):
     def test_models_should_be_registered_if_moderator_in_module(self):
         module = import_moderator('moderation.tests.apps.test_app2')
 
-        try: # force module reload
+        try:  # force module reload
             reload(module)
         except:
             pass
@@ -315,7 +315,7 @@ class ModerationManagerTestCase(SettingsTestCase):
         self.assertEqual(up.count(), 1)
 
     def test_and_fields_to_model_class(self):
-        
+
         class CustomManager(Manager):
             pass
 
@@ -423,7 +423,7 @@ class ModerationSignalsTestCase(SettingsTestCase):
     test_settings = 'moderation.tests.settings.generic'
 
     def setUp(self):
-        
+
         class UserProfileModerator(GenericModerator):
             notify_moderator = False
 

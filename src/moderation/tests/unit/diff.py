@@ -22,7 +22,7 @@ def norm_whitespace(s):
 
 
 class TextChangeObjectTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         self.change = TextChange(verbose_name='description',
                                  field=fields.CharField,
@@ -51,7 +51,7 @@ class TextChangeObjectTestCase(unittest.TestCase):
 
 
 class ImageChangeObjectTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         image1 = ModelWithImage(image='my_image.jpg')
         image1.save()
@@ -154,7 +154,7 @@ class DiffModeratedObjectTestCase(SettingsTestCase):
 
 
 class DiffTestCase(unittest.TestCase):
-    
+
     def test_html_to_list(self):
         html = u'<p id="test">text</p><b>some long text \n\t\r text</b>'\
                u'<div class="test">text</div>'

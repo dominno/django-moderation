@@ -8,13 +8,13 @@ from django.db.models.query import QuerySet
 class SerializedObjectField(models.TextField):
     '''Model field that stores serialized value of model class instance
        and returns deserialized model instance
-       
+
        >>> from django.db import models
        >>> import SerializedObjectField
-       
+
        >>> class A(models.Model):
                object = SerializedObjectField(serialize_format='json')
-               
+
        >>> class B(models.Model):
                field = models.CharField(max_length=10)
        >>> b = B(field='test')
@@ -27,7 +27,7 @@ class SerializedObjectField(models.TextField):
        <B: B object>
        >>> a.object.__dict__
        {'field': 'test', 'id': 1}
-       
+
     '''
 
     def __init__(self, serialize_format='json', *args, **kwargs):
@@ -93,9 +93,9 @@ try:
 
     add_introspection_rules([
             (
-            [SerializedObjectField], # Class(es) these apply to
-            [], # Positional arguments (not used)
-                {# Keyword argument
+            [SerializedObjectField],  # Class(es) these apply to
+            [],  # Positional arguments (not used)
+                {  # Keyword argument
                  "serialize_format": ["serialize_format", {"default": "json"}],
                  },
             ),

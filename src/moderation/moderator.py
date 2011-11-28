@@ -57,7 +57,7 @@ class GenericModerator(object):
         Checks if change on obj by user need to be auto approved
         Returns False if change is not auto approve or reason(Unicode) if 
         change need to be auto approved.
-        
+
         Overwrite this method if you want to provide your custom logic.
         '''
         if self.auto_approve_for_groups\
@@ -75,7 +75,7 @@ class GenericModerator(object):
         Checks if change on obj by user need to be auto rejected
         Returns False if change is not auto reject or reason(Unicode) if 
         change need to be auto rejected.
-        
+
         Overwrite this method if you want to provide your custom logic.
         '''
         if self.auto_reject_for_groups\
