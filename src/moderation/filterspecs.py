@@ -17,7 +17,8 @@ class ContentTypeFilterSpec(RelatedFilterSpec):
 
     def _get_content_types(self):
         content_types = []
-        for model in moderation.moderation._registered_models.keys():
+        for model in sorted(moderation.moderation._registered_models.keys(),
+                            key=lambda obj: obj.__name__):
             content_types.append(ContentType.objects.get_for_model(model))
 
         return content_types

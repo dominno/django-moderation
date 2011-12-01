@@ -187,7 +187,7 @@ class ContentTypeFilterSpecTextCase(SettingsTestCase):
         self.request.user = User.objects.get(username='admin')
         self.admin = ModerationAdmin(UserProfile, site)
 
-        models = [ModelWithSlugField, ModelWithSlugField2]
+        models = [ModelWithSlugField2, ModelWithSlugField]
         self.moderation = setup_moderation(models)
 
         self.m1 = ModelWithSlugField(slug='test')
@@ -199,7 +199,7 @@ class ContentTypeFilterSpecTextCase(SettingsTestCase):
     def tearDown(self):
         teardown_moderation()
 
-    def test_content_types(self):
+    def test_content_types_and_its_order(self):
         f = ModeratedObject._meta.get_field('content_type')
         filter_spec = ContentTypeFilterSpec(f, self.request, {},
                                             ModeratedObject, self.admin)
