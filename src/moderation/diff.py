@@ -4,7 +4,7 @@ import re
 import difflib
 
 from django.db.models import fields
-
+from django.utils.html import escape
 
 class BaseChange(object):
 
@@ -27,7 +27,7 @@ class TextChange(BaseChange):
 
     @property
     def diff(self):
-        value1, value2 = self.change
+        value1, value2 = escape(self.change[0]), escape(self.change[1])
         if value1 == value2:
             return value1
 
