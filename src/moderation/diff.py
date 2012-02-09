@@ -6,6 +6,7 @@ import difflib
 from django.db.models import fields
 from django.utils.html import escape
 
+
 class BaseChange(object):
 
     def __repr__(self):
