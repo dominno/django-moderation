@@ -34,3 +34,23 @@ Added features
 - Added ability to provide custom auto reject/approve reason.
 - Added option bypass_moderation_after_approval in to GenericModerator class that will release object from moderation system after initial approval of object.
 - Other bug fixes and code refactoring.
+
+0.3.2 (2012-02-15)
+------------------
+
+- Added visibility_column option in to GenericModerator class. Boost performance of database queries when excluding objects that should not be available publicly. Field must by a BooleanField. The manager that decides which model objects should be excluded when it were rejected, will first use this option to properly display (or hide) objects that are registered with moderation. Use this option if you can define visibility column in your model and want to boost performance. By default when accessing model objects that are under moderation, one extra query is executed per object in query set to determine if object should be excluded from query set. This method benefit those who do not want to add any fields to their Models. Default: None. Closes #19
+- Added support for ImageField model fields on moderate object page.
+- Made moderation work with south and grappelli
+- Added possibility of excluding fields from moderation change list. Closes #23
+- Moved ModerationManager class to moderation.register module, moved GenericModerator class to moderation.moderator module.
+- Added auto_discover function that discover all modules that contain moderator.py module and auto registers all models it contain with moderartion.
+- Efficiency improvement: get all info needed to filter a queryset in two SQL requests, rather than one for each object in the queryset.
+- Added south migrations
+- Added suport for foreignkey changes
+- Add support for multi-table inheritance
+- Add visible_until_rejected functionality
+- Added specific initials in BaseModeratedObjectForm
+- Added posibility to specify list of moderated fields
+- Fixed SMTPRecipientsRefused when user has no email, when sending messages by moderation. Closes #48
+- Added sorting of content types list on admin moderation queue
+
