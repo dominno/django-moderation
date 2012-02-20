@@ -24,9 +24,9 @@ background:#BBFFBB none repeat scroll 0 0;
 {% block content %}
 {% block object-tools %}
 {% if object_admin_url %}
-    <ul class="object-tools">
-    <li><a href="{{ object_admin_url }}" class="historylink">{% trans "Change object" %}</a></li>
-    </ul>
+	<ul class="object-tools">
+	<li><a href="{{ object_admin_url }}" class="historylink">{% trans "Change object" %}</a></li>
+	</ul>
 {% endif %}
 {% endblock %}
 <form enctype="multipart/form-data" action="" method="post"
@@ -48,7 +48,7 @@ id="moderatedobject_form">{% csrf_token %}
 	</fieldset>
 	
 	{% for fieldset in adminform %}
-  		{% include "admin/includes/fieldset.html" %}
+		{% include "admin/includes/fieldset.html" %}
 	{% endfor %}
 
 
