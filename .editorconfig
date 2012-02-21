@@ -1,0 +1,19 @@
+; This file is for unifying the coding style for different editors and IDEs.
+; More information at http://EditorConfig.org
+
+root = true
+
+[*]
+end_of_line = LF
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.html]
+indent_style = tab
+indent_size = 4
+
+[*.json]
+indent_style = space
+indent_size = 4
