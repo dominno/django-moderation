@@ -23,11 +23,16 @@ class PEP8TestCase(unittest.TestCase):
 
     def test_pep8_rules(self):
         import subprocess
-
-        p = subprocess.Popen(
-            ['pep8', '--filename=*.py', '--show-source', '--show-pep8',
-             '--ignore=W291', '--exclude=migrations', moderation.__path__[0]],
-            stdout=subprocess.PIPE)
+        try:
+            p = subprocess.Popen(
+                ['pep8', '--filename=*.py', '--show-source', '--show-pep8',
+                 '--ignore=W291', '--exclude=migrations',
+                 moderation.__path__[0]], stdout=subprocess.PIPE)
+        except OSError, e:
+            self.assertNotEqual(e.errno, 2,
+                "pep8 command is missing. "
+                "You can install it with easy_install pep8")
+            raise
         out, err = p.communicate()
 
         self.assertEqual(out, "",
