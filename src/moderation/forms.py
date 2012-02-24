@@ -1,4 +1,4 @@
-from django.forms.models import ModelForm
+from django.forms.models import ModelForm, model_to_dict
 from moderation.models import MODERATION_STATUS_PENDING,\
     MODERATION_STATUS_REJECTED
 from django.core.exceptions import ObjectDoesNotExist
@@ -16,7 +16,7 @@ class BaseModeratedObjectForm(ModelForm):
                    not instance.moderated_object.moderator.\
                    visible_until_rejected:
                     initial =\
-                    instance.moderated_object.changed_object.__dict__
+                    model_to_dict(instance.moderated_object.changed_object)
                     kwargs.setdefault('initial', {})
                     kwargs['initial'].update(initial)
             except ObjectDoesNotExist:
