@@ -1,4 +1,5 @@
-from moderation.tests.apps.test_app1.models import UserProfile
+from django.db.models.fields.files import ImageFieldFile
+from moderation.tests.apps.test_app1.models import UserProfile, ModelWithImage
 from django.forms import CharField
 from moderation.forms import BaseModeratedObjectForm
 from moderation.register import ModerationManager
@@ -21,7 +22,7 @@ class FormsTestCase(SettingsTestCase):
                 model = UserProfile
 
         self.ModeratedObjectForm = ModeratedObjectForm
-        self.moderation = setup_moderation([UserProfile])
+        self.moderation = setup_moderation([UserProfile, ModelWithImage])
 
     def tearDown(self):
         teardown_moderation()
@@ -56,6 +57,15 @@ class FormsTestCase(SettingsTestCase):
 
         self.assertEqual(profile.description, u"old description")
         self.assertEqual(form.initial['description'], u'Changed description')
+
+    def test_if_form_has_image_field_instance_of_image_field_file(self):
+        object = ModelWithImage(image='my_image.jpg')
+        object.save()
+
+        object = ModelWithImage.unmoderated_objects.get(id=1)
+        form = self.ModeratedObjectForm(instance=object)
+        self.assertTrue(isinstance(form.initial['image'], ImageFieldFile),
+                        'image in form.initial is instance of ImageField File')
 
     def test_form_when_obj_has_no_moderated_obj(self):
         self.moderation.unregister(UserProfile)
