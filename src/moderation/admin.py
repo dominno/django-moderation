@@ -49,7 +49,7 @@ class ModerationAdmin(admin.ModelAdmin):
         if self.admin_integration_enabled:
             self.send_message(request, object_id)
 
-        return super(ModerationAdmin, self).change_view(request, object_id)
+        return super(ModerationAdmin, self).change_view(request, object_id, extra_context=extra_context)
 
     def send_message(self, request, object_id):
         try:
@@ -179,7 +179,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                          'object_admin_url': object_admin_url}
         return super(ModeratedObjectAdmin, self).change_view(request,
                                                              object_id,
-                                                             extra_context)
+                                                             extra_context=extra_context)
 
 
 admin.site.register(ModeratedObject, ModeratedObjectAdmin)
