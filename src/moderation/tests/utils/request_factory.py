@@ -2,6 +2,7 @@
 RequestFactory mock class,
 snippet taken from http://www.djangosnippets.org/snippets/963/
 """
+from cStringIO import StringIO
 from django.test import Client
 from django.core.handlers.wsgi import WSGIRequest
 
@@ -19,7 +20,7 @@ class RequestFactory(Client):
     This class re-uses the django.test.client.Client interface, docs here:
     http://www.djangoproject.com/documentation/testing/#the-test-client
 
-    Once you have a request object you can pass it to any view function, 
+    Once you have a request object you can pass it to any view function,
     just as if that view had been hooked up using a URLconf.
 
     """
@@ -38,6 +39,7 @@ class RequestFactory(Client):
             'SERVER_NAME': 'testserver',
             'SERVER_PORT': 80,
             'SERVER_PROTOCOL': 'HTTP/1.1',
+            'wsgi.input': StringIO()
             }
         environ.update(self.defaults)
         environ.update(request)
