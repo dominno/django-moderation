@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.admin.filterspecs import FilterSpec, RelatedFilterSpec
+#from django.contrib.admin.filterspecs import FilterSpec, RelatedFilterSpec
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 import moderation
 
 
-class ContentTypeFilterSpec(RelatedFilterSpec):
+class ContentTypeFilterSpec(object): #RelatedFilterSpec):
 
     def __init__(self, *args, **kwargs):
         super(ContentTypeFilterSpec, self).__init__(*args, **kwargs)
@@ -23,6 +23,6 @@ class ContentTypeFilterSpec(RelatedFilterSpec):
 
         return content_types
 
-FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'content_type_filter',
-                                                     False),
-                                   ContentTypeFilterSpec))
+#FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'content_type_filter',
+#                                                     False),
+#                                   ContentTypeFilterSpec))
