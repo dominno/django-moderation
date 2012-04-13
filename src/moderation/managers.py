@@ -32,15 +32,13 @@ class ModerationObjectsManager(Manager):
 
         full_query_set = super(ModerationObjectsManager, self).get_query_set()\
         .filter(pk__in=query_set.values_list('pk', flat=True))
-
         for obj in full_query_set:
             try:
                 # We cannot use dict.get() here!
                 mobject = mobjects[obj.pk] if obj.pk in mobjects\
                 else obj.moderated_object
-                # TODO: Pass a proper fields_exclude \
-                # TODO (self.moderator.fields_exclude)
-                obj_changed = mobject.has_object_been_changed(obj, [])
+                exc = self.moderator.fields_exclude
+                obj_changed = mobject.has_object_been_changed(obj, exc)
 
                 if mobject.moderation_status\
                    in [MODERATION_STATUS_PENDING,

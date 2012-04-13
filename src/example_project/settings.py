@@ -43,9 +43,9 @@ SECRET_KEY = '4_e*48#6f4&538tnh)+mrix=4!+r4t*eilwwnw(eh%p33_ml@c'
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 ROOT_URLCONF = 'example_project.urls'
 SITE_ID = 1
