@@ -46,7 +46,7 @@ class ModerationObjectsManager(Manager):
                 and not obj_changed:
                     exclude_pks.append(obj.pk)
             except ObjectDoesNotExist:
-                pass
+                exclude_pks.append(obj.pk)
 
         return query_set.exclude(pk__in=exclude_pks)
 
