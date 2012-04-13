@@ -38,6 +38,9 @@ set_objects_as_pending.short_description = "Set selected moderated objects "\
 class ModerationAdmin(admin.ModelAdmin):
     admin_integration_enabled = True
 
+    def queryset(self, request):
+        return self.model.unmoderated_objects.all()
+
     def get_form(self, request, obj=None):
         superform = super(ModerationAdmin, self).get_form(request, obj)
 
