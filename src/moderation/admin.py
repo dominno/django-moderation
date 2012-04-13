@@ -95,11 +95,13 @@ class ModerationAdmin(admin.ModelAdmin):
             return _("This object is not registered with "\
                      "the moderation system.")
 
+from moderation.filterspecs import RegisteredContentTypeListFilter
+
 class ModeratedObjectAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_created'
     list_display = ('content_object', 'content_type', 'date_created',
                     'moderation_status', 'moderated_by', 'moderation_date')
-    list_filter = ['content_type', 'moderation_status']
+    list_filter = [('content_type', RegisteredContentTypeListFilter), 'moderation_status']
     change_form_template = 'moderation/moderate_object.html'
     change_list_template = 'moderation/moderated_objects_list.html'
     actions = [reject_objects, approve_objects, set_objects_as_pending]
