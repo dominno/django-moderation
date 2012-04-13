@@ -42,12 +42,6 @@ class ModeratedObjectAdminTestCase(TestCase):
         content_object = self.admin.content_object(moderated_object)
         self.assertEqual(content_object, "admin")
 
-    def test_get_moderated_object_form(self):
-        form = self.admin.get_moderated_object_form(UserProfile)
-        self.assertEqual(repr(form),
-                         "<class 'moderation.admin.ModeratedObjectForm'>")
-
-
 class AdminActionsTestCase(TestCase):
     fixtures = ['test_users.json']
     urls = 'moderation.tests.test_urls'

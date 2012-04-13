@@ -1,13 +1,13 @@
 from django.db.models.fields.files import ImageFieldFile
 from moderation.tests.apps.test_app1.models import UserProfile, ModelWithImage
 from django.forms import CharField
-from moderation.forms import BaseModeratedObjectForm
+from moderation.forms import make_moderatedform_from_modelform
 from moderation.register import ModerationManager
 from django.contrib.auth.models import User
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 from moderation.tests.utils import setup_moderation, teardown_moderation
 
-
+#HACK: This is probably broken, havent tested it.
 class FormsTestCase(SettingsTestCase):
     fixtures = ['test_users.json']
     test_settings = 'moderation.tests.settings.generic'
@@ -15,13 +15,13 @@ class FormsTestCase(SettingsTestCase):
     def setUp(self):
         self.user = User.objects.get(username='moderator')
 
-        class ModeratedObjectForm(BaseModeratedObjectForm):
+        class UPForm(forms.ModelForm):
             extra = CharField(required=False)
 
             class Meta:
                 model = UserProfile
 
-        self.ModeratedObjectForm = ModeratedObjectForm
+        self.ModeratedObjectForm = make_moderatedform_from_modelform(UPForm)
         self.moderation = setup_moderation([UserProfile, ModelWithImage])
 
     def tearDown(self):

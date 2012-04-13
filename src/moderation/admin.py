@@ -9,7 +9,7 @@ from moderation.models import ModeratedObject, MODERATION_DRAFT_STATE,\
     MODERATION_STATUS_APPROVED
 
 from django.utils.translation import ugettext as _
-from moderation.forms import BaseModeratedObjectForm
+from moderation.forms import make_moderatedform_from_modelform
 from moderation.helpers import automoderate
 from moderation.diff import get_changes_between_models
 
@@ -43,10 +43,15 @@ class ModerationAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None):
         superform = super(ModerationAdmin, self).get_form(request, obj)
+        if not self.admin_integration_enabled:
+            return superform
 
-        if obj and self.admin_integration_enabled and not issubclass(superform, BaseModeratedObjectForm):
-            return self.get_moderated_object_form(obj.__class__)
-        return superform
+        if 'history' in request.path_info.split('/')[-3]:
+            #HACK: check URL to determine if django-reversion is used
+            #Using django-reversion
+            return superform
+
+        return make_moderatedform_from_modelform(superform, obj)
 
     def change_view(self, request, object_id, extra_context=None):
         if self.admin_integration_enabled:
@@ -90,16 +95,6 @@ class ModerationAdmin(admin.ModelAdmin):
             return _("This object is not registered with "\
                      "the moderation system.")
 
-    def get_moderated_object_form(self, model_class):
-
-        class ModeratedObjectForm(BaseModeratedObjectForm):
-
-            class Meta:
-                model = model_class
-
-        return ModeratedObjectForm
-
-
 class ModeratedObjectAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_created'
     list_display = ('content_object', 'content_type', 'date_created',
@@ -128,15 +123,6 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
         qs = super(ModeratedObjectAdmin, self).queryset(request)
 
         return qs.exclude(moderation_state=MODERATION_DRAFT_STATE)
-
-    def get_moderated_object_form(self, model_class):
-
-        class ModeratedObjectForm(ModelForm):
-
-            class Meta:
-                model = model_class
-
-        return ModeratedObjectForm
 
     def change_view(self, request, object_id, extra_context=None):
         from moderation import moderation
