@@ -28,6 +28,7 @@ def moderated_modelform_kwargs(instance):
             initial =\
             model_to_dict(instance.moderated_object.changed_object)
             return {'initial': initial}
+        return {}
     except ObjectDoesNotExist:
         return {}
 
