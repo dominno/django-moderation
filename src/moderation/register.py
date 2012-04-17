@@ -23,8 +23,6 @@ class ModerationManagerSingleton(type):
         return cls.instance
 
 def make_manager_subclass(base_mod_manager, base_manager):
-    class MMSubclass(base_mod_manager, base_manager):
-        use_for_related_fields = True
     return type(base_mod_manager.__name__, (base_mod_manager, base_manager), {'use_for_related_fields': True})
 
 class ModerationManager(object):
