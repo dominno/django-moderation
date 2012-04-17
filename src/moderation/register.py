@@ -22,6 +22,10 @@ class ModerationManagerSingleton(type):
 
         return cls.instance
 
+def make_manager_subclass(base_mod_manager, base_manager):
+    class MMSubclass(base_mod_manager, base_manager):
+        use_for_related_fields = True
+    return type(base_mod_manager.__name__, (base_mod_manager, base_manager), {'use_for_related_fields': True})
 
 class ModerationManager(object):
     __metaclass__ = ModerationManagerSingleton
@@ -88,7 +92,7 @@ class ModerationManager(object):
         = moderator_class_instance.moderation_manager_class
 
         for manager_name, mgr_class in base_managers:
-            ModerationObjectsManager = moderation_manager_class()(mgr_class)
+            ModerationObjectsManager = make_manager_subclass(moderation_manager_class, mgr_class)
             manager = ModerationObjectsManager()
             model_class.add_to_class('unmoderated_%s' % manager_name,
                                      mgr_class())

@@ -2,20 +2,8 @@ from django.db.models.manager import Manager
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
-
-class MetaClass(type):
-
-    def __new__(cls, name, bases, attrs):
-        return super(MetaClass, cls).__new__(cls, name, bases, attrs)
-
-
 class ModerationObjectsManager(Manager):
-
-    def __call__(self, base_manager, *args, **kwargs):
-        return MetaClass(self.__class__.__name__,
-                (self.__class__, base_manager),
-                {'use_for_related_fields': True})
-
+    """Manager for any moderated object class"""
     def filter_moderated_objects(self, query_set):
         from moderation.models import MODERATION_STATUS_PENDING,\
             MODERATION_STATUS_REJECTED
@@ -75,7 +63,7 @@ class ModerationObjectsManager(Manager):
 
 
 class ModeratedObjectManager(Manager):
-
+    """Manager for ModeratedObject, not for a moderated object"""
     def get_for_instance(self, instance):
         '''Returns ModeratedObject for given model instance'''
         return self.get(
