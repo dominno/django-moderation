@@ -2,6 +2,7 @@
 RequestFactory mock class,
 snippet taken from http://www.djangosnippets.org/snippets/963/
 """
+from cStringIO import StringIO
 from django.test import Client
 from django.core.handlers.wsgi import WSGIRequest
 
@@ -38,6 +39,7 @@ class RequestFactory(Client):
             'SERVER_NAME': 'testserver',
             'SERVER_PORT': 80,
             'SERVER_PROTOCOL': 'HTTP/1.1',
+            'wsgi.input': StringIO(),
             }
         environ.update(self.defaults)
         environ.update(request)
