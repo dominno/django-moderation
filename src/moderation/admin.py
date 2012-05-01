@@ -178,7 +178,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                          'object_admin_url': object_admin_url}
         return super(ModeratedObjectAdmin, self).change_view(request,
                                                              object_id,
-                                                             extra_context)
+                                                             extra_context=extra_context)
 
 
 admin.site.register(ModeratedObject, ModeratedObjectAdmin)
