@@ -12,7 +12,6 @@ from django.contrib.auth.models import User
 from moderation.tests.apps.test_app1.models import UserProfile, \
     ModelWithSlugField, ModelWithSlugField2, SuperUserProfile
 from django.core.exceptions import ObjectDoesNotExist
-from moderation.filterspecs import ContentTypeFilterSpec
 from moderation.tests.utils import setup_moderation, teardown_moderation
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
 
@@ -173,41 +172,47 @@ class ModerationAdminSendMessageTestCase(SettingsTestCase):
                                            "moderator and is visible on site")
 
 
-class ContentTypeFilterSpecTextCase(SettingsTestCase):
-    fixtures = ['test_users.json', 'test_moderation.json']
-    urls = 'moderation.tests.urls.default'
-    test_settings = 'moderation.tests.settings.generic'
+try:
+    from moderation.filterspecs import ContentTypeFilterSpec
+except ImportError:
+    # Django 1.4
+    pass
+else:
+    class ContentTypeFilterSpecTextCase(SettingsTestCase):
+        fixtures = ['test_users.json', 'test_moderation.json']
+        urls = 'moderation.tests.urls.default'
+        test_settings = 'moderation.tests.settings.generic'
 
-    def setUp(self):
-        from moderation.tests import setup_moderation
+        def setUp(self):
+            from moderation.tests import setup_moderation
 
-        rf = RequestFactory()
-        rf.login(username='admin', password='aaaa')
-        self.request = rf.get('/admin/moderation/')
-        self.request.user = User.objects.get(username='admin')
-        self.admin = ModerationAdmin(UserProfile, site)
+            rf = RequestFactory()
+            rf.login(username='admin', password='aaaa')
+            self.request = rf.get('/admin/moderation/')
+            self.request.user = User.objects.get(username='admin')
+            self.admin = ModerationAdmin(UserProfile, site)
 
-        models = [ModelWithSlugField2, ModelWithSlugField]
-        self.moderation = setup_moderation(models)
+            models = [ModelWithSlugField2, ModelWithSlugField]
+            self.moderation = setup_moderation(models)
 
-        self.m1 = ModelWithSlugField(slug='test')
-        self.m1.save()
+            self.m1 = ModelWithSlugField(slug='test')
+            self.m1.save()
 
-        self.m2 = ModelWithSlugField2(slug='test')
-        self.m2.save()
+            self.m2 = ModelWithSlugField2(slug='test')
+            self.m2.save()
 
-    def tearDown(self):
-        teardown_moderation()
+        def tearDown(self):
+            teardown_moderation()
 
-    def test_content_types_and_its_order(self):
-        f = ModeratedObject._meta.get_field('content_type')
-        filter_spec = ContentTypeFilterSpec(f, self.request, {},
-                                            ModeratedObject, self.admin)
+        def test_content_types_and_its_order(self):
+            f = ModeratedObject._meta.get_field('content_type')
+            filter_spec = ContentTypeFilterSpec(f, self.request, {},
+                                                ModeratedObject, self.admin)
 
-        self.assertEqual([x[1] for x in filter_spec.lookup_choices],
-            [u'Model with slug field',
-             u'Model with slug field2'])
+            self.assertEqual([x[1] for x in filter_spec.lookup_choices],
+                [u'Model with slug field',
+                 u'Model with slug field2'])
 
-        self.assertEqual(unicode(filter_spec.content_types),
-                         u"[<ContentType: model with slug field>, "\
-                         "<ContentType: model with slug field2>]")
+            self.assertEqual(unicode(filter_spec.content_types),
+                             u"[<ContentType: model with slug field>, "\
+                             "<ContentType: model with slug field2>]")
