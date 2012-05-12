@@ -110,7 +110,10 @@ Configuration
 
     admin.site.register(YourModel, YourModelAdmin)
 
-    
+6. Note that any existing objects will be seen as 'not appoved', and will not show up in the Moderated Object area. To preform a one-time fix, try::
+
+    [x.save() for x in YourModel.unmoderated_objects.all()]
+
 If admin_integration_enabled is enabled then when saving object in admin, data
 will not be saved in model instance but it will be stored in moderation queue.
 Also data in the change form will not display data from the original model

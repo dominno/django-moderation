@@ -80,10 +80,11 @@ class SerializedObjectField(models.TextField):
             if kwargs['sender'] == self.class_name and\
                hasattr(kwargs['instance'], self.attname):
                 value = self.value_from_object(kwargs['instance'])
-
                 if value:
-                    setattr(kwargs['instance'], self.attname,
-                            self._deserialize(value))
+                    try:
+                        setattr(kwargs['instance'], self.attname, self._deserialize(value))
+                    except Exception:
+                        setattr(kwargs['instance'], self.attname, None)
                 else:
                     setattr(kwargs['instance'], self.attname, None)
 

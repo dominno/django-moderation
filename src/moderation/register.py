@@ -22,6 +22,8 @@ class ModerationManagerSingleton(type):
 
         return cls.instance
 
+def make_manager_subclass(base_mod_manager, base_manager):
+    return type(base_mod_manager.__name__, (base_mod_manager, base_manager), {'use_for_related_fields': True})
 
 class ModerationManager(object):
     __metaclass__ = ModerationManagerSingleton
@@ -52,7 +54,6 @@ class ModerationManager(object):
 
     def _connect_signals(self, model_class):
         from django.db.models import signals
-
         signals.pre_save.connect(self.pre_save_handler,
                                  sender=model_class)
         signals.post_save.connect(self.post_save_handler,
@@ -89,11 +90,14 @@ class ModerationManager(object):
         = moderator_class_instance.moderation_manager_class
 
         for manager_name, mgr_class in base_managers:
-            ModerationObjectsManager = moderation_manager_class()(mgr_class)
+            ModerationObjectsManager = make_manager_subclass(moderation_manager_class, mgr_class)
             manager = ModerationObjectsManager()
-            model_class.add_to_class('unmoderated_%s' % manager_name,
-                                     mgr_class())
-            model_class.add_to_class(manager_name, manager)
+            model_class.add_to_class('unmoderated_%s' % manager_name, mgr_class())
+            model_class.add_to_class('moderated_%s' % manager_name, manager)
+            if getattr(self._registered_models[model_class], 'overwrite_managers', True):
+                model_class.add_to_class(manager_name, manager)
+            if manager_name == 'objects' and getattr(self._registered_models[model_class], 'apply_default_manager', True):
+                model_class._default_manager = manager
 
         self._add_moderated_object_to_class(model_class)
 
@@ -204,13 +208,18 @@ class ModerationManager(object):
         moderator = self.get_moderator(sender)
 
         if kwargs['created']:
-            old_object = sender._default_manager.get(pk=pk)
+            old_object = sender._base_manager.get(pk=pk)
             moderated_obj = ModeratedObject(content_object=old_object)
             moderated_obj.save()
             moderator.inform_moderator(instance)
         else:
-            moderated_obj\
-            = ModeratedObject.objects.get_for_instance(instance)
+            try:
+                moderated_obj\
+                = ModeratedObject.objects.get_for_instance(instance)
+            except ModeratedObject.DoesNotExist:
+                kwargs['created'] = True
+                self.post_save_handler(sender, instance, **kwargs)
+                return
 
             if moderated_obj.moderation_status == MODERATION_STATUS_APPROVED\
             and moderator.bypass_moderation_after_approval:
