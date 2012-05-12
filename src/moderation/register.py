@@ -92,9 +92,10 @@ class ModerationManager(object):
         for manager_name, mgr_class in base_managers:
             ModerationObjectsManager = make_manager_subclass(moderation_manager_class, mgr_class)
             manager = ModerationObjectsManager()
-            model_class.add_to_class('unmoderated_%s' % manager_name,
-                                     mgr_class())
-            model_class.add_to_class(manager_name, manager)
+            model_class.add_to_class('unmoderated_%s' % manager_name, mgr_class())
+            model_class.add_to_class('moderated_%s' % manager_name, manager)
+            if getattr(self._registered_models[model_class], 'overwrite_managers', True):
+                model_class.add_to_class(manager_name, manager)
             if manager_name == 'objects' and getattr(self._registered_models[model_class], 'apply_default_manager', True):
                 model_class._default_manager = manager
 
