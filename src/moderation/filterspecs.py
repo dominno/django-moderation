@@ -39,7 +39,7 @@ else:
                      model, model_admin, field_path):
             self.lookup_kwarg = '%s' % field_path
             self.lookup_val = request.GET.get(self.lookup_kwarg)
-            self._types = _registered_content_types()
+            self.content_types = _registered_content_types()
             super(RegisteredContentTypeListFilter, self).__init__(
                 field, request, params, model, model_admin, field_path)
 
@@ -52,10 +52,10 @@ else:
                 'query_string': cl.get_query_string({}, [self.lookup_kwarg]),
                 'display': _('All')
             }
-            for type in self._types:
+            for ct_type in self.content_types:
                 yield {
-                    'selected': smart_unicode(type.id) == self.lookup_val,
+                    'selected': smart_unicode(ct_type.id) == self.lookup_val,
                     'query_string': cl.get_query_string({
-                        self.lookup_kwarg: type.id}),
-                    'display': unicode(type),
+                        self.lookup_kwarg: ct_type.id}),
+                    'display': unicode(ct_type),
                 }
