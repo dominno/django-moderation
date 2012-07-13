@@ -1,3 +1,4 @@
+import mock
 import unittest
 from moderation.tests.utils.request_factory import RequestFactory
 from moderation.admin import ModerationAdmin, approve_objects, reject_objects,\
@@ -113,6 +114,7 @@ class ModerationAdminSendMessageTestCase(SettingsTestCase):
         rf.login(username='admin', password='aaaa')
         self.request = rf.get('/admin/moderation/')
         self.request.user = User.objects.get(username='admin')
+        self.request._messages = mock.Mock()
         self.admin = ModerationAdmin(UserProfile, site)
 
         self.profile = UserProfile.objects.get(user__username='moderator')
@@ -134,7 +136,8 @@ class ModerationAdminSendMessageTestCase(SettingsTestCase):
 
         self.admin.send_message(self.request, profile.pk)
 
-        message = self.request.user.message_set.get()
+        args, kwargs = self.request._messages.add.call_args
+        level, message, tags = args
         self.assertEqual(unicode(message), u"This object is not registered "\
                                            u"with the moderation system.")
 
@@ -144,7 +147,8 @@ class ModerationAdminSendMessageTestCase(SettingsTestCase):
 
         self.admin.send_message(self.request, self.profile.pk)
 
-        message = self.request.user.message_set.get()
+        args, kwargs = self.request._messages.add.call_args
+        level, message, tags = args
         self.assertEqual(unicode(message),
                          u"Object is not viewable on site, "\
                          u"it will be visible if moderator accepts it")
@@ -156,7 +160,8 @@ class ModerationAdminSendMessageTestCase(SettingsTestCase):
 
         self.admin.send_message(self.request, self.profile.pk)
 
-        message = self.request.user.message_set.get()
+        args, kwargs = self.request._messages.add.call_args
+        level, message, tags = args
         self.assertEqual(unicode(message),
                          u"Object has been rejected by "\
                          u"moderator, reason: Reason for rejection")
@@ -167,7 +172,8 @@ class ModerationAdminSendMessageTestCase(SettingsTestCase):
 
         self.admin.send_message(self.request, self.profile.pk)
 
-        message = self.request.user.message_set.get()
+        args, kwargs = self.request._messages.add.call_args
+        level, message, tags = args
         self.assertEqual(unicode(message), "Object has been approved by "\
                                            "moderator and is visible on site")
 
