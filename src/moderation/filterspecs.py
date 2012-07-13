@@ -22,12 +22,10 @@ else:
 
         def _get_content_types(self):
             content_types = []
-            for model in sorted(moderation.moderation._registered_models.keys(),
-                                key=lambda obj: obj.__name__):
+            registered = moderation.moderation._registered_models.keys()
+            registered.sort(key=lambda obj: obj.__name__)
+            for model in registered:
                 content_types.append(ContentType.objects.get_for_model(model))
-
             return content_types
-
-    FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'content_type_filter',
-                                                         False),
-                                       ContentTypeFilterSpec))
+    get_filter = lambda f: getattr(f, 'content_type_filter', False)
+    FilterSpec.filter_specs.insert(0, (get_filter, ContentTypeFilterSpec))

@@ -177,8 +177,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                          'django_version': django.get_version()[:3],
                          'object_admin_url': object_admin_url}
         return super(ModeratedObjectAdmin, self).change_view(request,
-                                                             object_id,
-                                                             extra_context=extra_context)
+             object_id, extra_context=extra_context)
 
 
 admin.site.register(ModeratedObject, ModeratedObjectAdmin)
