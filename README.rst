@@ -404,7 +404,7 @@ How to run django-moderation tests
 
     bin/buildout 
 
-4. Run tests for Django 1.1, 1.2, 1.3::
+4. Run tests for Django 1.2, 1.3, 1.4::
 
     bin/test.sh
 
