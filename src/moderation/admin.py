@@ -96,11 +96,23 @@ class ModerationAdmin(admin.ModelAdmin):
         return ModeratedObjectForm
 
 
+try:
+    from moderation.filterspecs import RegisteredContentTypeListFilter
+except ImportError:
+    # Django < 1.4
+    available_filters = ('content_type', 'moderation_status')
+else:
+    # Django >= 1.4
+    available_filters = (
+        ('content_type', RegisteredContentTypeListFilter), 'moderation_status'
+    )
+
+
 class ModeratedObjectAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_created'
     list_display = ('content_object', 'content_type', 'date_created',
                     'moderation_status', 'moderated_by', 'moderation_date')
-    list_filter = ['content_type', 'moderation_status']
+    list_filter = available_filters
     change_form_template = 'moderation/moderate_object.html'
     change_list_template = 'moderation/moderated_objects_list.html'
     actions = [reject_objects, approve_objects, set_objects_as_pending]
@@ -177,8 +189,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                          'django_version': django.get_version()[:3],
                          'object_admin_url': object_admin_url}
         return super(ModeratedObjectAdmin, self).change_view(request,
-                                                             object_id,
-                                                             extra_context)
+             object_id, extra_context=extra_context)
 
 
 admin.site.register(ModeratedObject, ModeratedObjectAdmin)
