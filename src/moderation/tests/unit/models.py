@@ -1,4 +1,5 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
+from django import VERSION
 from django.core import management
 from django.contrib.auth.models import User, Group
 from moderation.tests.apps.test_app1.models import UserProfile,\
@@ -11,6 +12,7 @@ from moderation.register import ModerationManager, RegistrationError
 from moderation.moderator import GenericModerator
 from moderation.helpers import automoderate
 from moderation.tests.utils import setup_moderation, teardown_moderation
+from moderation.tests.utils import unittest
 
 
 class SerializationTestCase(SettingsTestCase):
@@ -107,6 +109,7 @@ class SerializationTestCase(SettingsTestCase):
         self.assertEqual(moderated_object.changed_object.description,
                          'New changed description')
 
+    @unittest.skipIf(VERSION[:2] < (1, 4), "Proxy models require 1.4")
     def test_serialize_proxy_model(self):
         "Handle proxy models in the serialization."
         profile = ProxyProfile(description="I'm a proxy.",
@@ -121,6 +124,7 @@ class SerializationTestCase(SettingsTestCase):
             '{"url": "http://example.com", "user": 2, '\
             '"description": "I\'m a proxy."}}]',)
 
+    @unittest.skipIf(VERSION[:2] < (1, 4), "Proxy models require 1.4")
     def test_deserialize_proxy_model(self):
         "Correctly restore a proxy model."
         value = '[{"pk": 2, "model": "test_app1.proxyprofile", "fields": '\
