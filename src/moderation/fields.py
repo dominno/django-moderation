@@ -41,7 +41,8 @@ class SerializedObjectField(models.TextField):
         value_set = [value]
         if value._meta.parents:
             value_set += [getattr(value, f.name)
-                          for f in value._meta.parents.values()]
+                          for f in value._meta.parents.values()
+                          if f is not None]
 
         return serializers.serialize(self.serialize_format, value_set)
 
