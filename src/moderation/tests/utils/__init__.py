@@ -1,3 +1,16 @@
+import sys
+
+try:
+    from django.utils import unittest
+except ImportError:
+    # Django < 1.3
+    try:
+        import unittest2 as unittest
+    except ImportError:
+        if sys.version_info >= (2.7):
+            import unittest
+        else:
+            raise ImportError('unittest2 is required to run the tests.')
 
 
 def setup_moderation(models=[]):
