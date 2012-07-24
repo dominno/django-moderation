@@ -121,6 +121,19 @@ class SerializationTestCase(SettingsTestCase):
             '{"url": "http://example.com", "user": 2, '\
             '"description": "I\'m a proxy."}}]',)
 
+    def test_deserialize_proxy_model(self):
+        "Correctly restore a proxy model."
+        value = '[{"pk": 2, "model": "test_app1.proxyprofile", "fields": '\
+            '{"url": "http://example.com", "user": 2, '\
+            '"description": "I\'m a proxy."}}]'
+
+        json_field = SerializedObjectField()
+        profile = json_field._deserialize(value)
+        self.assertTrue(isinstance(profile, ProxyProfile))
+        self.assertEqual(profile.url, "http://example.com")
+        self.assertEqual(profile.description, "I\'m a proxy.")
+        self.assertEqual(profile.user_id, 2)
+
 
 class ModerateTestCase(SettingsTestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
