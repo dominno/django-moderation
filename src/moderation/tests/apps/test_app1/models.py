@@ -81,3 +81,9 @@ class ModelWithModeratedFields(models.Model):
     unmoderated = models.CharField(max_length=20)
 
     moderated_fields = ('moderated', 'also_moderated')
+
+
+class ProxyProfile(UserProfile):
+
+    class Meta(object):
+        proxy = True

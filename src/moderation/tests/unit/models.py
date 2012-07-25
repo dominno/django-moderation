@@ -1,8 +1,9 @@
 from moderation.tests.utils.testsettingsmanager import SettingsTestCase
+from django import VERSION
 from django.core import management
 from django.contrib.auth.models import User, Group
 from moderation.tests.apps.test_app1.models import UserProfile,\
-    SuperUserProfile, ModelWithSlugField2
+    SuperUserProfile, ModelWithSlugField2, ProxyProfile
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED,\
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,6 +12,7 @@ from moderation.register import ModerationManager, RegistrationError
 from moderation.moderator import GenericModerator
 from moderation.helpers import automoderate
 from moderation.tests.utils import setup_moderation, teardown_moderation
+from moderation.tests.utils import unittest
 
 
 class SerializationTestCase(SettingsTestCase):
@@ -106,6 +108,35 @@ class SerializationTestCase(SettingsTestCase):
 
         self.assertEqual(moderated_object.changed_object.description,
                          'New changed description')
+
+    @unittest.skipIf(VERSION[:2] < (1, 4), "Proxy models require 1.4")
+    def test_serialize_proxy_model(self):
+        "Handle proxy models in the serialization."
+        profile = ProxyProfile(description="I'm a proxy.",
+                               url="http://example.com",
+                               user=User.objects.get(username='user1'))
+        profile.save()
+        json_field = SerializedObjectField()
+
+        self.assertEqual(
+            json_field._serialize(profile),
+            '[{"pk": 2, "model": "test_app1.proxyprofile", "fields": '\
+            '{"url": "http://example.com", "user": 2, '\
+            '"description": "I\'m a proxy."}}]',)
+
+    @unittest.skipIf(VERSION[:2] < (1, 4), "Proxy models require 1.4")
+    def test_deserialize_proxy_model(self):
+        "Correctly restore a proxy model."
+        value = '[{"pk": 2, "model": "test_app1.proxyprofile", "fields": '\
+            '{"url": "http://example.com", "user": 2, '\
+            '"description": "I\'m a proxy."}}]'
+
+        json_field = SerializedObjectField()
+        profile = json_field._deserialize(value)
+        self.assertTrue(isinstance(profile, ProxyProfile))
+        self.assertEqual(profile.url, "http://example.com")
+        self.assertEqual(profile.description, "I\'m a proxy.")
+        self.assertEqual(profile.user_id, 2)
 
 
 class ModerateTestCase(SettingsTestCase):
