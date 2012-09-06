@@ -38,9 +38,7 @@ class ModerationObjectsManager(Manager):
                 # We cannot use dict.get() here!
                 mobject = mobjects[obj.pk] if obj.pk in mobjects\
                 else obj.moderated_object
-                # TODO: Pass a proper fields_exclude \
-                # TODO (self.moderator.fields_exclude)
-                obj_changed = mobject.has_object_been_changed(obj, [])
+                obj_changed = mobject.has_object_been_changed(obj, None)
 
                 if mobject.moderation_status\
                    in [MODERATION_STATUS_PENDING,
