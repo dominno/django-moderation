@@ -391,8 +391,8 @@ with data from changed_object.::
 Settings
 ========
 
-``MODERATORS``
-    List of moderators e-mails to which notifications will be send.
+``DJANGO_MODERATION_MODERATORS``
+    Tuple of moderators' email addresses to which notifications will be sent.
 
 
 How to run django-moderation tests
