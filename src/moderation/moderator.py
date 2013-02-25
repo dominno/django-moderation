@@ -1,3 +1,4 @@
+from threading import Thread
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,6 +10,18 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from moderation.managers import ModerationObjectsManager
+
+
+class EmailThread(Thread):
+    def __init__(self, obj, obj_method, *args, **kwargs):
+        super(EmailThread, self).__init__()
+        self.obj = obj
+        self.obj_method = obj_method
+        self.args = args
+        self.kwargs = kwargs
+        
+    def run(self):
+        getattr(self.obj, self.obj_method)(*self.args, **self.kwargs)
 
 
 class GenericModerator(object):
@@ -131,10 +144,13 @@ class GenericModerator(object):
         from moderation.conf.settings import MODERATORS
 
         if self.notify_moderator:
-            self.send(content_object=content_object,
-                      subject_template=self.subject_template_moderator,
-                      message_template=self.message_template_moderator,
-                      recipient_list=MODERATORS)
+            EmailThread(
+                self, 'send',
+                content_object=content_object,
+                subject_template=self.subject_template_moderator,
+                message_template=self.message_template_moderator,
+                recipient_list=MODERATORS
+            ).start()
 
     def inform_user(self, content_object,
                     user,
@@ -145,11 +161,14 @@ class GenericModerator(object):
         else:
             extra_context = {'user': user}
         if self.notify_user:
-            self.send(content_object=content_object,
-                      subject_template=self.subject_template_user,
-                      message_template=self.message_template_user,
-                      recipient_list=[user.email],
-                      extra_context=extra_context)
+            EmailThread(
+                self, 'send',
+                content_object=content_object,
+                subject_template=self.subject_template_user,
+                message_template=self.message_template_user,
+                recipient_list=[user.email],
+                extra_context=extra_context
+            ).start()
 
     def _get_base_managers(self):
         base_managers = []
