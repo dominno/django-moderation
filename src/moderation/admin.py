@@ -40,7 +40,7 @@ class ModerationAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None):
         if obj and self.admin_integration_enabled:
-            return self.get_moderated_object_form(obj.__class__)
+            self.form = self.get_moderated_object_form(obj.__class__)
 
         return super(ModerationAdmin, self).get_form(request, obj)
 
