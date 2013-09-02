@@ -414,4 +414,4 @@ Continuous Integration system
 
 Continuous Integration system for django-moderation is available at:
 
-https://continuous.io/dominno/django-moderation/
+https://travis-ci.org/dominno/django-moderation
