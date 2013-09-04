@@ -7,7 +7,7 @@ except ImportError:
     try:
         import unittest2 as unittest
     except ImportError:
-        if sys.version_info >= (2.7):
+        if sys.version_info[1] >= 7:
             import unittest
         else:
             raise ImportError('unittest2 is required to run the tests.')

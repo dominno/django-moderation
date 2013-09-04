@@ -131,6 +131,14 @@ class GenericModerator(object):
         message = render_to_string(message_template, context)
         subject = render_to_string(subject_template, context)
 
+        EmailThread(
+                self, 'send_',
+                subject=subject,
+                message=message,
+                recipient_list=recipient_list
+            ).start()
+
+    def send_(self, subject, message, recipient_list):
         send_mail(subject=subject,
                   message=message,
                   from_email=settings.DEFAULT_FROM_EMAIL,
@@ -144,13 +152,10 @@ class GenericModerator(object):
         from moderation.conf.settings import MODERATORS
 
         if self.notify_moderator:
-            EmailThread(
-                self, 'send',
-                content_object=content_object,
-                subject_template=self.subject_template_moderator,
-                message_template=self.message_template_moderator,
-                recipient_list=MODERATORS
-            ).start()
+            self.send(content_object=content_object,
+                    subject_template=self.subject_template_moderator,
+                    message_template=self.message_template_moderator,
+                    recipient_list=MODERATORS)
 
     def inform_user(self, content_object,
                     user,
@@ -161,14 +166,12 @@ class GenericModerator(object):
         else:
             extra_context = {'user': user}
         if self.notify_user:
-            EmailThread(
-                self, 'send',
-                content_object=content_object,
-                subject_template=self.subject_template_user,
-                message_template=self.message_template_user,
-                recipient_list=[user.email],
-                extra_context=extra_context
-            ).start()
+            self.send(content_object=content_object,
+                        subject_template=self.subject_template_user,
+                        message_template=self.message_template_user,
+                        recipient_list=[user.email],
+                        extra_context=extra_context)
+            
 
     def _get_base_managers(self):
         base_managers = []
