@@ -137,6 +137,10 @@ When you will approve object, then it will be publicly available.::
     YourModel.objects.get(pk=1)
     <YourModel: YourModel object>
     
+Please note that you can also access objects that are not approved by using unmoderated_objects manager, this manager will bypass the moderation system
+
+    YourModel.unmoderated_objects.get(pk=your_model.pk)
+
 You can access changed object by calling changed_object on moderated_object:
 
     your_model.moderated_object.changed_object
