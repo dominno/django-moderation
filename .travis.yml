@@ -7,6 +7,7 @@ python:
 install:
   - pip install zc.buildout
   - pip install pil
+  - pip install pep8
   - python bootstrap.py
   - bin/buildout
   - bin/django-1.2 syncdb --noinput
