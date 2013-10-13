@@ -23,9 +23,16 @@ setup(name='django-moderation',
       author_email='dszopa@gmail.com',
       url='http://github.com/dominno/django-moderation',
       license='BSD',
-      packages = find_packages('src'),
-      package_dir = {'': 'src'},
+      packages = find_packages('.'),
+      
       include_package_data=True,
+      tests_require=[
+        'django>=1.2,<1.6',
+        'mock',
+        'pillow',
+        'unittest2'
+      ],
+      test_suite='runtests.runtests',
       install_requires=[
           'setuptools',
       ],
