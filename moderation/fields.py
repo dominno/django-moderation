@@ -47,8 +47,10 @@ class SerializedObjectField(models.TextField):
         return serializers.serialize(self.serialize_format, value_set)
 
     def _deserialize(self, value):
-        obj_generator = serializers.deserialize(self.serialize_format,
-                                       value.encode(settings.DEFAULT_CHARSET))
+        obj_generator = serializers.deserialize(
+            self.serialize_format,
+            value.encode(settings.DEFAULT_CHARSET)
+        )
 
         obj = obj_generator.next().object
         for parent in obj_generator:
@@ -92,14 +94,20 @@ class SerializedObjectField(models.TextField):
 try:
     from south.modelsinspector import add_introspection_rules
 
-    add_introspection_rules([
+    add_introspection_rules(
+        [
             (
-            [SerializedObjectField],  # Class(es) these apply to
-            [],  # Positional arguments (not used)
+                [SerializedObjectField],  # Class(es) these apply to
+                [],  # Positional arguments (not used)
                 {  # Keyword argument
-                 "serialize_format": ["serialize_format", {"default": "json"}],
-                 },
+                    "serialize_format": [
+                        "serialize_format",
+                        {"default": "json"}
+                    ],
+                },
             ),
-             ], ["^moderation\.fields\.SerializedObjectField"])
+        ],
+        ["^moderation\.fields\.SerializedObjectField"]
+    )
 except ImportError:
     pass

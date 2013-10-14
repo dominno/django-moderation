@@ -34,7 +34,8 @@ class TextChange(BaseChange):
 
         return self.render_diff(
             'moderation/html_diff.html',
-                {'diff_operations': get_diff_operations(*self.change)})
+            {'diff_operations': get_diff_operations(*self.change)}
+        )
 
 
 class ImageChange(BaseChange):
@@ -44,8 +45,8 @@ class ImageChange(BaseChange):
         left_image, right_image = self.change
         return self.render_diff(
             'moderation/image_diff.html',
-                {'left_image': left_image,
-                 'right_image': right_image})
+            {'left_image': left_image, 'right_image': right_image}
+        )
 
 
 def get_change(model1, model2, field):
@@ -58,9 +59,9 @@ def get_change(model1, model2, field):
 
     change = get_change_for_type(
         field.verbose_name,
-            (value1, value2),
+        (value1, value2),
         field,
-        )
+    )
 
     return change
 
@@ -98,8 +99,8 @@ def get_diff_operations(a, b):
 
 
 def html_to_list(html):
-    pattern = re.compile(r'&.*?;|(?:<[^<]*?>)|'\
-                         '(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'\
+    pattern = re.compile(r'&.*?;|(?:<[^<]*?>)|'
+                         '(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'
                          '(?:\s*[,\.\?]*)', re.UNICODE)
 
     return [''.join(element) for element in filter(None,
@@ -109,15 +110,16 @@ def html_to_list(html):
 def get_change_for_type(verbose_name, change, field):
     if isinstance(field, fields.files.ImageField):
         change = ImageChange(
-            u"Current %(verbose_name)s / "\
+            u"Current %(verbose_name)s / "
             u"New %(verbose_name)s" % {'verbose_name': verbose_name},
             field,
             change)
     else:
         value1, value2 = change
-        change = TextChange(verbose_name,
-                            field,
-                (unicode(value1), unicode(value2)),
-                            )
+        change = TextChange(
+            verbose_name,
+            field,
+            (unicode(value1), unicode(value2)),
+        )
 
     return change

@@ -18,7 +18,6 @@ class GenericModeratorTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
     urls = 'django-moderation.test_urls'
 
-
     def setUp(self):
         self.user = User.objects.get(username='admin')
         obj = ModeratedObject(content_object=self.user)
@@ -58,7 +57,7 @@ class GenericModeratorTestCase(TestCase):
             subject_template='moderation/notification_subject_moderator.txt',
             message_template='moderation/notification_message_moderator.txt',
             recipient_list=['test@example.com'])
-        
+
         while True:
             if not t.is_alive():
                 break
@@ -189,7 +188,6 @@ class AutoModerateModeratorTestCase(TestCase):
 class ByPassModerationTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
-
     def setUp(self):
 
         class UserProfileModerator(GenericModerator):
@@ -254,7 +252,6 @@ class BaseManagerTestCase(unittest.TestCase):
 class VisibilityColumnTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
-
     def setUp(self):
 
         class UserProfileModerator(GenericModerator):
@@ -284,7 +281,7 @@ class VisibilityColumnTestCase(TestCase):
 
     def test_approved_obj_should_be_return_by_manager(self):
         '''Verify new object with visibility column is accessible '''\
-        '''by manager after approve'''
+            '''by manager after approve'''
         profile = self._create_userprofile()
         profile.moderated_object.approve(self.user)
 
@@ -294,7 +291,7 @@ class VisibilityColumnTestCase(TestCase):
 
     def test_invalid_visibility_column_field_should_rise_exception(self):
         '''Verify correct exception is raised when model has '''\
-        '''invalid visibility column'''
+            '''invalid visibility column'''
 
         class UserProfileModerator(GenericModerator):
             visibility_column = 'is_public'
@@ -306,13 +303,14 @@ class VisibilityColumnTestCase(TestCase):
 
     def test_model_should_be_saved_properly(self):
         '''Verify that after approve of object that has visibility column '''\
-        '''value is changed from False to True'''
+            '''value is changed from False to True'''
         profile = self._create_userprofile()
 
         self.assertEqual(profile.is_public, False)
 
         profile.moderated_object.approve(self.user)
 
-        self.assertEqual(ModelWithVisibilityField.unmoderated_objects.get()\
-                         .is_public,
-                         True)
+        self.assertEqual(
+            ModelWithVisibilityField.unmoderated_objects.get().is_public,
+            True
+        )

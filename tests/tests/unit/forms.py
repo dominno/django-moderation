@@ -11,7 +11,6 @@ from tests.utils import setup_moderation, teardown_moderation
 class FormsTestCase(TestCase):
     fixtures = ['test_users.json']
 
-
     def setUp(self):
         self.user = User.objects.get(username='moderator')
 

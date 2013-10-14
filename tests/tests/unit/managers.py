@@ -1,8 +1,3 @@
-'''
-Created on 2009-12-10
-
-@author: dominik
-'''
 from django.test.testcases import TestCase
 from django.core import management
 from django.contrib.auth.models import User
@@ -21,8 +16,6 @@ from tests.utils import setup_moderation, teardown_moderation
 class ModerationObjectsManagerTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
-
-
     def setUp(self):
         from django.db.models import signals
 
@@ -32,8 +25,12 @@ class ModerationObjectsManagerTestCase(TestCase):
         class UserProfileModerator(GenericModerator):
             visibility_column = 'is_public'
 
-        self.moderation = setup_moderation([UserProfile,
-                (ModelWithVisibilityField, UserProfileModerator)])
+        self.moderation = setup_moderation(
+            [
+                UserProfile,
+                (ModelWithVisibilityField, UserProfileModerator)
+            ]
+        )
 
     def tearDown(self):
         teardown_moderation()
@@ -43,7 +40,7 @@ class ModerationObjectsManagerTestCase(TestCase):
 
         self.assertEqual(
             unicode(ManagerClass.__bases__),
-            u"(<class 'moderation.managers.ModerationObjectsManager'>"\
+            u"(<class 'moderation.managers.ModerationObjectsManager'>"
             u", <class 'django.db.models.manager.Manager'>)")
 
     def test_filter_moderated_objects_returns_empty_queryset(self):
@@ -92,7 +89,6 @@ class ModerationObjectsManagerTestCase(TestCase):
 
 class ModeratedObjectManagerTestCase(TestCase):
     fixtures = ['test_users.json']
-
 
     def setUp(self):
         self.moderation = setup_moderation([UserProfile, ModelWithSlugField2])

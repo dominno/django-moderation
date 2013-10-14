@@ -23,15 +23,15 @@ MODERATION_STATUS_APPROVED = 1
 MODERATION_STATUS_PENDING = 2
 
 MODERATION_STATES = (
-        (MODERATION_READY_STATE, 'Ready for moderation'),
-        (MODERATION_DRAFT_STATE, 'Draft'),
-    )
+    (MODERATION_READY_STATE, 'Ready for moderation'),
+    (MODERATION_DRAFT_STATE, 'Draft'),
+)
 
 STATUS_CHOICES = (
-        (MODERATION_STATUS_APPROVED, "Approved"),
-        (MODERATION_STATUS_PENDING, "Pending"),
-        (MODERATION_STATUS_REJECTED, "Rejected"),
-    )
+    (MODERATION_STATUS_APPROVED, "Approved"),
+    (MODERATION_STATUS_PENDING, "Pending"),
+    (MODERATION_STATUS_REJECTED, "Rejected"),
+)
 
 
 class ModeratedObject(models.Model):

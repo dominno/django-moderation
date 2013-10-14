@@ -50,7 +50,6 @@ class CSRFMiddlewareTestCase(TestCase):
 class AutomoderationRuntimeErrorRegressionTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
-
     def setUp(self):
         setup_moderation([UserProfile])
 

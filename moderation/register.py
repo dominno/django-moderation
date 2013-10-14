@@ -18,7 +18,7 @@ class ModerationManagerSingleton(type):
     def __call__(cls, *args, **kw):
         if cls.instance is None:
             cls.instance = super(ModerationManagerSingleton, cls)\
-                                            .__call__(*args, **kw)
+                .__call__(*args, **kw)
 
         return cls.instance
 
@@ -63,8 +63,9 @@ class ModerationManager(object):
             relation_object = getattr(model_class, '_relation_object')
         else:
             relation_object = generic.GenericRelation(
-                                        ModeratedObject,
-                                        object_id_field='object_pk')
+                ModeratedObject,
+                object_id_field='object_pk'
+            )
 
         model_class.add_to_class('_relation_object', relation_object)
 
@@ -85,8 +86,8 @@ class ModerationManager(object):
         """
         model_class = moderator_class_instance.model_class
         base_managers = moderator_class_instance.base_managers
-        moderation_manager_class\
-        = moderator_class_instance.moderation_manager_class
+        moderation_manager_class = moderator_class_instance.\
+            moderation_manager_class
 
         for manager_name, mgr_class in base_managers:
             ModerationObjectsManager = moderation_manager_class()(mgr_class)
@@ -142,8 +143,9 @@ class ModerationManager(object):
             moderated_obj = self._get_or_create_moderated_object(instance,
                                                                  unchanged_obj,
                                                                  moderator)
-            if moderated_obj.moderation_status != MODERATION_STATUS_APPROVED\
-            and not moderator.bypass_moderation_after_approval:
+            if moderated_obj.moderation_status != \
+               MODERATION_STATUS_APPROVED and \
+               not moderator.bypass_moderation_after_approval:
                 moderated_obj.save()
 
     def _get_unchanged_object(self, instance):
@@ -164,8 +166,8 @@ class ModerationManager(object):
         in moderated object in order to use it later in post_save_handler
         """
         try:
-            moderated_object\
-            = ModeratedObject.objects.get_for_instance(instance)
+            moderated_object = ModeratedObject.objects.\
+                get_for_instance(instance)
 
         except ObjectDoesNotExist:
             moderated_object = ModeratedObject(content_object=unchanged_obj)
@@ -209,11 +211,12 @@ class ModerationManager(object):
             moderated_obj.save()
             moderator.inform_moderator(instance)
         else:
-            moderated_obj\
-            = ModeratedObject.objects.get_for_instance(instance)
+            moderated_obj = ModeratedObject.objects.\
+                get_for_instance(instance)
 
-            if moderated_obj.moderation_status == MODERATION_STATUS_APPROVED\
-            and moderator.bypass_moderation_after_approval:
+            if moderated_obj.moderation_status == \
+               MODERATION_STATUS_APPROVED and \
+               moderator.bypass_moderation_after_approval:
                 return
 
             if moderated_obj.has_object_been_changed(instance):
@@ -232,6 +235,7 @@ class ModerationManager(object):
                 instance._moderated_object = moderated_obj
 
     def _copy_model_instance(self, obj):
-        initial = dict([(f.name, getattr(obj, f.name))
-        for f in obj._meta.fields])
+        initial = dict(
+            [(f.name, getattr(obj, f.name)) for f in obj._meta.fields]
+        )
         return obj.__class__(**initial)

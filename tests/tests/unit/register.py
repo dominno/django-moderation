@@ -22,7 +22,7 @@ from django.db import IntegrityError
 
 class RegistrationTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-    
+
     def setUp(self):
         self.moderation = setup_moderation([UserProfile])
         self.user = User.objects.get(username='moderator')
@@ -86,8 +86,8 @@ class RegistrationTestCase(TestCase):
 
         self.assertEqual(ModeratedObject.objects.all().count(),
                          1,
-                         "New moderation object was not created"\
-                         " after creation of new model instance "\
+                         "New moderation object was not created"
+                         " after creation of new model instance "
                          "from model class that is registered with moderation")
 
     def test_exception_is_raised_when_class_is_registered(self):
@@ -198,8 +198,8 @@ class IntegrityErrorRegressionTestCase(TestCase):
     def setUp(self):
         self.moderation = ModerationManager()
         self.moderation.register(ModelWithSlugField)
-        self.filter_moderated_objects\
-        = ModelWithSlugField.objects.filter_moderated_objects
+        self.filter_moderated_objects = ModelWithSlugField.objects.\
+            filter_moderated_objects
 
         def filter_moderated_objects(query_set):
             from moderation.models import MODERATION_STATUS_PENDING,\
@@ -211,8 +211,8 @@ class IntegrityErrorRegressionTestCase(TestCase):
                     if obj.moderated_object.moderation_status\
                        in [MODERATION_STATUS_PENDING,
                            MODERATION_STATUS_REJECTED]\
-                    and obj.__dict__\
-                    == obj.moderated_object.changed_object.__dict__:
+                       and obj.__dict__ == \
+                       obj.moderated_object.changed_object.__dict__:
                         exclude_pks.append(object.pk)
                 except ObjectDoesNotExist:
                     pass
@@ -414,14 +414,15 @@ class LoadingFixturesTestCase(TestCase):
 class ModerationSignalsTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
-
     def setUp(self):
 
         class UserProfileModerator(GenericModerator):
+
             notify_moderator = False
 
         self.moderation = setup_moderation(
-                            [(UserProfile, UserProfileModerator)])
+            [(UserProfile, UserProfileModerator)]
+        )
 
         self.moderation._disconnect_signals(UserProfile)
 

@@ -15,10 +15,8 @@ from tests.utils import setup_moderation, teardown_moderation
 from tests.utils import unittest
 
 
-
 class SerializationTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-
 
     def setUp(self):
         self.user = User.objects.get(username='moderator')
@@ -31,10 +29,10 @@ class SerializationTestCase(TestCase):
 
         self.assertEqual(
             json_field._serialize(self.profile),
-            '[{"pk": 1, "model": "tests.userprofile", "fields": '\
-            '{"url": "http://www.google.com", "user": 1, '\
+            '[{"pk": 1, "model": "tests.userprofile", "fields": '
+            '{"url": "http://www.google.com", "user": 1, '
             '"description": "Old description"}}]',
-            )
+        )
 
     def test_serialize_with_inheritance(self):
         """Test if object is properly serialized to json"""
@@ -48,10 +46,10 @@ class SerializationTestCase(TestCase):
 
         self.assertEqual(
             json_field._serialize(profile),
-            '[{"pk": 2, "model": "tests.superuserprofile",'\
-            ' "fields": {"super_power": "invisibility"}}, '\
-            '{"pk": 2, "model": "tests.userprofile", "fields":'\
-            ' {"url": "http://www.test.com", "user": 2,'\
+            '[{"pk": 2, "model": "tests.superuserprofile",'
+            ' "fields": {"super_power": "invisibility"}}, '
+            '{"pk": 2, "model": "tests.userprofile", "fields":'
+            ' {"url": "http://www.test.com", "user": 2,'
             ' "description": "Profile for new super user"}}]')
 
     def test_deserialize(self):
@@ -121,8 +119,8 @@ class SerializationTestCase(TestCase):
 
         self.assertEqual(
             json_field._serialize(profile),
-            '[{"pk": 2, "model": "tests.proxyprofile", "fields": '\
-            '{"url": "http://example.com", "user": 2, '\
+            '[{"pk": 2, "model": "tests.proxyprofile", "fields": '
+            '{"url": "http://example.com", "user": 2, '
             '"description": "I\'m a proxy."}}]',)
 
     @unittest.skipIf(VERSION[:2] < (1, 4), "Proxy models require 1.4")
@@ -142,8 +140,6 @@ class SerializationTestCase(TestCase):
 
 class ModerateTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-
-    
 
     def setUp(self):
         self.user = User.objects.get(username='moderator')
@@ -237,7 +233,6 @@ class ModerateTestCase(TestCase):
 
 class AutoModerateTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
-
 
     def setUp(self):
         self.moderation = ModerationManager()

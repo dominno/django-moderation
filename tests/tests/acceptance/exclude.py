@@ -14,8 +14,6 @@ class ExcludeAcceptanceTestCase(TestCase):
     moderation
     '''
     fixtures = ['test_users.json', 'test_moderation.json']
-    
-
 
     def setUp(self):
         self.client.login(username='admin', password='aaaa')
@@ -94,8 +92,6 @@ class ModeratedFieldsAcceptanceTestCase(TestCase):
     '''
     Test that `moderated_fields` model argument excludes all fields not listed
     '''
-
-
 
     def setUp(self):
         setup_moderation([ModelWithModeratedFields])

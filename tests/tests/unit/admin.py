@@ -20,7 +20,6 @@ from django.test.testcases import TestCase
 class ModeratedObjectAdminTestCase(TestCase):
     fixtures = ['test_users.json']
 
-
     def setUp(self):
         rf = RequestFactory()
         rf.login(username='admin', password='aaaa')
@@ -105,8 +104,6 @@ class AdminActionsTestCase(TestCase):
 class ModerationAdminSendMessageTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
-
-
     def setUp(self):
         self.moderation = setup_moderation([UserProfile])
 
@@ -138,7 +135,7 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(unicode(message), u"This object is not registered "\
+        self.assertEqual(unicode(message), u"This object is not registered "
                                            u"with the moderation system.")
 
     def test_send_message_status_pending(self):
@@ -150,7 +147,7 @@ class ModerationAdminSendMessageTestCase(TestCase):
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
         self.assertEqual(unicode(message),
-                         u"Object is not viewable on site, "\
+                         u"Object is not viewable on site, "
                          u"it will be visible if moderator accepts it")
 
     def test_send_message_status_rejected(self):
@@ -163,7 +160,7 @@ class ModerationAdminSendMessageTestCase(TestCase):
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
         self.assertEqual(unicode(message),
-                         u"Object has been rejected by "\
+                         u"Object has been rejected by "
                          u"moderator, reason: Reason for rejection")
 
     def test_send_message_status_approved(self):
@@ -174,7 +171,7 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(unicode(message), "Object has been approved by "\
+        self.assertEqual(unicode(message), "Object has been approved by "
                                            "moderator and is visible on site")
 
 
@@ -213,10 +210,12 @@ else:
             filter_spec = ContentTypeFilterSpec(f, self.request, {},
                                                 ModeratedObject, self.admin)
 
-            self.assertEqual([x[1] for x in filter_spec.lookup_choices],
+            self.assertEqual(
+                [x[1] for x in filter_spec.lookup_choices],
                 [u'Model with slug field',
-                 u'Model with slug field2'])
+                 u'Model with slug field2']
+            )
 
             self.assertEqual(unicode(filter_spec.content_types),
-                             u"[<ContentType: model with slug field>, "\
+                             u"[<ContentType: model with slug field>, "
                              "<ContentType: model with slug field2>]")

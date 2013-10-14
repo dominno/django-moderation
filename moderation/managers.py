@@ -12,9 +12,11 @@ class MetaClass(type):
 class ModerationObjectsManager(Manager):
 
     def __call__(self, base_manager, *args, **kwargs):
-        return MetaClass(self.__class__.__name__,
-                (self.__class__, base_manager),
-                {'use_for_related_fields': True})
+        return MetaClass(
+            self.__class__.__name__,
+            (self.__class__, base_manager),
+            {'use_for_related_fields': True}
+        )
 
     def filter_moderated_objects(self, query_set):
         from moderation.models import MODERATION_STATUS_PENDING,\
@@ -24,26 +26,29 @@ class ModerationObjectsManager(Manager):
 
         from models import ModeratedObject
 
-        # TODO: Load this query in chunks to avoid huge RAM usage spikes
-        mobjects = dict([(mobject.object_pk, mobject)\
-        for mobject in ModeratedObject.objects.filter(
+        mobjs_set = ModeratedObject.objects.filter(
             content_type=ContentType.objects.get_for_model(query_set.model),
-            object_pk__in=query_set.values_list('pk', flat=True))])
+            object_pk__in=query_set.values_list('pk', flat=True))
+
+        # TODO: Load this query in chunks to avoid huge RAM usage spikes
+        mobjects = dict(
+            [(mobject.object_pk, mobject) for mobject in mobjs_set]
+        )
 
         full_query_set = super(ModerationObjectsManager, self).get_query_set()\
-        .filter(pk__in=query_set.values_list('pk', flat=True))
+            .filter(pk__in=query_set.values_list('pk', flat=True))
 
         for obj in full_query_set:
             try:
                 # We cannot use dict.get() here!
-                mobject = mobjects[obj.pk] if obj.pk in mobjects\
-                else obj.moderated_object
+                mobject = mobjects[obj.pk] if obj.pk in mobjects else \
+                    obj.moderated_object
                 obj_changed = mobject.has_object_been_changed(obj, None)
 
                 if mobject.moderation_status\
                    in [MODERATION_STATUS_PENDING,
-                       MODERATION_STATUS_REJECTED]\
-                and not obj_changed:
+                       MODERATION_STATUS_REJECTED] and \
+                   not obj_changed:
                     exclude_pks.append(obj.pk)
             except ObjectDoesNotExist:
                 pass
@@ -55,7 +60,7 @@ class ModerationObjectsManager(Manager):
 
         kwargs = {}
         kwargs[self.moderator.visibility_column] =\
-        bool(MODERATION_STATUS_REJECTED)
+            bool(MODERATION_STATUS_REJECTED)
 
         return query_set.exclude(**kwargs)
 

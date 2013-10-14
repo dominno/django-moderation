@@ -19,7 +19,7 @@ class EmailThread(Thread):
         self.obj_method = obj_method
         self.args = args
         self.kwargs = kwargs
-        
+
     def run(self):
         getattr(self.obj, self.obj_method)(*self.args, **self.kwargs)
 
@@ -47,10 +47,10 @@ class GenericModerator(object):
     notify_moderator = True
     notify_user = True
 
-    subject_template_moderator\
-    = 'moderation/notification_subject_moderator.txt'
-    message_template_moderator\
-    = 'moderation/notification_message_moderator.txt'
+    subject_template_moderator = \
+        'moderation/notification_subject_moderator.txt'
+    message_template_moderator = \
+        'moderation/notification_message_moderator.txt'
     subject_template_user = 'moderation/notification_subject_user.txt'
     message_template_user = 'moderation/notification_message_user.txt'
 
@@ -73,8 +73,8 @@ class GenericModerator(object):
 
         Overwrite this method if you want to provide your custom logic.
         '''
-        if self.auto_approve_for_groups\
-        and self._check_user_in_groups(user, self.auto_approve_for_groups):
+        if self.auto_approve_for_groups and \
+           self._check_user_in_groups(user, self.auto_approve_for_groups):
             return self.reason(u'Auto-approved: User in allowed group')
         if self.auto_approve_for_superusers and user.is_superuser:
             return self.reason(u'Auto-approved: Superuser')
@@ -91,8 +91,8 @@ class GenericModerator(object):
 
         Overwrite this method if you want to provide your custom logic.
         '''
-        if self.auto_reject_for_groups\
-        and self._check_user_in_groups(user, self.auto_reject_for_groups):
+        if self.auto_reject_for_groups and \
+           self._check_user_in_groups(user, self.auto_reject_for_groups):
             return self.reason(u'Auto-rejected: User in disallowed group')
         if self.auto_reject_for_anonymous and user.is_anonymous():
             return self.reason(u'Auto-rejected: Anonymous User')
@@ -132,11 +132,11 @@ class GenericModerator(object):
         subject = render_to_string(subject_template, context)
 
         thread = EmailThread(
-                self, 'send_',
-                subject=subject,
-                message=message,
-                recipient_list=recipient_list
-            )
+            self, 'send_',
+            subject=subject,
+            message=message,
+            recipient_list=recipient_list
+        )
         thread.start()
         return thread
 
@@ -154,10 +154,11 @@ class GenericModerator(object):
         from moderation.conf.settings import MODERATORS
 
         if self.notify_moderator:
-            self.send(content_object=content_object,
-                    subject_template=self.subject_template_moderator,
-                    message_template=self.message_template_moderator,
-                    recipient_list=MODERATORS)
+            self.send(
+                content_object=content_object,
+                subject_template=self.subject_template_moderator,
+                message_template=self.message_template_moderator,
+                recipient_list=MODERATORS)
 
     def inform_user(self, content_object,
                     user,
@@ -168,21 +169,23 @@ class GenericModerator(object):
         else:
             extra_context = {'user': user}
         if self.notify_user:
-            self.send(content_object=content_object,
-                        subject_template=self.subject_template_user,
-                        message_template=self.message_template_user,
-                        recipient_list=[user.email],
-                        extra_context=extra_context)
-            
+            self.send(
+                content_object=content_object,
+                subject_template=self.subject_template_user,
+                message_template=self.message_template_user,
+                recipient_list=[user.email],
+                extra_context=extra_context)
 
     def _get_base_managers(self):
         base_managers = []
 
         for manager_name in self.manager_names:
             base_managers.append(
-                    (manager_name,
-                     self._get_base_manager(self.model_class,
-                                            manager_name)))
+                (
+                    manager_name,
+                    self._get_base_manager(self.model_class, manager_name)
+                )
+            )
         return base_managers
 
     def _get_base_manager(self, model_class, manager_name):
@@ -200,9 +203,11 @@ class GenericModerator(object):
                 self.visibility_column)[0])
 
             if field_type != BooleanField:
-                msg = 'visibility_column field: %s on model %s should '\
-                      'be BooleanField type but is %s' % (
+                msg = "visibility_column field: %s on model %s should "\
+                      "be BooleanField type but is %s"
+                msg %= (
                     self.moderator.visibility_column,
                     self.changed_object.__class__,
-                    field_type)
+                    field_type
+                )
                 raise AttributeError(msg)

@@ -40,7 +40,7 @@ class RequestFactory(Client):
             'SERVER_PORT': 80,
             'SERVER_PROTOCOL': 'HTTP/1.1',
             'wsgi.input': StringIO(),
-            }
+        }
         environ.update(self.defaults)
         environ.update(request)
         return WSGIRequest(environ)

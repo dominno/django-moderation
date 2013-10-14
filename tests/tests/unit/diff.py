@@ -38,16 +38,22 @@ class TextChangeObjectTestCase(unittest.TestCase):
         self.assertEqual(self.change.change, ('test1', 'test2'))
 
     def test_diff_text_change(self):
-        self.assertEqual(self.change.diff,
-                         u'<del class="diff modified">test1'\
-                         u'</del><ins class="diff modified">test2</ins>\n')
+        self.assertEqual(
+            self.change.diff,
+            u'<del class="diff modified">test1'
+            u'</del><ins class="diff modified">test2</ins>\n'
+        )
 
     def test_render_diff(self):
         diff_operations = get_diff_operations('test1', 'test2')
-        self.assertEqual(self.change.render_diff('moderation/html_diff.html',
-                {'diff_operations': diff_operations}),
-                         u'<del class="diff modified">test1'\
-                         u'</del><ins class="diff modified">test2</ins>\n')
+        self.assertEqual(
+            self.change.render_diff(
+                'moderation/html_diff.html',
+                {'diff_operations': diff_operations}
+            ),
+            u'<del class="diff modified">test1'
+            u'</del><ins class="diff modified">test2</ins>\n'
+        )
 
 
 class ImageChangeObjectTestCase(unittest.TestCase):
@@ -83,7 +89,6 @@ class ImageChangeObjectTestCase(unittest.TestCase):
 class DiffModeratedObjectTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
-
     def setUp(self):
         self.profile = UserProfile.objects.get(user__username='moderator')
 
@@ -99,9 +104,9 @@ class DiffModeratedObjectTestCase(TestCase):
 
         self.assertEqual(
             unicode(changes),
-            u"{u'userprofile__url': Change object: http://www.google.com"\
-            u" - http://www.google.com, u'userprofile__description': "\
-            u"Change object: New description - Old description, "\
+            u"{u'userprofile__url': Change object: http://www.google.com"
+            u" - http://www.google.com, u'userprofile__description': "
+            u"Change object: New description - Old description, "
             u"u'userprofile__user': Change object: 1 - 1}")
 
     def test_foreign_key_changes(self):
@@ -116,9 +121,9 @@ class DiffModeratedObjectTestCase(TestCase):
 
         self.assertEqual(
             unicode(changes),
-            u"{u'userprofile__url': Change object: http://www.google.com"\
-            u" - http://www.google.com, u'userprofile__description': "\
-            u"Change object: Old description - Old description, "\
+            u"{u'userprofile__url': Change object: http://www.google.com"
+            u" - http://www.google.com, u'userprofile__description': "
+            u"Change object: Old description - Old description, "
             u"u'userprofile__user': Change object: 4 - 1}")
 
     def test_get_changes_between_models_image(self):
@@ -148,8 +153,8 @@ class DiffModeratedObjectTestCase(TestCase):
             self.profile, excludes=['description'])
 
         self.assertEqual(unicode(changes),
-                         u"{u'userprofile__url': Change object: "\
-                         u"http://www.google.com - http://www.google.com, "\
+                         u"{u'userprofile__url': Change object: "
+                         u"http://www.google.com - http://www.google.com, "
                          u"u'userprofile__user': Change object: 1 - 1}")
 
 
@@ -198,7 +203,6 @@ class DiffTestCase(unittest.TestCase):
 
 class DateFieldTestCase(TestCase):
     fixtures = ['test_users.json']
-
 
     def setUp(self):
         self.obj1 = ModelWIthDateField()
