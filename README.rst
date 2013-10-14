@@ -403,14 +403,7 @@ How to run django-moderation tests
 ==================================
 
 1. Download source from http://github.com/dominno/django-moderation
-2. Run: python bootstrap.py
-3. Run buildout:
-
-    bin/buildout 
-
-4. Run tests for Django 1.2, 1.3, 1.4::
-
-    bin/test.sh
+2. Run: python setup.py test
 
 
 Continuous Integration system
