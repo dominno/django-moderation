@@ -1,10 +1,12 @@
 *.pyc
 *.pyo
+*.egg
 .installed.cfg
+.idea
 bin
 develop-eggs
 dist
 downloads
 eggs
 parts
-src/*.egg-info
+*.egg-info
