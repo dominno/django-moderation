@@ -54,3 +54,11 @@ Added features
 - Fixed SMTPRecipientsRefused when user has no email, when sending messages by moderation. Closes #48
 - Added sorting of content types list on admin moderation queue
 
+0.3.3 (2013-10-14)
+------------------
+
+- Tests refactor
+- Added Travis CI
+- Added CONTRIBUTING GUIDE
+
+
