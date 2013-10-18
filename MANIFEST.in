@@ -1,5 +1,6 @@
 include LICENSE
 include README.rst
+include CONTRIBUTING.rst
 include docs/HISTORY.txt
-recursive-include src/moderation/templates *
-recursive-include src/moderation/fixtures *
+recursive-include moderation/templates *
+recursive-include moderation/fixtures *
