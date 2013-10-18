@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.3.3'
+version = '0.3.4'
 
 setup(name='django-moderation',
       version=version,
@@ -27,14 +27,14 @@ setup(name='django-moderation',
       
       include_package_data=True,
       tests_require=[
-        'django>=1.2,<1.6',
+        'django>=1.3.7,<1.6',
         'mock',
         'pillow',
         'unittest2'
       ],
       test_suite='runtests.runtests',
       install_requires=[
-          'django>=1.2.7,<1.5',
+          'django>=1.3.7,<1.6',
           'setuptools',
       ],
       zip_safe=False,

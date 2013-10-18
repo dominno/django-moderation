@@ -61,4 +61,9 @@ Added features
 - Added Travis CI
 - Added CONTRIBUTING GUIDE
 
+0.3.4 (2013-10-18)
+------------------
+
+- Dropped support for django 1.2.X
+
 
