@@ -1,5 +1,10 @@
 Introduction
 ============
+.. image:: https://pypip.in/v/django-moderation/badge.png
+   :target: https://pypi.python.org/pypi/django-moderation
+
+.. image:: https://pypip.in/d/django-moderation/badge.png
+   :target: https://pypi.python.org/pypi/django-moderation
 
 .. image:: https://coveralls.io/repos/dominno/django-moderation/badge.png?branch=master
    :target: https://coveralls.io/r/dominno/django-moderation?branch=master
