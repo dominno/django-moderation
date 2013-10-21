@@ -1,5 +1,11 @@
 from django.conf import settings
-from django.contrib.auth.models import User
+try:
+    from django.contrib.auth import get_user_model
+except ImportError: # django < 1.5
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
+
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -13,7 +19,6 @@ import datetime
 
 # Register new ContentTypeFilterSpec
 import moderation.filterspecs
-
 
 MODERATION_READY_STATE = 0
 MODERATION_DRAFT_STATE = 1

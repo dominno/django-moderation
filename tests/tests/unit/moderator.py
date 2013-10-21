@@ -312,5 +312,4 @@ class VisibilityColumnTestCase(TestCase):
 
         self.assertEqual(
             ModelWithVisibilityField.unmoderated_objects.get().is_public,
-            True
-        )
+            True)

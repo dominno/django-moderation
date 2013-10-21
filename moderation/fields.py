@@ -49,8 +49,7 @@ class SerializedObjectField(models.TextField):
     def _deserialize(self, value):
         obj_generator = serializers.deserialize(
             self.serialize_format,
-            value.encode(settings.DEFAULT_CHARSET)
-        )
+            value.encode(settings.DEFAULT_CHARSET))
 
         obj = obj_generator.next().object
         for parent in obj_generator:
@@ -102,8 +101,7 @@ try:
                 {  # Keyword argument
                     "serialize_format": [
                         "serialize_format",
-                        {"default": "json"}
-                    ],
+                        {"default": "json"}],
                 },
             ),
         ],

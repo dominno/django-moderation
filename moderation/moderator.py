@@ -13,6 +13,7 @@ from moderation.managers import ModerationObjectsManager
 
 
 class EmailThread(Thread):
+    
     def __init__(self, obj, obj_method, *args, **kwargs):
         super(EmailThread, self).__init__()
         self.obj = obj
@@ -135,8 +136,7 @@ class GenericModerator(object):
             self, 'send_',
             subject=subject,
             message=message,
-            recipient_list=recipient_list
-        )
+            recipient_list=recipient_list)
         thread.start()
         return thread
 
@@ -183,9 +183,7 @@ class GenericModerator(object):
             base_managers.append(
                 (
                     manager_name,
-                    self._get_base_manager(self.model_class, manager_name)
-                )
-            )
+                    self._get_base_manager(self.model_class, manager_name)))
         return base_managers
 
     def _get_base_manager(self, model_class, manager_name):
@@ -208,6 +206,5 @@ class GenericModerator(object):
                 msg %= (
                     self.moderator.visibility_column,
                     self.changed_object.__class__,
-                    field_type
-                )
+                    field_type)
                 raise AttributeError(msg)

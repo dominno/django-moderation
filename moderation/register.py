@@ -64,8 +64,7 @@ class ModerationManager(object):
         else:
             relation_object = generic.GenericRelation(
                 ModeratedObject,
-                object_id_field='object_pk'
-            )
+                object_id_field='object_pk')
 
         model_class.add_to_class('_relation_object', relation_object)
 
@@ -236,6 +235,5 @@ class ModerationManager(object):
 
     def _copy_model_instance(self, obj):
         initial = dict(
-            [(f.name, getattr(obj, f.name)) for f in obj._meta.fields]
-        )
+            [(f.name, getattr(obj, f.name)) for f in obj._meta.fields])
         return obj.__class__(**initial)

@@ -16,8 +16,7 @@ class BaseModeratedObjectForm(ModelForm):
                    not instance.moderated_object.moderator.\
                    visible_until_rejected:
                     initial = model_to_dict(
-                        instance.moderated_object.changed_object
-                    )
+                        instance.moderated_object.changed_object)
                     kwargs.setdefault('initial', {})
                     kwargs['initial'].update(initial)
             except ObjectDoesNotExist:

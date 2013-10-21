@@ -181,7 +181,9 @@ except ImportError:
     # Django 1.4
     pass
 else:
+    
     class ContentTypeFilterSpecTextCase(TestCase):
+        
         fixtures = ['test_users.json', 'test_moderation.json']
 
         def setUp(self):
@@ -213,8 +215,7 @@ else:
             self.assertEqual(
                 [x[1] for x in filter_spec.lookup_choices],
                 [u'Model with slug field',
-                 u'Model with slug field2']
-            )
+                 u'Model with slug field2'])
 
             self.assertEqual(unicode(filter_spec.content_types),
                              u"[<ContentType: model with slug field>, "

@@ -87,7 +87,9 @@ class ModerationAdmin(admin.ModelAdmin):
                      "the moderation system.")
 
     def get_moderated_object_form(self, model_class):
+        
         class ModeratedObjectForm(BaseModeratedObjectForm):
+            
             class Meta:
                 model = model_class
 
@@ -102,8 +104,7 @@ except ImportError:
 else:
     # Django >= 1.4
     available_filters = (
-        ('content_type', RegisteredContentTypeListFilter), 'moderation_status'
-    )
+        ('content_type', RegisteredContentTypeListFilter), 'moderation_status')
 
 
 class ModeratedObjectAdmin(admin.ModelAdmin):
@@ -136,7 +137,9 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
         return qs.exclude(moderation_state=MODERATION_DRAFT_STATE)
 
     def get_moderated_object_form(self, model_class):
+        
         class ModeratedObjectForm(ModelForm):
+            
             class Meta:
                 model = model_class
 
@@ -187,8 +190,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
         return super(ModeratedObjectAdmin, self).change_view(
             request,
             object_id,
-            extra_context=extra_context
-        )
+            extra_context=extra_context)
 
 
 admin.site.register(ModeratedObject, ModeratedObjectAdmin)

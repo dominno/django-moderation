@@ -41,19 +41,16 @@ class TextChangeObjectTestCase(unittest.TestCase):
         self.assertEqual(
             self.change.diff,
             u'<del class="diff modified">test1'
-            u'</del><ins class="diff modified">test2</ins>\n'
-        )
+            u'</del><ins class="diff modified">test2</ins>\n')
 
     def test_render_diff(self):
         diff_operations = get_diff_operations('test1', 'test2')
         self.assertEqual(
             self.change.render_diff(
                 'moderation/html_diff.html',
-                {'diff_operations': diff_operations}
-            ),
+                {'diff_operations': diff_operations}),
             u'<del class="diff modified">test1'
-            u'</del><ins class="diff modified">test2</ins>\n'
-        )
+            u'</del><ins class="diff modified">test2</ins>\n')
 
 
 class ImageChangeObjectTestCase(unittest.TestCase):

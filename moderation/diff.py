@@ -34,8 +34,7 @@ class TextChange(BaseChange):
 
         return self.render_diff(
             'moderation/html_diff.html',
-            {'diff_operations': get_diff_operations(*self.change)}
-        )
+            {'diff_operations': get_diff_operations(*self.change)})
 
 
 class ImageChange(BaseChange):
@@ -45,8 +44,7 @@ class ImageChange(BaseChange):
         left_image, right_image = self.change
         return self.render_diff(
             'moderation/image_diff.html',
-            {'left_image': left_image, 'right_image': right_image}
-        )
+            {'left_image': left_image, 'right_image': right_image})
 
 
 def get_change(model1, model2, field):

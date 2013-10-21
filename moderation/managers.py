@@ -15,8 +15,7 @@ class ModerationObjectsManager(Manager):
         return MetaClass(
             self.__class__.__name__,
             (self.__class__, base_manager),
-            {'use_for_related_fields': True}
-        )
+            {'use_for_related_fields': True})
 
     def filter_moderated_objects(self, query_set):
         from moderation.models import MODERATION_STATUS_PENDING,\
@@ -32,8 +31,7 @@ class ModerationObjectsManager(Manager):
 
         # TODO: Load this query in chunks to avoid huge RAM usage spikes
         mobjects = dict(
-            [(mobject.object_pk, mobject) for mobject in mobjs_set]
-        )
+            [(mobject.object_pk, mobject) for mobject in mobjs_set])
 
         full_query_set = super(ModerationObjectsManager, self).get_query_set()\
             .filter(pk__in=query_set.values_list('pk', flat=True))

@@ -1,7 +1,9 @@
 from django.test.testcases import TestCase
 from django import VERSION
+from django.db import models
 from django.core import management
 from django.contrib.auth.models import User, Group
+from django.test.utils import override_settings
 from tests.models import UserProfile,\
     SuperUserProfile, ModelWithSlugField2, ProxyProfile
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED,\
@@ -283,3 +285,112 @@ class AutoModerateTestCase(TestCase):
         obj.save()
 
         self.assertRaises(RegistrationError, automoderate, obj, self.user)
+
+
+@unittest.skipIf(VERSION[:2] < (1, 5), "Custom auth users require 1.5")
+@override_settings(AUTH_USER_MODEL='tests.CustomUser')
+class ModerateCustomUserTestCase(TestCase):
+    
+    def setUp(self):
+        from tests.models import CustomUser,\
+            UserProfileWithCustomUser
+        from django.contrib.auth import get_user_model
+        self.user = CustomUser.objects.create(
+            username='custom_user',
+            password='aaaa')
+        self.copy_m = ModeratedObject.moderated_by
+        ModeratedObject.moderated_by = models.ForeignKey(
+            get_user_model(), blank=True, null=True, editable=False,
+            related_name='moderated_by_set')
+
+        self.profile = UserProfileWithCustomUser.objects.create(
+            user=self.user,
+            description='Old description',
+            url='http://google.com')
+        self.moderation = setup_moderation([UserProfileWithCustomUser])
+
+    def tearDown(self):
+        teardown_moderation()
+        ModeratedObject.moderated_by = self.copy_m
+
+    def test_approval_status_pending(self):
+        """test if before object approval status is pending"""
+
+        self.profile.description = 'New description'
+        self.profile.save()
+
+        self.assertEqual(self.profile.moderated_object.moderation_status,
+                         MODERATION_STATUS_PENDING)
+
+    def test_moderate(self):
+        self.profile.description = 'New description'
+        self.profile.save()
+
+        self.profile.moderated_object._moderate(MODERATION_STATUS_APPROVED,
+                                                self.user, "Reason")
+
+        self.assertEqual(self.profile.moderated_object.moderation_status,
+                         MODERATION_STATUS_APPROVED)
+        self.assertEqual(self.profile.moderated_object.moderated_by, self.user)
+        self.assertEqual(self.profile.moderated_object.moderation_reason,
+                         "Reason")
+
+    def test_approve_moderated_object(self):
+        """test if after object approval new data is saved."""
+        self.profile.description = 'New description'
+
+        moderated_object = ModeratedObject(content_object=self.profile)
+
+        moderated_object.save()
+
+        moderated_object.approve(moderated_by=self.user)
+
+        user_profile = self.profile.__class__.objects.get(id=self.profile.id)
+
+        self.assertEqual(user_profile.description, 'New description')
+
+    def test_approve_moderated_object_new_model_instance(self):
+        profile = self.profile.__class__(description='Profile for new user',
+                              url='http://www.test.com',
+                              user=self.user)
+
+        profile.save()
+
+        profile.moderated_object.approve(self.user)
+
+        user_profile = self.profile.__class__.objects.get(
+            url='http://www.test.com')
+
+        self.assertEqual(user_profile.description, 'Profile for new user')
+
+    def test_reject_moderated_object(self):
+        self.profile.description = 'New description'
+        self.profile.save()
+
+        self.profile.moderated_object.reject(self.user)
+
+        user_profile = self.profile.__class__.objects.get(id=self.profile.id)
+
+        self.assertEqual(user_profile.description, "Old description")
+        self.assertEqual(self.profile.moderated_object.moderation_status,
+                         MODERATION_STATUS_REJECTED)
+
+    def test_has_object_been_changed_should_be_true(self):
+        self.profile.description = 'New description'
+
+        moderated_object = ModeratedObject(content_object=self.profile)
+        moderated_object.save()
+
+        user_profile = self.profile.__class__.objects.get(id=self.profile.id)
+
+        value = moderated_object.has_object_been_changed(user_profile)
+
+        self.assertEqual(value, True)
+
+    def test_has_object_been_changed_should_be_false(self):
+        moderated_object = ModeratedObject(content_object=self.profile)
+        moderated_object.save()
+
+        value = moderated_object.has_object_been_changed(self.profile)
+
+        self.assertEqual(value, False)
