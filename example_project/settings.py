@@ -61,6 +61,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'south',
     'moderation',
     'example_project.example_app',
     #'test_extensions',
@@ -84,3 +86,4 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages'
 )
 
+AUTH_USER_MODEL = 'example_app.CustomUser'

@@ -2,8 +2,14 @@
 Test models used in django-moderations tests
 """
 from django.db import models
-from django.contrib.auth.models import User
 from django.db.models.manager import Manager
+from django import VERSION
+
+try:
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+except:
+    from django.contrib.auth.models import User
 
 
 class UserProfile(models.Model):
@@ -92,3 +98,23 @@ class ProxyProfile(UserProfile):
 class Book(models.Model):
     title = models.CharField(max_length=20)
     author = models.CharField(max_length=20)
+
+
+if VERSION[:2] >= (1, 5):
+
+    from django.contrib.auth.models import AbstractUser
+
+    class CustomUser(AbstractUser):
+        date_of_birth = models.DateField(blank=True, null=True)
+        height = models.FloatField(blank=True, null=True)
+
+    class UserProfileWithCustomUser(models.Model):
+        user = models.ForeignKey(CustomUser)
+        description = models.TextField()
+        url = models.URLField()
+
+        def __unicode__(self):
+            return "%s - %s" % (self.user, self.url)
+
+        def get_absolute_url(self):
+            return '/test/'

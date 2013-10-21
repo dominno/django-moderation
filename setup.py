@@ -30,7 +30,8 @@ setup(name='django-moderation',
         'django>=1.3.7,<1.6',
         'mock',
         'pillow',
-        'unittest2'
+        'unittest2',
+        'ipdb'
       ],
       test_suite='runtests.runtests',
       install_requires=[

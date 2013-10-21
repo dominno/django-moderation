@@ -34,7 +34,9 @@ except ImportError:
     FilterSpec.filter_specs.insert(0, (get_filter, ContentTypeFilterSpec))
 else:
     # Django >= 1.4
+    
     class RegisteredContentTypeListFilter(FieldListFilter):
+        
         def __init__(self, field, request, params,
                      model, model_admin, field_path):
             self.lookup_kwarg = '%s' % field_path
@@ -50,8 +52,7 @@ else:
             yield {
                 'selected': self.lookup_val is None,
                 'query_string': cl.get_query_string({}, [self.lookup_kwarg]),
-                'display': _('All')
-            }
+                'display': _('All')}
             for ct_type in self.content_types:
                 yield {
                     'selected': smart_unicode(ct_type.id) == self.lookup_val,

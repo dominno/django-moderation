@@ -28,9 +28,7 @@ class ModerationObjectsManagerTestCase(TestCase):
         self.moderation = setup_moderation(
             [
                 UserProfile,
-                (ModelWithVisibilityField, UserProfileModerator)
-            ]
-        )
+                (ModelWithVisibilityField, UserProfileModerator)])
 
     def tearDown(self):
         teardown_moderation()

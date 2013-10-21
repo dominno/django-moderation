@@ -421,8 +421,7 @@ class ModerationSignalsTestCase(TestCase):
             notify_moderator = False
 
         self.moderation = setup_moderation(
-            [(UserProfile, UserProfileModerator)]
-        )
+            [(UserProfile, UserProfileModerator)])
 
         self.moderation._disconnect_signals(UserProfile)
 
