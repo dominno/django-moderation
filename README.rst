@@ -68,7 +68,7 @@ Requirements
 
 python >= 2.4
 
-django >= 1.2
+django >= 1.3.X
 
 
 Installation
