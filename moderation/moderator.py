@@ -13,7 +13,7 @@ from moderation.managers import ModerationObjectsManager
 
 
 class EmailThread(Thread):
-    
+
     def __init__(self, obj, obj_method, *args, **kwargs):
         super(EmailThread, self).__init__()
         self.obj = obj
@@ -26,6 +26,7 @@ class EmailThread(Thread):
 
 
 class GenericModerator(object):
+
     """
     Encapsulates moderation options for a given model.
     """
@@ -69,7 +70,7 @@ class GenericModerator(object):
     def is_auto_approve(self, obj, user):
         '''
         Checks if change on obj by user need to be auto approved
-        Returns False if change is not auto approve or reason(Unicode) if 
+        Returns False if change is not auto approve or reason(Unicode) if
         change need to be auto approved.
 
         Overwrite this method if you want to provide your custom logic.
@@ -87,7 +88,7 @@ class GenericModerator(object):
     def is_auto_reject(self, obj, user):
         '''
         Checks if change on obj by user need to be auto rejected
-        Returns False if change is not auto reject or reason(Unicode) if 
+        Returns False if change is not auto reject or reason(Unicode) if
         change need to be auto rejected.
 
         Overwrite this method if you want to provide your custom logic.
@@ -101,7 +102,7 @@ class GenericModerator(object):
         return False
 
     def reason(self, reason, user=None, obj=None):
-        '''Returns moderation reason for auto moderation.  Optional user 
+        '''Returns moderation reason for auto moderation.  Optional user
         and object can be passed for a more custom reason.
         '''
         return reason

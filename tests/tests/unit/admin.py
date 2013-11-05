@@ -181,9 +181,9 @@ except ImportError:
     # Django 1.4
     pass
 else:
-    
+
     class ContentTypeFilterSpecTextCase(TestCase):
-        
+
         fixtures = ['test_users.json', 'test_moderation.json']
 
         def setUp(self):

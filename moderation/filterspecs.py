@@ -34,9 +34,9 @@ except ImportError:
     FilterSpec.filter_specs.insert(0, (get_filter, ContentTypeFilterSpec))
 else:
     # Django >= 1.4
-    
+
     class RegisteredContentTypeListFilter(FieldListFilter):
-        
+
         def __init__(self, field, request, params,
                      model, model_admin, field_path):
             self.lookup_kwarg = '%s' % field_path
