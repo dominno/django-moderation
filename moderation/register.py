@@ -2,6 +2,7 @@ from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
     MODERATION_STATUS_APPROVED
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes import generic
+from django.db.models import fields
 from moderation.moderator import GenericModerator
 
 
@@ -142,9 +143,9 @@ class ModerationManager(object):
             moderated_obj = self._get_or_create_moderated_object(instance,
                                                                  unchanged_obj,
                                                                  moderator)
-            if moderated_obj.moderation_status != \
-               MODERATION_STATUS_APPROVED and \
-               not moderator.bypass_moderation_after_approval:
+            if not (moderated_obj.moderation_status ==
+                    MODERATION_STATUS_APPROVED and
+                    moderator.bypass_moderation_after_approval):
                 moderated_obj.save()
 
     def _get_unchanged_object(self, instance):
@@ -156,6 +157,19 @@ class ModerationManager(object):
             return unchanged_obj
         except ObjectDoesNotExist:
             return None
+
+    def _get_updated_object(self, instance, unchanged_obj, moderator):
+        """
+        Returns the unchanged object with the excluded fields updated to
+        those from the instance.
+        """
+        excludes = moderator.fields_exclude
+        for field in instance._meta.fields:
+            if field.name in excludes:
+                value = getattr(instance, field.name)
+                setattr(unchanged_obj, field.name, value)
+
+        return unchanged_obj
 
     def _get_or_create_moderated_object(self, instance,
                                         unchanged_obj, moderator):
@@ -177,7 +191,12 @@ class ModerationManager(object):
                 if moderator.visible_until_rejected:
                     moderated_object.changed_object = instance
                 else:
-                    moderated_object.changed_object = unchanged_obj
+                    moderated_object.changed_object = self._get_updated_object(
+                        instance, unchanged_obj, moderator)
+            elif moderated_object.has_object_been_changed(instance,
+                                                          only_excluded=True):
+                moderated_object.changed_object = self._get_updated_object(
+                    instance, unchanged_obj, moderator)
 
         return moderated_object
 

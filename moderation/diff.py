@@ -64,10 +64,13 @@ def get_change(model1, model2, field):
     return change
 
 
-def get_changes_between_models(model1, model2, excludes=[]):
+def get_changes_between_models(model1, model2, excludes=[], includes=[]):
     changes = {}
 
     for field in model1._meta.fields:
+        if includes and field.name not in includes:
+            continue
+
         if not (isinstance(field, (fields.AutoField,))):
             if field.name in excludes:
                 continue
