@@ -73,16 +73,19 @@ def get_change(model1, model2, field, resolve_foreignkeys=False):
     return change
 
 
-def get_changes_between_models(model1, model2, excludes=[],
+def get_changes_between_models(model1, model2, excludes=[], includes=[],
                                resolve_foreignkeys=False):
     changes = {}
 
     for field in model1._meta.fields:
-        if not (isinstance(field, fields.AutoField)):
+        if includes and field.name not in includes:
+            continue
+
+        if not (isinstance(field, (fields.AutoField,))):
             if field.name in excludes:
                 continue
 
-            name = "%s__%s" % (model1.__class__.__name__.lower(), field.name)
+            name = "{}__{}".format(model1.__class__.__name__.lower(), field.name)
 
             changes[name] = get_change(model1, model2, field,
                                        resolve_foreignkeys)
@@ -91,10 +94,9 @@ def get_changes_between_models(model1, model2, excludes=[],
 
 
 def get_diff_operations(a, b):
-    line_length = 80
     operations = []
-    a_words = [a[i:i + line_length] for i in range(0, len(a), line_length)]
-    b_words = [b[i:i + line_length] for i in range(0, len(b), line_length)]
+    a_words = re.split('(\W+)', a)
+    b_words = re.split('(\W+)', b)
     sequence_matcher = difflib.SequenceMatcher(None, a_words, b_words)
     for opcode in sequence_matcher.get_opcodes():
         operation, start_a, end_a, start_b, end_b = opcode

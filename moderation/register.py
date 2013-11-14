@@ -41,7 +41,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
     def register(self, model_class, moderator_class=None):
         """Registers model class with moderation"""
         if model_class in self._registered_models:
-            msg = "%s has been registered with Moderation." % model_class
+            msg = "{} has been registered with Moderation.".format(model_class)
             raise RegistrationError(msg)
         if not moderator_class:
             moderator_class = GenericModerator
@@ -152,9 +152,9 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             moderated_obj = self._get_or_create_moderated_object(instance,
                                                                  unchanged_obj,
                                                                  moderator)
-            if moderated_obj.moderation_status != \
-               MODERATION_STATUS_APPROVED and \
-               not moderator.bypass_moderation_after_approval:
+            if not (moderated_obj.moderation_status ==
+                    MODERATION_STATUS_APPROVED or
+                    moderator.bypass_moderation_after_approval):
                 moderated_obj.save()
 
     def _get_unchanged_object(self, instance):
@@ -166,6 +166,19 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             return unchanged_obj
         except ObjectDoesNotExist:
             return None
+
+    def _get_updated_object(self, instance, unchanged_obj, moderator):
+        """
+        Returns the unchanged object with the excluded fields updated to
+        those from the instance.
+        """
+        excludes = moderator.fields_exclude
+        for field in instance._meta.fields:
+            if field.name in excludes:
+                value = getattr(instance, field.name)
+                setattr(unchanged_obj, field.name, value)
+
+        return unchanged_obj
 
     def _get_or_create_moderated_object(self, instance,
                                         unchanged_obj, moderator):
@@ -205,7 +218,12 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
                 if moderator.visible_until_rejected:
                     moderated_object.changed_object = instance
                 else:
-                    moderated_object.changed_object = unchanged_obj
+                    moderated_object.changed_object = self._get_updated_object(
+                        instance, unchanged_obj, moderator)
+            elif moderated_object.has_object_been_changed(instance,
+                                                          only_excluded=True):
+                moderated_object.changed_object = self._get_updated_object(
+                    instance, unchanged_obj, moderator)
 
         return moderated_object
 
