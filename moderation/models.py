@@ -192,7 +192,7 @@ class ModeratedObject(models.Model):
         return False
 
     def approve(self, moderated_by=None, reason=None):
-        pre_moderation.send(sender=self.content_object.__class__,
+        pre_moderation.send(sender=self.changed_object.__class__,
                             instance=self.changed_object,
                             status=MODERATION_STATUS_APPROVED)
 
@@ -203,7 +203,7 @@ class ModeratedObject(models.Model):
                              status=MODERATION_STATUS_APPROVED)
 
     def reject(self, moderated_by=None, reason=None):
-        pre_moderation.send(sender=self.content_object.__class__,
+        pre_moderation.send(sender=self.changed_object.__class__,
                             instance=self.changed_object,
                             status=MODERATION_STATUS_REJECTED)
         self._moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)
