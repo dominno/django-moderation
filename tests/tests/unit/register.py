@@ -69,6 +69,9 @@ class RegistrationTestCase(TestCase):
             when existing object is saved, when getting of object returns 
             old version of object"""
         profile = UserProfile.objects.get(user__username='moderator')
+        moderated_object = ModeratedObject(content_object=profile)
+        moderated_object.save()
+        moderated_object.approve(moderated_by=self.user)
 
         profile.description = "New description"
         profile.save()
@@ -508,7 +511,9 @@ class ModerationSignalsTestCase(TestCase):
         signals.post_save.connect(self.moderation.post_save_handler,
                                   sender=UserProfile)
         profile = UserProfile.objects.get(user__username='moderator')
-        ModeratedObject(content_object=profile).save()
+        moderated_object = ModeratedObject(content_object=profile)
+        moderated_object.save()
+        moderated_object.approve(moderated_by=self.user)
 
         profile.description = 'New description of user profile'
         profile.save()

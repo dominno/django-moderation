@@ -61,6 +61,7 @@ class ModerationObjectsManagerTestCase(TestCase):
         doesn't have moderated object or deserialized object is <> object"""
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
+        moderated_object.approve()
 
         self.profile.description = "New"
         self.profile.save()

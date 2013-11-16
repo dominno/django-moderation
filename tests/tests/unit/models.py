@@ -213,12 +213,16 @@ class ModerateTestCase(TestCase):
                          MODERATION_STATUS_REJECTED)
 
     def test_has_object_been_changed_should_be_true(self):
-        self.profile.description = 'New description'
-
+        self.profile.description = 'Old description'
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
+        moderated_object.approve(moderated_by=self.user)
 
         user_profile = UserProfile.objects.get(user__username='moderator')
+
+        self.profile.description = 'New description'
+        moderated_object = ModeratedObject(content_object=self.profile)
+        moderated_object.save()
 
         value = moderated_object.has_object_been_changed(user_profile)
 
@@ -376,12 +380,16 @@ class ModerateCustomUserTestCase(TestCase):
                          MODERATION_STATUS_REJECTED)
 
     def test_has_object_been_changed_should_be_true(self):
-        self.profile.description = 'New description'
-
+        self.profile.description = 'Old description'
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
+        moderated_object.approve(moderated_by=self.user)
 
         user_profile = self.profile.__class__.objects.get(id=self.profile.id)
+
+        self.profile.description = 'New description'
+        moderated_object = ModeratedObject(content_object=self.profile)
+        moderated_object.save()
 
         value = moderated_object.has_object_been_changed(user_profile)
 

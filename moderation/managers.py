@@ -41,12 +41,9 @@ class ModerationObjectsManager(Manager):
                 # We cannot use dict.get() here!
                 mobject = mobjects[obj.pk] if obj.pk in mobjects else \
                     obj.moderated_object
-                obj_changed = mobject.has_object_been_changed(obj, None)
 
-                if mobject.moderation_status\
-                   in [MODERATION_STATUS_PENDING,
-                       MODERATION_STATUS_REJECTED] and \
-                   not obj_changed:
+                if mobject.moderation_status == MODERATION_STATUS_PENDING and \
+                   not mobject.moderation_date:
                     exclude_pks.append(obj.pk)
             except ObjectDoesNotExist:
                 pass
