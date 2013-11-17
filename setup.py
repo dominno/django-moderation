@@ -28,6 +28,8 @@ setup(name='django-moderation',
       include_package_data=True,
       tests_require=[
         'django>=1.3.7,<1.6',
+        'django-webtest>=1.5.7,<1.6',
+        'webtest>=2.0,<2.1',
         'mock',
         'pillow',
         'unittest2',

@@ -27,7 +27,7 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         ],
         SERIALIZATION_MODULES = {},
         MEDIA_URL = '/media/',
-        STATIC_URL = '/media/',
+        STATIC_URL = '/static/',
         ROOT_URLCONF = 'tests.urls.default',
 
         DJANGO_MODERATION_MODERATORS = (
