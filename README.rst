@@ -1,5 +1,8 @@
 Introduction
 ============
+.. image:: https://travis-ci.org/dominno/django-moderation.png
+   :target: https://travis-ci.org/dominno/django-moderation
+   
 .. image:: https://pypip.in/v/django-moderation/badge.png
    :target: https://pypi.python.org/pypi/django-moderation
 
