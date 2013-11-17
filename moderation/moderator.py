@@ -13,7 +13,7 @@ from moderation.managers import ModerationObjectsManager
 
 
 class EmailThread(Thread):
-    
+
     def __init__(self, obj, obj_method, *args, **kwargs):
         super(EmailThread, self).__init__()
         self.obj = obj

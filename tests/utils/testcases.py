@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django_webtest import WebTest
 
+
 class WebTestCase(WebTest):
 
     def setUp(self):

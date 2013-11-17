@@ -290,7 +290,7 @@ class AutoModerateTestCase(TestCase):
 @unittest.skipIf(VERSION[:2] < (1, 5), "Custom auth users require 1.5")
 @override_settings(AUTH_USER_MODEL='tests.CustomUser')
 class ModerateCustomUserTestCase(TestCase):
-    
+
     def setUp(self):
         from tests.models import CustomUser,\
             UserProfileWithCustomUser
@@ -351,8 +351,8 @@ class ModerateCustomUserTestCase(TestCase):
 
     def test_approve_moderated_object_new_model_instance(self):
         profile = self.profile.__class__(description='Profile for new user',
-                              url='http://www.test.com',
-                              user=self.user)
+                                         url='http://www.test.com',
+                                         user=self.user)
 
         profile.save()
 

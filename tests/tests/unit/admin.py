@@ -58,14 +58,17 @@ class ModeratedObjectAdminBehaviorTestCase(WebTestCase):
         self.moderation = setup_moderation([(Book, BookModerator)])
 
         self.user = User.objects.get(username='user1')
-        self.user.user_permissions.add(Permission.objects.get(codename='change_book'))
+        self.user.user_permissions.add(
+            Permission.objects.get(codename='change_book'))
 
-        self.book = Book.objects.create(title="Book not modified", author="Nico")
+        self.book = Book.objects.create(title="Book not modified", 
+                                        author="Nico")
 
     def tearDown(self):
         teardown_moderation()
 
-    def test_set_changed_by_property_even_when_auto_approve_for_staff_is_false(self):
+    def test_set_changed_by_property(self):
+        """even_when_auto_approve_for_staff_is_false"""
         self.assertEquals(self.book.moderated_object.changed_by, None)
         page = self.get('/admin/tests/book/1/')
         form = page.form
@@ -213,9 +216,9 @@ except ImportError:
     # Django 1.4
     pass
 else:
-    
+
     class ContentTypeFilterSpecTextCase(TestCase):
-        
+
         fixtures = ['test_users.json', 'test_moderation.json']
 
         def setUp(self):

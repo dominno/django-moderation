@@ -87,9 +87,9 @@ class ModerationAdmin(admin.ModelAdmin):
                      "the moderation system.")
 
     def get_moderated_object_form(self, model_class):
-        
+
         class ModeratedObjectForm(BaseModeratedObjectForm):
-            
+
             class Meta:
                 model = model_class
 
@@ -137,9 +137,9 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
         return qs.exclude(moderation_state=MODERATION_DRAFT_STATE)
 
     def get_moderated_object_form(self, model_class):
-        
+
         class ModeratedObjectForm(ModelForm):
-            
+
             class Meta:
                 model = model_class
 
