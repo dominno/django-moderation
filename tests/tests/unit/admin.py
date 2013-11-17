@@ -75,7 +75,7 @@ class ModeratedObjectAdminBehaviorTestCase(WebTestCase):
         form['title'] = "Book modified"
         page = form.submit()
         self.assertIn(page.status_code, [302, 200])
-        book = Book.objects.get(pk=self.book.pk)  # refetch the obj
+        book = Book._default_manager.get(pk=self.book.pk)  # refetch the obj
         self.assertEquals(book.title, "Book not modified")
         moderated_obj = ModeratedObject.objects.get_for_instance(book)
         self.assertEquals(moderated_obj.changed_object.title, "Book modified")
