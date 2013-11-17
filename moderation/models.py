@@ -94,6 +94,7 @@ class ModeratedObject(models.Model):
             user = self.changed_by
         else:
             self.changed_by = user
+            self.save()
 
         if self.moderator.visible_until_rejected:
             changed_object = self.get_object_for_this_type()

@@ -4,13 +4,15 @@ from tests.utils.request_factory import RequestFactory
 from moderation.admin import ModerationAdmin, approve_objects, reject_objects,\
     ModeratedObjectAdmin, set_objects_as_pending
 from django.test.testcases import TestCase
+from tests.utils.testcases import WebTestCase
+from moderation.moderator import GenericModerator
 from moderation.models import ModeratedObject,\
     MODERATION_DRAFT_STATE, MODERATION_STATUS_APPROVED,\
     MODERATION_STATUS_REJECTED, MODERATION_STATUS_PENDING
 from django.contrib.admin.sites import site
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 
-from tests.models import UserProfile, \
+from tests.models import UserProfile, Book, \
     ModelWithSlugField, ModelWithSlugField2, SuperUserProfile
 from django.core.exceptions import ObjectDoesNotExist
 from tests.utils import setup_moderation, teardown_moderation
@@ -45,6 +47,39 @@ class ModeratedObjectAdminTestCase(TestCase):
         form = self.admin.get_moderated_object_form(UserProfile)
         self.assertEqual(repr(form),
                          "<class 'moderation.admin.ModeratedObjectForm'>")
+
+
+class ModeratedObjectAdminBehaviorTestCase(WebTestCase):
+    fixtures = ['test_users.json']
+
+    def setUp(self):
+        class BookModerator(GenericModerator):
+            auto_approve_for_staff = False
+        self.moderation = setup_moderation([(Book, BookModerator)])
+
+        self.user = User.objects.get(username='user1')
+        self.user.user_permissions.add(
+            Permission.objects.get(codename='change_book'))
+
+        self.book = Book.objects.create(title="Book not modified", 
+                                        author="Nico")
+
+    def tearDown(self):
+        teardown_moderation()
+
+    def test_set_changed_by_property(self):
+        """even_when_auto_approve_for_staff_is_false"""
+        self.assertEquals(self.book.moderated_object.changed_by, None)
+        page = self.get('/admin/tests/book/1/')
+        form = page.form
+        form['title'] = "Book modified"
+        page = form.submit()
+        self.assertIn(page.status_code, [302, 200])
+        book = Book.objects.get(pk=self.book.pk)  # refetch the obj
+        self.assertEquals(book.title, "Book not modified")
+        moderated_obj = ModeratedObject.objects.get_for_instance(book)
+        self.assertEquals(moderated_obj.changed_object.title, "Book modified")
+        self.assertEquals(moderated_obj.changed_by, self.user)
 
 
 class AdminActionsTestCase(TestCase):
