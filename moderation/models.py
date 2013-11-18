@@ -166,8 +166,8 @@ class ModeratedObject(models.Model):
                 setattr(self.changed_object, self.moderator.visibility_column,
                         True)
 
-            self.save()
             self.changed_object.save()
+            self.save()
 
         else:
             self.save()
