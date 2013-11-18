@@ -78,9 +78,10 @@ class ImageChangeObjectTestCase(unittest.TestCase):
 
     def test_diff(self):
         self.assertEqual(norm_whitespace(self.change.diff),
-                         norm_whitespace(u'<img src="/media/my_image.jpg"> '
-                                         u'<img style="margin-left: 10px;" '
-                                         u'src="/media/my_image2.jpg">'))
+                         norm_whitespace(u'<div class="img-wrapper"> '
+                                         u'<img src="/media/my_image.jpg"> '
+                                         u'<img src="/media/my_image2.jpg"> '
+                                         u'</div>'))
 
 
 class DiffModeratedObjectTestCase(TestCase):
@@ -134,9 +135,10 @@ class DiffModeratedObjectTestCase(TestCase):
         changes = get_changes_between_models(image1, image2)
         self.assertEqual(
             norm_whitespace(changes['modelwithimage__image'].diff),
-            norm_whitespace(u'<img src="/media/tmp/test1.jpg"> '
-                            u'<img style="margin-left: 10px;" '
-                            u'src="/media/tmp/test2.jpg">'))
+            norm_whitespace(u'<div class="img-wrapper"> '
+                            u'<img src="/media/tmp/test1.jpg"> '
+                            u'<img src="/media/tmp/test2.jpg"> '
+                            u'</div>'))
 
     def test_excluded_fields_should_be_excluded_from_changes(self):
         self.profile.description = 'New description'
