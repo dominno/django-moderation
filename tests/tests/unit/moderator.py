@@ -52,17 +52,11 @@ class GenericModeratorTestCase(TestCase):
         self.assertEqual(moderator.auto_reject_for_groups, ['others'])
 
     def test_send_notification(self):
-        t = self.moderator.send(
+        self.moderator.send(
             self.user,
             subject_template='moderation/notification_subject_moderator.txt',
             message_template='moderation/notification_message_moderator.txt',
             recipient_list=['test@example.com'])
-
-        while True:
-            if not t.is_alive():
-                break
-            else:
-                continue
 
         self.assertEqual(len(mail.outbox), 1)
 
