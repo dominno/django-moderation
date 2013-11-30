@@ -56,26 +56,31 @@ class GenericModeratorTestCase(TestCase):
         class CustomMessageBackend(BaseMessageBackend):
             def send(self, **kwargs):
                 pass  # silence is gold
-            
+
         self.moderator.message_backend_class = CustomMessageBackend
         self.moderator.send(
             self.user,
-            subject_template='moderation/notification_subject_moderator.txt',
-            message_template='moderation/notification_message_moderator.txt',
+            subject_template=('moderation/'
+                              'notification_subject_moderator.txt'),
+            message_template=('moderation/'
+                              'notification_message_moderator.txt'),
             recipient_list=['test@example.com'])
 
-        self.assertEqual(len(mail.outbox), 0)  # becuase of the custom message backend
+        # because of the custom message backend
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_partial_custom_message_backend_class_raise_exception(self):
         class CustomMessageBackend(BaseMessageBackend):
             pass
-            
+
         self.moderator.message_backend_class = CustomMessageBackend
         with self.assertRaises(NotImplementedError):
             self.moderator.send(
                 self.user,
-                subject_template='moderation/notification_subject_moderator.txt',
-                message_template='moderation/notification_message_moderator.txt',
+                subject_template=('moderation/'
+                                  'notification_subject_moderator.txt'),
+                message_template=('moderation'
+                                  '/notification_message_moderator.txt'),
                 recipient_list=['test@example.com'])
 
     def test_wrong_message_backend_class_raise_exception(self):
@@ -86,8 +91,10 @@ class GenericModeratorTestCase(TestCase):
         with self.assertRaises(TypeError):
             self.moderator.send(
                 self.user,
-                subject_template='moderation/notification_subject_moderator.txt',
-                message_template='moderation/notification_message_moderator.txt',
+                subject_template=('moderation/'
+                                  'notification_subject_moderator.txt'),
+                message_template=('moderation/'
+                                  'notification_message_moderator.txt'),
                 recipient_list=['test@example.com'])
 
     def test_send_notification(self):
