@@ -8,6 +8,7 @@ from moderation.managers import ModerationObjectsManager
 from django.core import mail
 from django.contrib.auth.models import User, Group
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
+from moderation.message_backends import BaseMessageBackend
 from django.db.models.manager import Manager
 import unittest
 from django.test.testcases import TestCase
@@ -50,6 +51,44 @@ class GenericModeratorTestCase(TestCase):
         self.assertEqual(moderator.auto_approve_for_groups, ['admins',
                                                              'moderators'])
         self.assertEqual(moderator.auto_reject_for_groups, ['others'])
+
+    def test_custom_message_backend_class(self):
+        class CustomMessageBackend(BaseMessageBackend):
+            def send(self, **kwargs):
+                pass  # silence is gold
+            
+        self.moderator.message_backend_class = CustomMessageBackend
+        self.moderator.send(
+            self.user,
+            subject_template='moderation/notification_subject_moderator.txt',
+            message_template='moderation/notification_message_moderator.txt',
+            recipient_list=['test@example.com'])
+
+        self.assertEqual(len(mail.outbox), 0)  # becuase of the custom message backend
+
+    def test_partial_custom_message_backend_class_raise_exception(self):
+        class CustomMessageBackend(BaseMessageBackend):
+            pass
+            
+        self.moderator.message_backend_class = CustomMessageBackend
+        with self.assertRaises(NotImplementedError):
+            self.moderator.send(
+                self.user,
+                subject_template='moderation/notification_subject_moderator.txt',
+                message_template='moderation/notification_message_moderator.txt',
+                recipient_list=['test@example.com'])
+
+    def test_wrong_message_backend_class_raise_exception(self):
+        class WrongMessageBackend(object):
+            pass
+
+        self.moderator.message_backend_class = WrongMessageBackend
+        with self.assertRaises(TypeError):
+            self.moderator.send(
+                self.user,
+                subject_template='moderation/notification_subject_moderator.txt',
+                message_template='moderation/notification_message_moderator.txt',
+                recipient_list=['test@example.com'])
 
     def test_send_notification(self):
         self.moderator.send(
