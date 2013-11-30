@@ -10,19 +10,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from moderation.managers import ModerationObjectsManager
-
-
-class EmailThread(Thread):
-
-    def __init__(self, obj, obj_method, *args, **kwargs):
-        super(EmailThread, self).__init__()
-        self.obj = obj
-        self.obj_method = obj_method
-        self.args = args
-        self.kwargs = kwargs
-
-    def run(self):
-        getattr(self.obj, self.obj_method)(*self.args, **self.kwargs)
+from moderation.message_backends import BaseMessageBackend, EmailMessageBackend
 
 
 class GenericModerator(object):
@@ -49,6 +37,7 @@ class GenericModerator(object):
     notify_moderator = True
     notify_user = True
 
+    message_backend_class = EmailMessageBackend
     subject_template_moderator = \
         'moderation/notification_subject_moderator.txt'
     message_template_moderator = \
@@ -119,6 +108,13 @@ class GenericModerator(object):
 
         return False
 
+    def get_message_backend(self):
+        if not issubclass(self.message_backend_class, BaseMessageBackend):
+            raise TypeError("The message backend used '%s' needs to "
+                            "inherit from the BaseMessageBakend "
+                            "class" % self.message_backend_class)
+        return self.message_backend_class()
+
     def send(self, content_object, subject_template, message_template,
              recipient_list, extra_context=None):
         context = {
@@ -133,20 +129,11 @@ class GenericModerator(object):
         message = render_to_string(message_template, context)
         subject = render_to_string(subject_template, context)
 
-        thread = EmailThread(
-            self, 'send_',
+        backend = self.get_message_backend()
+        backend.send(
             subject=subject,
             message=message,
             recipient_list=recipient_list)
-        thread.start()
-        return thread
-
-    def send_(self, subject, message, recipient_list):
-        send_mail(subject=subject,
-                  message=message,
-                  from_email=settings.DEFAULT_FROM_EMAIL,
-                  recipient_list=recipient_list,
-                  fail_silently=True)
 
     def inform_moderator(self,
                          content_object,

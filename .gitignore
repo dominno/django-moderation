@@ -12,3 +12,4 @@ eggs
 parts
 *.egg-info
 */example_project.db
+venv

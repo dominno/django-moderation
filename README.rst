@@ -352,6 +352,36 @@ Otherwise what you save in the admin will get moderated and automoderation will
 not work.
 
 
+Message backend
+===============
+
+By default the message backend used for sending notifications is `moderation.message_backends.EmailMessageBackend`, which is trigger a synchronous task on the main thread and call the `django.core.mail.send_mail` method.
+
+You can write your own message backend class by subclassing `moderation.message_backends.BaseMessageBackend`, in order to use another api to send your notifications (Celery, RabbitMQ, ...).
+
+Example of a custom message backend ::
+
+    class CustomMessageBackend(object):
+
+        def send(self, **kwargs):
+            subject = kwargs.get('subject', None)
+            message = kwargs.get('message', None)
+            recipient_list = kwargs.get('recipient_list', None)
+
+            trigger_custom_message(subject, message, recipient_list)
+
+Then specify the custom class in the moderator ::
+
+    from moderation.moderator import GenericModerator
+    from myproject.message_backends import CustomMessageBackend
+
+
+    class UserProfileModerator(GenericModerator):
+        message_backend_class = CustomMessageBackend
+
+    moderation.register(UserProfile, UserProfileModerator)
+
+
 Signals
 =======
 
