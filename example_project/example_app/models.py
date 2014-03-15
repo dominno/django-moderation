@@ -1,10 +1,5 @@
 from django.db import models
 from django.conf import settings
-try:
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-except:
-    from django.contrib.auth.models import User
 from django import VERSION
 from django.contrib import admin
 
