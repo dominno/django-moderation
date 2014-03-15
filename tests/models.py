@@ -8,7 +8,7 @@ from django import VERSION
 
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, 
+    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
                              related_name='user_profile_set')
     description = models.TextField()
     url = models.URLField()

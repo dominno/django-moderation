@@ -5,7 +5,7 @@ from django.contrib import admin
 
 
 class ExampleUserProfile(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'))
     description = models.TextField()
     url = models.URLField()
     
@@ -24,7 +24,7 @@ if VERSION[:2] >= (1, 5):
         height = models.FloatField(blank=True, null=True)
 
     class UserProfileWithCustomUser(models.Model):
-        user = models.ForeignKey(settings.AUTH_USER_MODEL)
+        user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'))
         description = models.TextField()
         url = models.URLField()
 

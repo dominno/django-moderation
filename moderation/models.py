@@ -48,16 +48,18 @@ class ModeratedObject(models.Model):
         default=MODERATION_STATUS_PENDING,
         editable=False)
     moderated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, blank=True, null=True,
-        editable=False, related_name='moderated_by_set')
+        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
+        blank=True, null=True, editable=False, 
+        related_name='moderated_by_set')
     moderation_date = models.DateTimeField(editable=False, blank=True,
                                            null=True)
     moderation_reason = models.TextField(blank=True, null=True)
     changed_object = SerializedObjectField(serialize_format='json',
                                            editable=False)
     changed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, blank=True, null=True,
-        editable=True, related_name='changed_by_set')
+        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
+        blank=True, null=True, editable=True, 
+        related_name='changed_by_set')
 
     objects = ModeratedObjectManager()
 
