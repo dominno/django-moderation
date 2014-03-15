@@ -298,13 +298,14 @@ class ModerateCustomUserTestCase(TestCase):
     def setUp(self):
         from tests.models import CustomUser,\
             UserProfileWithCustomUser
-        from django.contrib.auth import get_user_model
+        from django.conf import settings
         self.user = CustomUser.objects.create(
             username='custom_user',
             password='aaaa')
         self.copy_m = ModeratedObject.moderated_by
         ModeratedObject.moderated_by = models.ForeignKey(
-            get_user_model(), blank=True, null=True, editable=False,
+            getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
+            blank=True, null=True, editable=False,
             related_name='moderated_by_set')
 
         self.profile = UserProfileWithCustomUser.objects.create(

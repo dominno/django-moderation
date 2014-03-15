@@ -1,19 +1,15 @@
 """
 Test models used in django-moderations tests
 """
+from django.conf import settings
 from django.db import models
 from django.db.models.manager import Manager
 from django import VERSION
 
-try:
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-except:
-    from django.contrib.auth.models import User
-
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(User, related_name='user_profile_set')
+    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
+                             related_name='user_profile_set')
     description = models.TextField()
     url = models.URLField()
 
