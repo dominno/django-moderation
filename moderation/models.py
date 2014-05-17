@@ -10,8 +10,6 @@ from moderation.managers import ModeratedObjectManager
 
 import datetime
 
-# Register new ContentTypeFilterSpec
-import moderation.filterspecs
 
 MODERATION_READY_STATE = 0
 MODERATION_DRAFT_STATE = 1

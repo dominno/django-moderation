@@ -1,14 +1,12 @@
 from django.test.testcases import TestCase
 from django import VERSION
 from django.db import models
-from django.core import management
 from django.contrib.auth.models import User, Group
 from django.test.utils import override_settings
 from tests.models import UserProfile,\
     SuperUserProfile, ModelWithSlugField2, ProxyProfile
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED,\
     MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED
-from django.core.exceptions import ObjectDoesNotExist
 from moderation.fields import SerializedObjectField
 from moderation.register import ModerationManager, RegistrationError
 from moderation.moderator import GenericModerator

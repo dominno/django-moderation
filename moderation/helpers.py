@@ -22,7 +22,6 @@ def import_moderator(app):
     '''
     from django.utils.importlib import import_module
     import imp
-    import sys
 
     try:
         app_path = import_module(app).__path__

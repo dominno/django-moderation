@@ -1,22 +1,19 @@
 import mock
-import unittest
+from django.contrib.admin.sites import site
+from django.contrib.auth.models import User, Permission
+from django.test.testcases import TestCase
+
 from tests.utils.request_factory import RequestFactory
 from moderation.admin import ModerationAdmin, approve_objects, reject_objects,\
     ModeratedObjectAdmin, set_objects_as_pending
-from django.test.testcases import TestCase
 from tests.utils.testcases import WebTestCase
 from moderation.moderator import GenericModerator
 from moderation.models import ModeratedObject,\
     MODERATION_DRAFT_STATE, MODERATION_STATUS_APPROVED,\
     MODERATION_STATUS_REJECTED, MODERATION_STATUS_PENDING
-from django.contrib.admin.sites import site
-from django.contrib.auth.models import User, Permission
-
 from tests.models import UserProfile, Book, \
     ModelWithSlugField, ModelWithSlugField2, SuperUserProfile
-from django.core.exceptions import ObjectDoesNotExist
 from tests.utils import setup_moderation, teardown_moderation
-from django.test.testcases import TestCase
 
 
 class ModeratedObjectAdminTestCase(TestCase):

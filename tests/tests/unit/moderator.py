@@ -1,8 +1,8 @@
+import unittest
+
 from django.test.testcases import TestCase
-from time import sleep
 from tests.models import UserProfile,\
     ModelWithVisibilityField, ModelWithWrongVisibilityField
-from moderation.register import ModerationManager
 from moderation.moderator import GenericModerator
 from moderation.managers import ModerationObjectsManager
 from django.core import mail
@@ -10,8 +10,6 @@ from django.contrib.auth.models import User, Group
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from moderation.message_backends import BaseMessageBackend
 from django.db.models.manager import Manager
-import unittest
-from django.test.testcases import TestCase
 from tests.utils import setup_moderation, teardown_moderation
 
 
@@ -301,7 +299,6 @@ class VisibilityColumnTestCase(TestCase):
                                              UserProfileModerator)])
 
         self.user = User.objects.get(username='moderator')
-        #self.profile = UserProfile.objects.get(user__username='moderator')
 
     def tearDown(self):
         teardown_moderation()

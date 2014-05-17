@@ -110,7 +110,6 @@ class ModerationManager(object):
 
     def _remove_fields(self, moderator_class_instance):
         """Removes fields from model class and disconnects signals"""
-        from django.db.models import signals
 
         model_class = moderator_class_instance.model_class
         base_managers = moderator_class_instance.base_managers
@@ -132,7 +131,7 @@ class ModerationManager(object):
         """Update moderation object when moderation object for
            existing instance of model does not exists
         """
-        #check if object was loaded from fixture, bypass moderation if so
+        # check if object was loaded from fixture, bypass moderation if so
         if kwargs['raw']:
             return
 
@@ -196,7 +195,7 @@ class ModerationManager(object):
         If instance exists and is only updated then save instance as
         content_object of moderated_object
         """
-        #check if object was loaded from fixture, bypass moderation if so
+        # check if object was loaded from fixture, bypass moderation if so
 
         if kwargs['raw']:
             return

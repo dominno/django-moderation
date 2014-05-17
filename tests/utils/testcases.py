@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django_webtest import WebTest
 
 
