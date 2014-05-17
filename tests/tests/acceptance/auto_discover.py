@@ -1,6 +1,8 @@
 from django.test.testcases import TestCase
+
 from tests.utils import setup_moderation, teardown_moderation
 from tests.models import Book
+from moderation.helpers import auto_discover
 
 
 class AutoDiscoverAcceptanceTestCase(TestCase):
@@ -17,7 +19,7 @@ class AutoDiscoverAcceptanceTestCase(TestCase):
         teardown_moderation()
 
     def test_all_app_containing_moderator_module_should_be_registered(self):
-        import tests.urls.auto_discover
+        auto_discover()
         from moderation import moderation
 
         self.assertTrue(Book in moderation._registered_models)

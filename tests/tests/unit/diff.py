@@ -3,9 +3,7 @@
 import unittest
 from moderation.diff import get_changes_between_models, html_to_list,\
     TextChange, get_diff_operations, ImageChange
-from django.test.testcases import TestCase, OutputChecker
 from django.test.testcases import TestCase
-from django.core import management
 from django.contrib.auth.models import User
 from django.db.models import fields
 from tests.models import UserProfile, \

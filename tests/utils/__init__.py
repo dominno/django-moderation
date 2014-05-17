@@ -1,13 +1,13 @@
 import sys
 try:
-    from django.utils import unittest
+    from django.utils import unittest  # noqa
 except ImportError:
     # Django < 1.3
     try:
-        import unittest2 as unittest
+        import unittest2 as unittest  # noqa
     except ImportError:
         if sys.version_info[1] >= 7:
-            import unittest
+            import unittest  # noqa
         else:
             raise ImportError('unittest2 is required to run the tests.')
 

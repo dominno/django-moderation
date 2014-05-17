@@ -1,15 +1,12 @@
 from django.test.testcases import TestCase
-from django.core import management
 from django.contrib.auth.models import User
 from tests.models import UserProfile, \
     ModelWithSlugField2, ModelWithVisibilityField
 from moderation.managers import ModerationObjectsManager
 from django.db.models.manager import Manager
 from moderation.models import ModeratedObject
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned
 from moderation.moderator import GenericModerator
-from django.contrib.contenttypes import generic
-from django.db.models.query import EmptyQuerySet
 from tests.utils import setup_moderation, teardown_moderation
 
 
@@ -17,7 +14,6 @@ class ModerationObjectsManagerTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
     def setUp(self):
-        from django.db.models import signals
 
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')

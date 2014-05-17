@@ -18,8 +18,7 @@ class ModerationObjectsManager(Manager):
             {'use_for_related_fields': True})
 
     def filter_moderated_objects(self, query_set):
-        from moderation.models import MODERATION_STATUS_PENDING,\
-            MODERATION_STATUS_REJECTED
+        from moderation.models import MODERATION_STATUS_PENDING
 
         exclude_pks = []
 

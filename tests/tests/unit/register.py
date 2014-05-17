@@ -11,7 +11,6 @@ from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from moderation.signals import pre_moderation, post_moderation
 from tests.models import UserProfile, \
     ModelWithSlugField, ModelWithSlugField2, ModelWithMultipleManagers
-from django.test.testcases import TestCase
 from tests.utils import setup_moderation
 from tests.utils import teardown_moderation
 from moderation.helpers import import_moderator
@@ -292,7 +291,6 @@ class ModerationManagerTestCase(TestCase):
     def test_save_new_instance_after_add_and_remove_fields_from_class(self):
         """Test if after removing moderation from model class new 
         instance of model can be created"""
-        from django.db.models import signals
 
         class CustomManager(Manager):
             pass
@@ -325,7 +323,7 @@ class ModerationManagerTestCase(TestCase):
                          repr(manager.__class__))
         self.assertEqual(hasattr(UserProfile, 'moderated_object'), True)
 
-        #clean up
+        # clean up
         self.moderation._remove_fields(moderator)
 
     def test_get_or_create_moderated_object_exist(self):

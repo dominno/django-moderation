@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.query import QuerySet
 
 
 class SerializedObjectField(models.TextField):

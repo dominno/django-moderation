@@ -1,13 +1,9 @@
-from threading import Thread
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
-from django.db.models import base
 from django.db.models.fields import BooleanField
 from django.db.models.manager import Manager
 from django.template.loader import render_to_string
-from django.conf import settings
 
 from moderation.managers import ModerationObjectsManager
 from moderation.message_backends import BaseMessageBackend, EmailMessageBackend

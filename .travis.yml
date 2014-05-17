@@ -7,14 +7,12 @@ env:
   - DJANGO=1.4
   - DJANGO=1.5
 install:
-  - pip install -q Django==$DJANGO --use-mirrors
-  - pip install pep8 --use-mirrors
-  - pip install coverage>=3.6
-  - pip install https://github.com/dcramer/pyflakes/tarball/master
-  - pip install -q -e . --use-mirrors
+  - pip install -q Django==$DJANGO
+  - pip install -q coverage>=3.6
+  - pip install -q flake8
+  - pip install -q -e .
 before_script:
-  - "pep8 --exclude=migrations --ignore=W291 moderation tests"
-  - pyflakes -x W src
+  - flake8 --exclude=migrations --ignore=W291,F403 moderation tests
 script:
   - coverage run setup.py test
 after_success:
