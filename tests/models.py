@@ -98,9 +98,9 @@ class Book(models.Model):
 
 if VERSION[:2] >= (1, 5):
 
-    from django.contrib.auth.models import AbstractUser
+    from django.contrib.auth.models import User
 
-    class CustomUser(AbstractUser):
+    class CustomUser(User):
         date_of_birth = models.DateField(blank=True, null=True)
         height = models.FloatField(blank=True, null=True)
 

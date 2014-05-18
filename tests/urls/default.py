@@ -1,4 +1,7 @@
-from django.conf.urls.defaults import patterns, include, handler500
+try:
+    from django.conf.urls.defaults import patterns, include, handler500
+except ImportError:
+    from django.conf.urls import patterns, include, handler500
 from django.conf import settings
 from django.contrib import admin
 

@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
 
-class MetaClass(type):
+class MetaClass(type(Manager)):
 
     def __new__(cls, name, bases, attrs):
         return super(MetaClass, cls).__new__(cls, name, bases, attrs)
