@@ -101,7 +101,8 @@ class DiffModeratedObjectTestCase(TestCase):
         self.assertIn(
             "'userprofile__description': Change object: New description - "
             "Old description", str(changes))
-        self.assertIn("'userprofile__user': Change object: 1 - 1", str(changes))
+        self.assertIn("'userprofile__user': Change object: 1 - 1",
+                      str(changes))
         self.assertIn(
             "'userprofile__url': Change object: http://www.google.com - "
             "http://www.google.com", str(changes))
@@ -116,13 +117,14 @@ class DiffModeratedObjectTestCase(TestCase):
         changes = get_changes_between_models(moderated_object.changed_object,
                                              self.profile)
 
-        self.assertIn("'userprofile__user': Change object: 4 - 1", str(changes))
+        self.assertIn("'userprofile__user': Change object: 4 - 1",
+                      str(changes))
         self.assertIn(
             "'userprofile__description': Change object: Old description - Old "
             "description",
             str(changes))
         self.assertIn("'userprofile__url': Change object: http://www"
-            ".google.com - http://www.google.com", str(changes))
+                      ".google.com - http://www.google.com", str(changes))
 
     def test_get_changes_between_models_image(self):
         '''Verify proper diff for ImageField fields'''
@@ -151,9 +153,10 @@ class DiffModeratedObjectTestCase(TestCase):
             moderated_object.changed_object,
             self.profile, excludes=['description'])
 
-        self.assertIn("'userprofile__user': Change object: 1 - 1", str(changes))
+        self.assertIn("'userprofile__user': Change object: 1 - 1",
+                      str(changes))
         self.assertIn("'userprofile__url': Change object: http://www"
-                         ".google.com - http://www.google.com", str(changes))
+                      ".google.com - http://www.google.com", str(changes))
 
 
 class DiffTestCase(unittest.TestCase):

@@ -101,7 +101,8 @@ def html_to_list(html):
                          '(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'
                          '(?:\s*[,\.\?]*)', re.UNICODE)
 
-    return [''.join(element) for element in [_f for _f in pattern.findall(html) if _f]]
+    return [''.join(element) for element in
+            [_f for _f in pattern.findall(html) if _f]]
 
 
 def get_change_for_type(verbose_name, change, field):

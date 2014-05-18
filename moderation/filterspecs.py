@@ -26,7 +26,8 @@ except ImportError:
         def __init__(self, *args, **kwargs):
             super(ContentTypeFilterSpec, self).__init__(*args, **kwargs)
             self.content_types = _registered_content_types()
-            self.lookup_choices = [(ct.id, ct.name.capitalize()) for ct in self.content_types]
+            self.lookup_choices = [(ct.id, ct.name.capitalize()) for ct in
+                                   self.content_types]
 
     get_filter = lambda f: getattr(f, 'content_type_filter', False)
     FilterSpec.filter_specs.insert(0, (get_filter, ContentTypeFilterSpec))

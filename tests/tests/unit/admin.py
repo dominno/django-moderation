@@ -167,7 +167,7 @@ class ModerationAdminSendMessageTestCase(TestCase):
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
         self.assertEqual(str(message), "This object is not registered "
-                                           "with the moderation system.")
+                                       "with the moderation system.")
 
     def test_send_message_status_pending(self):
         self.moderated_obj.moderation_status = MODERATION_STATUS_PENDING
@@ -203,7 +203,7 @@ class ModerationAdminSendMessageTestCase(TestCase):
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
         self.assertEqual(str(message), "Object has been approved by "
-                                           "moderator and is visible on site")
+                                       "moderator and is visible on site")
 
 
 try:
