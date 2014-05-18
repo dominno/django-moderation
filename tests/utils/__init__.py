@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import sys
 try:
     from django.utils import unittest  # noqa

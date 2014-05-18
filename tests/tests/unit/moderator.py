@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import unittest
 
 from django.test.testcases import TestCase

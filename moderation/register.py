@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.utils.six import with_metaclass
 from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
     MODERATION_STATUS_APPROVED

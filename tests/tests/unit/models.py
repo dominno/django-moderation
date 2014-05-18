@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.test.testcases import TestCase
 from django import VERSION
 from django.db import models

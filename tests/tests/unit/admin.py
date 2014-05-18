@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import mock
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import User, Permission

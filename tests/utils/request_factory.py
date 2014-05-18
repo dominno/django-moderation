@@ -2,6 +2,7 @@
 RequestFactory mock class,
 snippet taken from http://www.djangosnippets.org/snippets/963/
 """
+from __future__ import unicode_literals
 from io import StringIO
 from django.test import Client
 from django.core.handlers.wsgi import WSGIRequest

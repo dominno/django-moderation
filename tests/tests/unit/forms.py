@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.db.models.fields.files import ImageFieldFile
 from django.forms import CharField
 from django.contrib.auth.models import User
