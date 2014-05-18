@@ -1,3 +1,4 @@
+from six import add_metaclass
 from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
     MODERATION_STATUS_APPROVED
 from django.core.exceptions import ObjectDoesNotExist
@@ -22,8 +23,8 @@ class ModerationManagerSingleton(type):
 
         return cls.instance
 
-
-class ModerationManager(object, metaclass=ModerationManagerSingleton):
+@add_metaclass(ModerationManagerSingleton)
+class ModerationManager(object):
     def __init__(self, *args, **kwargs):
         """Initializes the moderation manager."""
         self._registered_models = {}

@@ -14,7 +14,11 @@ from tests.utils import setup_moderation
 from tests.utils import teardown_moderation
 from moderation.helpers import import_moderator
 from tests.models import Book
-from importlib import reload
+# reload is builtin in Python 2.x. Needs to  be imported for Py3k
+try:
+    from importlib import reload
+except ImportError:
+    pass
 
 from django.db import IntegrityError, transaction
 
