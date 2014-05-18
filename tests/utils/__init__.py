@@ -30,5 +30,5 @@ def setup_moderation(models=[]):
 def teardown_moderation():
     from moderation import moderation
 
-    for model in moderation._registered_models.keys():
+    for model in list(moderation._registered_models.keys()):
         moderation.unregister(model)

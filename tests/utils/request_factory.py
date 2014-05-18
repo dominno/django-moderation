@@ -2,7 +2,7 @@
 RequestFactory mock class,
 snippet taken from http://www.djangosnippets.org/snippets/963/
 """
-from cStringIO import StringIO
+from io import StringIO
 from django.test import Client
 from django.core.handlers.wsgi import WSGIRequest
 

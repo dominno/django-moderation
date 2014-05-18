@@ -62,11 +62,11 @@ class GenericModerator(object):
         '''
         if self.auto_approve_for_groups and \
            self._check_user_in_groups(user, self.auto_approve_for_groups):
-            return self.reason(u'Auto-approved: User in allowed group')
+            return self.reason('Auto-approved: User in allowed group')
         if self.auto_approve_for_superusers and user.is_superuser:
-            return self.reason(u'Auto-approved: Superuser')
+            return self.reason('Auto-approved: Superuser')
         if self.auto_approve_for_staff and user.is_staff:
-            return self.reason(u'Auto-approved: Staff')
+            return self.reason('Auto-approved: Staff')
 
         return False
 
@@ -80,9 +80,9 @@ class GenericModerator(object):
         '''
         if self.auto_reject_for_groups and \
            self._check_user_in_groups(user, self.auto_reject_for_groups):
-            return self.reason(u'Auto-rejected: User in disallowed group')
+            return self.reason('Auto-rejected: User in disallowed group')
         if self.auto_reject_for_anonymous and user.is_anonymous():
-            return self.reason(u'Auto-rejected: Anonymous User')
+            return self.reason('Auto-rejected: Anonymous User')
 
         return False
 

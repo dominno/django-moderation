@@ -44,8 +44,8 @@ class ExcludeAcceptanceTestCase(TestCase):
 
         changes = [change.change for change in response.context['changes']]
 
-        self.assertFalse((u'http://www.google.com',
-                          u'http://dominno.pl') in changes)
+        self.assertFalse(('http://www.google.com',
+                          'http://dominno.pl') in changes)
 
     def test_non_excluded_field_should_be_moderated_when_obj_is_edited(self):
         '''
@@ -84,8 +84,8 @@ class ExcludeAcceptanceTestCase(TestCase):
 
         changes = [change.change for change in response.context['changes']]
 
-        self.assertFalse((u'http://www.dominno.com',
-                          u'http://www.dominno.com') in changes)
+        self.assertFalse(('http://www.dominno.com',
+                          'http://www.dominno.com') in changes)
 
 
 class ModeratedFieldsAcceptanceTestCase(TestCase):

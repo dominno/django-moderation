@@ -77,16 +77,16 @@ class ModerationAdmin(admin.ModelAdmin):
                                visible_until_rejected=False):
         if moderation_status == MODERATION_STATUS_PENDING:
             if visible_until_rejected:
-                return _(u"Object is viewable on site, "
+                return _("Object is viewable on site, "
                          "it will be removed if moderator rejects it")
             else:
-                return _(u"Object is not viewable on site, "
+                return _("Object is not viewable on site, "
                          "it will be visible if moderator accepts it")
         elif moderation_status == MODERATION_STATUS_REJECTED:
-            return _(u"Object has been rejected by moderator, "
+            return _("Object has been rejected by moderator, "
                      "reason: %s" % reason)
         elif moderation_status == MODERATION_STATUS_APPROVED:
-            return _(u"Object has been approved by moderator "
+            return _("Object has been approved by moderator "
                      "and is visible on site")
         elif moderation_status is None:
             return _("This object is not registered with "
@@ -135,7 +135,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
         return actions
 
     def content_object(self, obj):
-        return unicode(obj.changed_object)
+        return str(obj.changed_object)
 
     def queryset(self, request):
         qs = super(ModeratedObjectAdmin, self).queryset(request)
@@ -167,10 +167,10 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
             old_object = moderated_object.get_object_for_this_type()
             new_object = changed_obj
 
-        changes = get_changes_between_models(
+        changes = list(get_changes_between_models(
             old_object,
             new_object,
-            moderator.fields_exclude).values()
+            moderator.fields_exclude).values())
         if request.POST:
             admin_form = self.get_form(request, moderated_object)(request.POST)
 

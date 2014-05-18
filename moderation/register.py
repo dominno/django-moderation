@@ -23,9 +23,7 @@ class ModerationManagerSingleton(type):
         return cls.instance
 
 
-class ModerationManager(object):
-    __metaclass__ = ModerationManagerSingleton
-
+class ModerationManager(object, metaclass=ModerationManagerSingleton):
     def __init__(self, *args, **kwargs):
         """Initializes the moderation manager."""
         self._registered_models = {}
@@ -35,7 +33,7 @@ class ModerationManager(object):
     def register(self, model_class, moderator_class=None):
         """Registers model class with moderation"""
         if model_class in self._registered_models:
-            msg = u"%s has been registered with Moderation." % model_class
+            msg = "%s has been registered with Moderation." % model_class
             raise RegistrationError(msg)
         if not moderator_class:
             moderator_class = GenericModerator

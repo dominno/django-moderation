@@ -16,11 +16,17 @@ class UserProfile(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.user, self.url)
 
+    def __str__(self):
+        return "%s - %s" % (self.user, self.url)
+
 
 class SuperUserProfile(UserProfile):
     super_power = models.TextField()
 
     def __unicode__(self):
+        return "%s - %s - %s" % (self.user, self.url, self.super_power)
+
+    def __str__(self):
         return "%s - %s - %s" % (self.user, self.url, self.super_power)
 
 
@@ -62,7 +68,10 @@ class ModelWithVisibilityField(models.Model):
     is_public = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return u'%s - is public %s' % (self.test, self.is_public)
+        return '%s - is public %s' % (self.test, self.is_public)
+
+    def __str__(self):
+        return '%s - is public %s' % (self.test, self.is_public)
 
 
 class ModelWithWrongVisibilityField(models.Model):
@@ -70,7 +79,10 @@ class ModelWithWrongVisibilityField(models.Model):
     is_public = models.IntegerField()
 
     def __unicode__(self):
-        return u'%s - is public %s' % (self.test, self.is_public)
+        return '%s - is public %s' % (self.test, self.is_public)
+
+    def __str__(self):
+        return '%s - is public %s' % (self.test, self.is_public)
 
 
 class ModelWithImage(models.Model):
@@ -110,6 +122,9 @@ if VERSION[:2] >= (1, 5):
         url = models.URLField()
 
         def __unicode__(self):
+            return "%s - %s" % (self.user, self.url)
+
+        def __str__(self):
             return "%s - %s" % (self.user, self.url)
 
         def get_absolute_url(self):

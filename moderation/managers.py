@@ -22,7 +22,7 @@ class ModerationObjectsManager(Manager):
 
         exclude_pks = []
 
-        from models import ModeratedObject
+        from .models import ModeratedObject
 
         mobjs_set = ModeratedObject.objects.filter(
             content_type=ContentType.objects.get_for_model(query_set.model),

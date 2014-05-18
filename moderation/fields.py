@@ -40,7 +40,7 @@ class SerializedObjectField(models.TextField):
         value_set = [value]
         if value._meta.parents:
             value_set += [getattr(value, f.name)
-                          for f in value._meta.parents.values()
+                          for f in list(value._meta.parents.values())
                           if f is not None]
 
         return serializers.serialize(self.serialize_format, value_set)
@@ -51,7 +51,7 @@ class SerializedObjectField(models.TextField):
             value.encode(settings.DEFAULT_CHARSET),
             ignorenonexistent=True)
 
-        obj = obj_generator.next().object
+        obj = next(obj_generator).object
         for parent in obj_generator:
             for f in parent.object._meta.fields:
                 try:

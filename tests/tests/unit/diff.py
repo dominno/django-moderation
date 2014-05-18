@@ -38,8 +38,8 @@ class TextChangeObjectTestCase(unittest.TestCase):
     def test_diff_text_change(self):
         self.assertEqual(
             self.change.diff,
-            u'<del class="diff modified">test1'
-            u'</del><ins class="diff modified">test2</ins>\n')
+            '<del class="diff modified">test1'
+            '</del><ins class="diff modified">test2</ins>\n')
 
     def test_render_diff(self):
         diff_operations = get_diff_operations('test1', 'test2')
@@ -47,8 +47,8 @@ class TextChangeObjectTestCase(unittest.TestCase):
             self.change.render_diff(
                 'moderation/html_diff.html',
                 {'diff_operations': diff_operations}),
-            u'<del class="diff modified">test1'
-            u'</del><ins class="diff modified">test2</ins>\n')
+            '<del class="diff modified">test1'
+            '</del><ins class="diff modified">test2</ins>\n')
 
 
 class ImageChangeObjectTestCase(unittest.TestCase):
@@ -76,10 +76,10 @@ class ImageChangeObjectTestCase(unittest.TestCase):
 
     def test_diff(self):
         self.assertEqual(norm_whitespace(self.change.diff),
-                         norm_whitespace(u'<div class="img-wrapper"> '
-                                         u'<img src="/media/my_image.jpg"> '
-                                         u'<img src="/media/my_image2.jpg"> '
-                                         u'</div>'))
+                         norm_whitespace('<div class="img-wrapper"> '
+                                         '<img src="/media/my_image.jpg"> '
+                                         '<img src="/media/my_image2.jpg"> '
+                                         '</div>'))
 
 
 class DiffModeratedObjectTestCase(TestCase):
@@ -98,12 +98,13 @@ class DiffModeratedObjectTestCase(TestCase):
         changes = get_changes_between_models(moderated_object.changed_object,
                                              self.profile)
 
-        self.assertEqual(
-            unicode(changes),
-            u"{u'userprofile__url': Change object: http://www.google.com"
-            u" - http://www.google.com, u'userprofile__description': "
-            u"Change object: New description - Old description, "
-            u"u'userprofile__user': Change object: 1 - 1}")
+        self.assertIn(
+            "'userprofile__description': Change object: New description - "
+            "Old description", str(changes))
+        self.assertIn("'userprofile__user': Change object: 1 - 1", str(changes))
+        self.assertIn(
+            "'userprofile__url': Change object: http://www.google.com - "
+            "http://www.google.com", str(changes))
 
     def test_foreign_key_changes(self):
         self.profile.user = User.objects.get(username='admin')
@@ -115,12 +116,13 @@ class DiffModeratedObjectTestCase(TestCase):
         changes = get_changes_between_models(moderated_object.changed_object,
                                              self.profile)
 
-        self.assertEqual(
-            unicode(changes),
-            u"{u'userprofile__url': Change object: http://www.google.com"
-            u" - http://www.google.com, u'userprofile__description': "
-            u"Change object: Old description - Old description, "
-            u"u'userprofile__user': Change object: 4 - 1}")
+        self.assertIn("'userprofile__user': Change object: 4 - 1", str(changes))
+        self.assertIn(
+            "'userprofile__description': Change object: Old description - Old "
+            "description",
+            str(changes))
+        self.assertIn("'userprofile__url': Change object: http://www"
+            ".google.com - http://www.google.com", str(changes))
 
     def test_get_changes_between_models_image(self):
         '''Verify proper diff for ImageField fields'''
@@ -133,10 +135,10 @@ class DiffModeratedObjectTestCase(TestCase):
         changes = get_changes_between_models(image1, image2)
         self.assertEqual(
             norm_whitespace(changes['modelwithimage__image'].diff),
-            norm_whitespace(u'<div class="img-wrapper"> '
-                            u'<img src="/media/tmp/test1.jpg"> '
-                            u'<img src="/media/tmp/test2.jpg"> '
-                            u'</div>'))
+            norm_whitespace('<div class="img-wrapper"> '
+                            '<img src="/media/tmp/test1.jpg"> '
+                            '<img src="/media/tmp/test2.jpg"> '
+                            '</div>'))
 
     def test_excluded_fields_should_be_excluded_from_changes(self):
         self.profile.description = 'New description'
@@ -149,48 +151,47 @@ class DiffModeratedObjectTestCase(TestCase):
             moderated_object.changed_object,
             self.profile, excludes=['description'])
 
-        self.assertEqual(unicode(changes),
-                         u"{u'userprofile__url': Change object: "
-                         u"http://www.google.com - http://www.google.com, "
-                         u"u'userprofile__user': Change object: 1 - 1}")
+        self.assertIn("'userprofile__user': Change object: 1 - 1", str(changes))
+        self.assertIn("'userprofile__url': Change object: http://www"
+                         ".google.com - http://www.google.com", str(changes))
 
 
 class DiffTestCase(unittest.TestCase):
 
     def test_html_to_list(self):
-        html = u'<p id="test">text</p><b>some long text \n\t\r text</b>'\
-               u'<div class="test">text</div>'
-        html_list = [u'<p id="test">',
-                     u'text',
-                     u'</p>',
-                     u'<b>',
-                     u'some ',
-                     u'long ',
-                     u'text ',
-                     u'\n\t\r ',
-                     u'text',
-                     u'</b>',
-                     u'<div class="test">',
-                     u'text',
-                     u'</div>',
+        html = '<p id="test">text</p><b>some long text \n\t\r text</b>'\
+               '<div class="test">text</div>'
+        html_list = ['<p id="test">',
+                     'text',
+                     '</p>',
+                     '<b>',
+                     'some ',
+                     'long ',
+                     'text ',
+                     '\n\t\r ',
+                     'text',
+                     '</b>',
+                     '<div class="test">',
+                     'text',
+                     '</div>',
                      ]
 
         self.assertEqual(html_to_list(html), html_list)
 
     def test_html_to_list_non_ascii(self):
-        html = u'<p id="test">text</p><b>Las demás lenguas españolas'\
-               u' serán también</b><div class="test">text</div>'
+        html = '<p id="test">text</p><b>Las demás lenguas españolas'\
+               ' serán también</b><div class="test">text</div>'
 
         self.assertEqual(html_to_list(html), ['<p id="test">',
                                               'text',
                                               '</p>',
                                               '<b>',
-                                              u'Las ',
-                                              u'dem\xe1s ',
-                                              u'lenguas ',
-                                              u'espa\xf1olas ',
-                                              u'ser\xe1n ',
-                                              u'tambi\xe9n',
+                                              'Las ',
+                                              'dem\xe1s ',
+                                              'lenguas ',
+                                              'espa\xf1olas ',
+                                              'ser\xe1n ',
+                                              'tambi\xe9n',
                                               '</b>',
                                               '<div class="test">',
                                               'text',
@@ -216,8 +217,8 @@ class DateFieldTestCase(TestCase):
 
         date_change = changes['modelwithdatefield__date']
 
-        self.assertTrue(isinstance(date_change.change[0], unicode))
-        self.assertTrue(isinstance(date_change.change[1], unicode))
+        self.assertTrue(isinstance(date_change.change[0], str))
+        self.assertTrue(isinstance(date_change.change[1], str))
 
     def test_html_to_list_should_return_list(self):
         '''Test if changes dict generated from model that has non unicode field

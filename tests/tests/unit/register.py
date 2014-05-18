@@ -14,6 +14,7 @@ from tests.utils import setup_moderation
 from tests.utils import teardown_moderation
 from moderation.helpers import import_moderator
 from tests.models import Book
+from importlib import reload
 
 from django.db import IntegrityError, transaction
 
@@ -59,8 +60,8 @@ class RegistrationTestCase(TestCase):
 
         moderated_object = ModeratedObject.objects.get_for_instance(profile)
 
-        self.assertEqual(unicode(moderated_object),
-                         u"user1 - http://www.yahoo.com")
+        self.assertEqual(str(moderated_object),
+                         "user1 - http://www.yahoo.com")
 
     def test_get_of_existing_object_should_return_old_version_of_object(self):
         """Tests if after register of model class with moderation, 
@@ -76,7 +77,7 @@ class RegistrationTestCase(TestCase):
 
         old_profile = UserProfile.objects.get(pk=profile.pk)
 
-        self.assertEqual(old_profile.description, u'Old description')
+        self.assertEqual(old_profile.description, 'Old description')
 
     def test_register(self):
         """Tests if after creation of new model instance new 
@@ -355,7 +356,7 @@ class ModerationManagerTestCase(TestCase):
 
         self.assertNotEqual(object.pk, None)
         self.assertEqual(object.changed_object.description,
-                         u'Old description')
+                         'Old description')
 
         self.moderation.unregister(UserProfile)
 
@@ -374,7 +375,7 @@ class ModerationManagerTestCase(TestCase):
 
         self.assertEqual(object.pk, None)
         self.assertEqual(object.changed_object.description,
-                         u'Old description')
+                         'Old description')
 
         self.moderation.unregister(UserProfile)
 
@@ -385,7 +386,7 @@ class ModerationManagerTestCase(TestCase):
         object = self.moderation._get_unchanged_object(profile)
 
         self.assertEqual(object.description,
-                         u'Old description')
+                         'Old description')
 
 
 class LoadingFixturesTestCase(TestCase):
@@ -534,7 +535,7 @@ class ModerationSignalsTestCase(TestCase):
         self.assertEqual(original_object.description,
                          'New description of user profile')
         self.assertEqual(UserProfile.objects.get(pk=profile.pk).description,
-                         u'Old description')
+                         'Old description')
 
         signals.pre_save.disconnect(self.moderation.pre_save_handler,
                                     UserProfile)
@@ -558,7 +559,7 @@ class ModerationSignalsTestCase(TestCase):
         content_object = moderated_object.content_object
 
         self.assertEqual(original_object.description,
-                         u'Old description')
+                         'Old description')
         self.assertEqual(content_object.description,
                          'New description of user profile')
 

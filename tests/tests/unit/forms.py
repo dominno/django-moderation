@@ -37,7 +37,7 @@ class FormsTestCase(TestCase):
         profile.save()
 
         form = self.ModeratedObjectForm(instance=profile)
-        self.assertEqual(form.initial['description'], u'New description')
+        self.assertEqual(form.initial['description'], 'New description')
 
     def test_if_form_is_initialized_existing_object(self):
         profile = UserProfile(description="old description",
@@ -47,15 +47,15 @@ class FormsTestCase(TestCase):
 
         profile.moderated_object.approve(moderated_by=self.user)
 
-        profile.description = u"Changed description"
+        profile.description = "Changed description"
         profile.save()
 
         form = self.ModeratedObjectForm(instance=profile)
 
         profile = UserProfile.objects.get(id=1)
 
-        self.assertEqual(profile.description, u"old description")
-        self.assertEqual(form.initial['description'], u'Changed description')
+        self.assertEqual(profile.description, "old description")
+        self.assertEqual(form.initial['description'], 'Changed description')
 
     def test_if_form_has_image_field_instance_of_image_field_file(self):
         object = ModelWithImage(image='my_image.jpg')
@@ -76,7 +76,7 @@ class FormsTestCase(TestCase):
 
         form = self.ModeratedObjectForm(instance=profile)
 
-        self.assertEqual(form.initial['description'], u'old description')
+        self.assertEqual(form.initial['description'], 'old description')
 
     def test_if_form_is_initialized_new_object_with_initial(self):
         profile = UserProfile(description="New description",
@@ -87,5 +87,5 @@ class FormsTestCase(TestCase):
         form = self.ModeratedObjectForm(initial={'extra': 'value'},
                                         instance=profile)
 
-        self.assertEqual(form.initial['description'], u'New description')
-        self.assertEqual(form.initial['extra'], u'value')
+        self.assertEqual(form.initial['description'], 'New description')
+        self.assertEqual(form.initial['extra'], 'value')

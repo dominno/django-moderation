@@ -28,12 +28,14 @@ class SerializationTestCase(TestCase):
 
         json_field = SerializedObjectField()
 
-        self.assertEqual(
-            json_field._serialize(self.profile),
-            '[{"pk": 1, "model": "tests.userprofile", "fields": '
-            '{"url": "http://www.google.com", "user": 1, '
-            '"description": "Old description"}}]',
-        )
+        serialized_str = json_field._serialize(self.profile)
+
+        self.assertIn('"pk": 1', serialized_str)
+        self.assertIn('"model": "tests.userprofile"', serialized_str)
+        self.assertIn('"fields": {', serialized_str)
+        self.assertIn('"url": "http://www.google.com"', serialized_str)
+        self.assertIn('"user": 1', serialized_str)
+        self.assertIn('"description": "Old description"', serialized_str)
 
     def test_serialize_with_inheritance(self):
         """Test if object is properly serialized to json"""
@@ -45,13 +47,19 @@ class SerializationTestCase(TestCase):
         profile.save()
         json_field = SerializedObjectField()
 
-        self.assertEqual(
-            json_field._serialize(profile),
-            '[{"pk": 2, "model": "tests.superuserprofile",'
-            ' "fields": {"super_power": "invisibility"}}, '
-            '{"pk": 2, "model": "tests.userprofile", "fields":'
-            ' {"url": "http://www.test.com", "user": 2,'
-            ' "description": "Profile for new super user"}}]')
+        serialized_str = json_field._serialize(profile)
+
+        self.assertIn('"pk": 2', serialized_str)
+        self.assertIn('"model": "tests.superuserprofile"', serialized_str)
+        self.assertIn('"fields": {"super_power": "invisibility"}',
+                      serialized_str)
+        self.assertIn('"pk": 2', serialized_str)
+        self.assertIn('"model": "tests.userprofile"', serialized_str)
+        self.assertIn('"url": "http://www.test.com"', serialized_str)
+        self.assertIn('"user": 2', serialized_str)
+        self.assertIn('"description": "Profile for new super user"',
+                      serialized_str)
+        self.assertIn('"fields": {', serialized_str)
 
     def test_deserialize(self):
         value = '[{"pk": 1, "model": "tests.userprofile", "fields": '\
@@ -92,7 +100,7 @@ class SerializationTestCase(TestCase):
                          'New description')
 
         self.assertEqual(moderated_object.content_object.description,
-                         u'Old description')
+                         'Old description')
 
     def test_change_of_deserialzed_object(self):
         self.profile.description = 'New description'
@@ -118,11 +126,14 @@ class SerializationTestCase(TestCase):
         profile.save()
         json_field = SerializedObjectField()
 
-        self.assertEqual(
-            json_field._serialize(profile),
-            '[{"pk": 2, "model": "tests.proxyprofile", "fields": '
-            '{"url": "http://example.com", "user": 2, '
-            '"description": "I\'m a proxy."}}]',)
+        serialized_str = json_field._serialize(profile)
+
+        self.assertIn('"pk": 2', serialized_str)
+        self.assertIn('"model": "tests.proxyprofile"', serialized_str)
+        self.assertIn('"url": "http://example.com"', serialized_str)
+        self.assertIn('"user": 2', serialized_str)
+        self.assertIn('"description": "I\'m a proxy."', serialized_str)
+        self.assertIn('"fields": {', serialized_str)
 
     @unittest.skipIf(VERSION[:2] < (1, 4), "Proxy models require 1.4")
     def test_deserialize_proxy_model(self):
@@ -281,7 +292,7 @@ class AutoModerateTestCase(TestCase):
 
         self.assertEqual(status,
                          MODERATION_STATUS_REJECTED)
-        self.assertEqual(profile.description, u'Old description')
+        self.assertEqual(profile.description, 'Old description')
 
     def test_model_not_registered_with_moderation(self):
         obj = ModelWithSlugField2(slug='test')
