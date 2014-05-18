@@ -18,7 +18,11 @@ from tests.models import Book
 try:
     from importlib import reload
 except ImportError:
-    pass
+    try:
+        # Python 3.2
+        from imp import reload
+    except:
+        pass
 
 from django.db import IntegrityError, transaction
 
@@ -129,10 +133,12 @@ class AutoDiscoverTestCase(TestCase):
     def test_models_should_be_registered_if_moderator_in_module(self):
         module = import_moderator('tests')
 
-        try:  # force module reload
-            reload(module)
-        except:
-            pass
+        # try:  # force module reload
+        #     reload(module)
+        # except:
+        #     pass
+
+        reload(module)
 
         self.assertTrue(Book in self.moderation._registered_models)
         self.assertEqual(module.__name__,

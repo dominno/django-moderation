@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals
 import unittest
-import six
 from moderation.diff import get_changes_between_models, html_to_list,\
     TextChange, get_diff_operations, ImageChange
 from django.test.testcases import TestCase
@@ -180,19 +179,19 @@ class DiffTestCase(unittest.TestCase):
         self.assertEqual(html_to_list(html), html_list)
 
     def test_html_to_list_non_ascii(self):
-        html = u'<p id="test">text</p><b>Las demás lenguas españolas'\
-               u' serán también</b><div class="test">text</div>'
+        html = '<p id="test">text</p><b>Las demás lenguas españolas'\
+               ' serán también</b><div class="test">text</div>'
 
         self.assertEqual(html_to_list(html), ['<p id="test">',
                                               'text',
                                               '</p>',
                                               '<b>',
-                                              u'Las ',
-                                              u'dem\xe1s ',
-                                              u'lenguas ',
-                                              u'espa\xf1olas ',
-                                              u'ser\xe1n ',
-                                              u'tambi\xe9n',
+                                              'Las ',
+                                              'dem\xe1s ',
+                                              'lenguas ',
+                                              'espa\xf1olas ',
+                                              'ser\xe1n ',
+                                              'tambi\xe9n',
                                               '</b>',
                                               '<div class="test">',
                                               'text',
