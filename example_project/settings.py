@@ -65,7 +65,7 @@ INSTALLED_APPS = (
     'south',
     'moderation',
     'example_project.example_app',
-    #'test_extensions',
+    # 'test_extensions',
 )
 
 

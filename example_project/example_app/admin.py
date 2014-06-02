@@ -17,7 +17,7 @@ class UserProfileWithCustomUserAdmin(ModerationAdmin):
 admin.site.register(ExampleUserProfile, ExampleUserProfileAdmin)
 
 if VERSION[:2] >= (1, 5):
-    from example_project.example_app.models import UserProfileWithCustomUser,\
+    from example_project.example_app.models import UserProfileWithCustomUser, \
         CustomUser
 
     admin.site.register(UserProfileWithCustomUser,
@@ -91,18 +91,10 @@ if VERSION[:2] >= (1, 5):
         # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
         # overrides get_fieldsets to use this attribute when creating a user.
         add_fieldsets = (
-                (None,
-                     {
-                     'classes': ('wide',),
-                     'fields': (
-                         'username',
-                         'email',
-                         'date_of_birth',
-                         'password1',
-                         'password2'
-                )
-                }
-                ),
+            (None, {'classes': ('wide',), 'fields': (
+                'username', 'email', 'date_of_birth', 'password1', 'password2'
+            )}
+            ),
         )
         search_fields = ('email',)
         ordering = ('email',)
