@@ -2,7 +2,8 @@ from django.test.testcases import TestCase
 from django import VERSION
 from django.db import models
 from django.contrib.auth.models import User, Group
-from django.test.utils import override_settings
+if VERSION >= (1, 4):
+    from django.test.utils import override_settings
 from tests.models import UserProfile,\
     SuperUserProfile, ModelWithSlugField2, ProxyProfile
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED,\
@@ -290,7 +291,9 @@ class AutoModerateTestCase(TestCase):
 
 
 @unittest.skipIf(VERSION[:2] < (1, 5), "Custom auth users require 1.5")
-@override_settings(AUTH_USER_MODEL='tests.CustomUser')
+# Using the decorator is causing problems with Django 1.3, so use
+# the non-decorated version below.
+# @override_settings(AUTH_USER_MODEL='tests.CustomUser')
 class ModerateCustomUserTestCase(TestCase):
 
     def setUp(self):
@@ -401,3 +404,6 @@ class ModerateCustomUserTestCase(TestCase):
         value = moderated_object.has_object_been_changed(self.profile)
 
         self.assertEqual(value, False)
+
+if VERSION >= (1, 5):
+    ModerateCustomUserTestCase = override_settings(AUTH_USER_MODEL='tests.CustomUser')(ModerateCustomUserTestCase)

@@ -38,17 +38,23 @@ set_objects_as_pending.short_description = "Set selected moderated objects "\
 class ModerationAdmin(admin.ModelAdmin):
     admin_integration_enabled = True
 
-    def get_form(self, request, obj=None):
+    def get_form(self, request, obj=None, **kwargs):
         if obj and self.admin_integration_enabled:
             self.form = self.get_moderated_object_form(obj.__class__)
 
-        return super(ModerationAdmin, self).get_form(request, obj)
+        return super(ModerationAdmin, self).get_form(request, obj, **kwargs)
 
-    def change_view(self, request, object_id, extra_context=None):
+    def change_view(self, request, object_id, form_url='', extra_context=None):
         if self.admin_integration_enabled:
             self.send_message(request, object_id)
 
-        return super(ModerationAdmin, self).change_view(request, object_id)
+        try:
+            return super(ModerationAdmin, self)\
+                .change_view(request, object_id, form_url=form_url,
+                             extra_context=extra_context)
+        except TypeError:
+            return super(ModerationAdmin, self)\
+                .change_view(request, object_id, extra_context=extra_context)
 
     def send_message(self, request, object_id):
         try:

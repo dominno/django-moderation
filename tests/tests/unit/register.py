@@ -3,7 +3,6 @@ from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.manager import Manager
 from django.test.testcases import TestCase
-
 from moderation.register import ModerationManager, RegistrationError
 from moderation.moderator import GenericModerator
 from moderation.managers import ModerationObjectsManager
@@ -16,7 +15,7 @@ from tests.utils import teardown_moderation
 from moderation.helpers import import_moderator
 from tests.models import Book
 
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 
 class RegistrationTestCase(TestCase):
@@ -179,7 +178,12 @@ class IntegrityErrorTestCase(TestCase):
                           slug='test')
 
         m2 = ModelWithSlugField(slug='test')
-        self.assertRaises(IntegrityError, m2.save)
+
+        if hasattr(transaction, 'atomic'):
+            with transaction.atomic():
+                self.assertRaises(IntegrityError, m2.save)
+        else:
+            self.assertRaises(IntegrityError, m2.save)
 
         self.assertEqual(ModeratedObject.objects.all().count(), 1)
 
@@ -190,7 +194,11 @@ class IntegrityErrorTestCase(TestCase):
         m1 = ModelWithSlugField2.objects.get(slug='test')
 
         m2 = ModelWithSlugField2(slug='test')
-        self.assertRaises(IntegrityError, m2.save)
+        if hasattr(transaction, 'atomic'):
+            with transaction.atomic():
+                self.assertRaises(IntegrityError, m2.save)
+        else:
+            self.assertRaises(IntegrityError, m2.save)
 
         self.assertEqual(ModeratedObject.objects.all().count(), 0)
 
@@ -233,7 +241,11 @@ class IntegrityErrorRegressionTestCase(TestCase):
         m1.save()
 
         m2 = ModelWithSlugField(slug='test')
-        self.assertRaises(IntegrityError, m2.save)
+        if hasattr(transaction, 'atomic'):
+            with transaction.atomic():
+                self.assertRaises(IntegrityError, m2.save)
+        else:
+            self.assertRaises(IntegrityError, m2.save)
 
         self.assertEqual(ModeratedObject.objects.all().count(), 1)
 
