@@ -406,4 +406,6 @@ class ModerateCustomUserTestCase(TestCase):
         self.assertEqual(value, False)
 
 if VERSION >= (1, 5):
-    ModerateCustomUserTestCase = override_settings(AUTH_USER_MODEL='tests.CustomUser')(ModerateCustomUserTestCase)
+    ModerateCustomUserTestCase = override_settings(
+        AUTH_USER_MODEL='tests.CustomUser'
+    )(ModerateCustomUserTestCase)
