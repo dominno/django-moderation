@@ -69,9 +69,9 @@ Screenshots
 Requirements
 ============
 
-python >= 2.4
+python 2.6+, 3.3+
 
-django >= 1.3.X
+django >= 1.4.8
 
 
 Installation
