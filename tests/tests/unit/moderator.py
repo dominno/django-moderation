@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import unittest
 
 from django.test.testcases import TestCase
@@ -179,7 +180,7 @@ class AutoModerateModeratorTestCase(TestCase):
         self.user.is_anonymous.return_value = True
         reason = self.moderator.is_auto_reject(self.obj, self.user)
         self.assertTrue(reason)
-        self.assertEqual(reason, u'Auto-rejected: Anonymous User')
+        self.assertEqual(reason, 'Auto-rejected: Anonymous User')
 
     def test_is_auto_reject_user_is_not_anonymous(self):
         from mock import Mock

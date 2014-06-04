@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.conf import settings
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -68,7 +69,10 @@ class ModeratedObject(models.Model):
         super(ModeratedObject, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
-        return u"%s" % self.changed_object
+        return "%s" % self.changed_object
+
+    def __str__(self):
+        return "%s" % self.changed_object
 
     def save(self, *args, **kwargs):
         if self.instance:
@@ -129,7 +133,7 @@ class ModeratedObject(models.Model):
         return None
 
     def get_admin_moderate_url(self):
-        return u"/admin/moderation/moderatedobject/%s/" % self.pk
+        return "/admin/moderation/moderatedobject/%s/" % self.pk
 
     @property
     def moderator(self):

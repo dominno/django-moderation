@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals
 import re
 import difflib
 
@@ -11,7 +11,7 @@ class BaseChange(object):
 
     def __repr__(self):
         value1, value2 = self.change
-        return u'Change object: %s - %s' % (value1, value2)
+        return 'Change object: %s - %s' % (value1, value2)
 
     def __init__(self, verbose_name, field, change):
         self.verbose_name = verbose_name
@@ -68,11 +68,11 @@ def get_changes_between_models(model1, model2, excludes=[]):
     changes = {}
 
     for field in model1._meta.fields:
-        if not (isinstance(field, (fields.AutoField,))):
+        if not (isinstance(field, fields.AutoField)):
             if field.name in excludes:
                 continue
 
-            name = u"%s__%s" % (model1.__class__.__name__.lower(), field.name)
+            name = "%s__%s" % (model1.__class__.__name__.lower(), field.name)
 
             changes[name] = get_change(model1, model2, field)
 
@@ -101,15 +101,15 @@ def html_to_list(html):
                          '(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'
                          '(?:\s*[,\.\?]*)', re.UNICODE)
 
-    return [''.join(element) for element in filter(None,
-                                                   pattern.findall(html))]
+    return [''.join(element) for element in
+            [_f for _f in pattern.findall(html) if _f]]
 
 
 def get_change_for_type(verbose_name, change, field):
     if isinstance(field, fields.files.ImageField):
         change = ImageChange(
-            u"Current %(verbose_name)s / "
-            u"New %(verbose_name)s" % {'verbose_name': verbose_name},
+            "Current %(verbose_name)s / "
+            "New %(verbose_name)s" % {'verbose_name': verbose_name},
             field,
             change)
     else:
@@ -117,7 +117,7 @@ def get_change_for_type(verbose_name, change, field):
         change = TextChange(
             verbose_name,
             field,
-            (unicode(value1), unicode(value2)),
+            (str(value1), str(value2)),
         )
 
     return change

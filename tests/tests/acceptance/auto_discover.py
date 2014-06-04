@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.test.testcases import TestCase
 
 from tests.utils import setup_moderation, teardown_moderation

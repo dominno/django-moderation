@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import mock
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import User, Permission
@@ -42,8 +43,7 @@ class ModeratedObjectAdminTestCase(TestCase):
 
     def test_get_moderated_object_form(self):
         form = self.admin.get_moderated_object_form(UserProfile)
-        self.assertEqual(repr(form),
-                         "<class 'moderation.admin.ModeratedObjectForm'>")
+        self.assertIn('ModeratedObjectForm', repr(form))
 
 
 class ModeratedObjectAdminBehaviorTestCase(WebTestCase):
@@ -167,8 +167,8 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(unicode(message), u"This object is not registered "
-                                           u"with the moderation system.")
+        self.assertEqual(str(message), "This object is not registered "
+                                       "with the moderation system.")
 
     def test_send_message_status_pending(self):
         self.moderated_obj.moderation_status = MODERATION_STATUS_PENDING
@@ -178,22 +178,22 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(unicode(message),
-                         u"Object is not viewable on site, "
-                         u"it will be visible if moderator accepts it")
+        self.assertEqual(str(message),
+                         "Object is not viewable on site, "
+                         "it will be visible if moderator accepts it")
 
     def test_send_message_status_rejected(self):
         self.moderated_obj.moderation_status = MODERATION_STATUS_REJECTED
-        self.moderated_obj.moderation_reason = u'Reason for rejection'
+        self.moderated_obj.moderation_reason = 'Reason for rejection'
         self.moderated_obj.save()
 
         self.admin.send_message(self.request, self.profile.pk)
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(unicode(message),
-                         u"Object has been rejected by "
-                         u"moderator, reason: Reason for rejection")
+        self.assertEqual(str(message),
+                         "Object has been rejected by "
+                         "moderator, reason: Reason for rejection")
 
     def test_send_message_status_approved(self):
         self.moderated_obj.moderation_status = MODERATION_STATUS_APPROVED
@@ -203,8 +203,8 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(unicode(message), "Object has been approved by "
-                                           "moderator and is visible on site")
+        self.assertEqual(str(message), "Object has been approved by "
+                                       "moderator and is visible on site")
 
 
 try:
@@ -246,9 +246,9 @@ else:
 
             self.assertEqual(
                 [x[1] for x in filter_spec.lookup_choices],
-                [u'Model with slug field',
-                 u'Model with slug field2'])
+                ['Model with slug field',
+                 'Model with slug field2'])
 
-            self.assertEqual(unicode(filter_spec.content_types),
-                             u"[<ContentType: model with slug field>, "
+            self.assertEqual(str(filter_spec.content_types),
+                             "[<ContentType: model with slug field>, "
                              "<ContentType: model with slug field2>]")

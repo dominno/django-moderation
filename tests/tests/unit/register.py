@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,6 +15,15 @@ from tests.utils import setup_moderation
 from tests.utils import teardown_moderation
 from moderation.helpers import import_moderator
 from tests.models import Book
+# reload is builtin in Python 2.x. Needs to  be imported for Py3k
+try:
+    from importlib import reload
+except ImportError:
+    try:
+        # Python 3.2
+        from imp import reload
+    except:
+        pass
 
 from django.db import IntegrityError, transaction
 
@@ -59,8 +69,8 @@ class RegistrationTestCase(TestCase):
 
         moderated_object = ModeratedObject.objects.get_for_instance(profile)
 
-        self.assertEqual(unicode(moderated_object),
-                         u"user1 - http://www.yahoo.com")
+        self.assertEqual(str(moderated_object),
+                         "user1 - http://www.yahoo.com")
 
     def test_get_of_existing_object_should_return_old_version_of_object(self):
         """Tests if after register of model class with moderation, 
@@ -76,7 +86,7 @@ class RegistrationTestCase(TestCase):
 
         old_profile = UserProfile.objects.get(pk=profile.pk)
 
-        self.assertEqual(old_profile.description, u'Old description')
+        self.assertEqual(old_profile.description, 'Old description')
 
     def test_register(self):
         """Tests if after creation of new model instance new 
@@ -124,10 +134,12 @@ class AutoDiscoverTestCase(TestCase):
     def test_models_should_be_registered_if_moderator_in_module(self):
         module = import_moderator('tests')
 
-        try:  # force module reload
-            reload(module)
-        except:
-            pass
+        # try:  # force module reload
+        #     reload(module)
+        # except:
+        #     pass
+
+        reload(module)
 
         self.assertTrue(Book in self.moderation._registered_models)
         self.assertEqual(module.__name__,
@@ -355,7 +367,7 @@ class ModerationManagerTestCase(TestCase):
 
         self.assertNotEqual(object.pk, None)
         self.assertEqual(object.changed_object.description,
-                         u'Old description')
+                         'Old description')
 
         self.moderation.unregister(UserProfile)
 
@@ -374,7 +386,7 @@ class ModerationManagerTestCase(TestCase):
 
         self.assertEqual(object.pk, None)
         self.assertEqual(object.changed_object.description,
-                         u'Old description')
+                         'Old description')
 
         self.moderation.unregister(UserProfile)
 
@@ -385,7 +397,7 @@ class ModerationManagerTestCase(TestCase):
         object = self.moderation._get_unchanged_object(profile)
 
         self.assertEqual(object.description,
-                         u'Old description')
+                         'Old description')
 
 
 class LoadingFixturesTestCase(TestCase):
@@ -534,7 +546,7 @@ class ModerationSignalsTestCase(TestCase):
         self.assertEqual(original_object.description,
                          'New description of user profile')
         self.assertEqual(UserProfile.objects.get(pk=profile.pk).description,
-                         u'Old description')
+                         'Old description')
 
         signals.pre_save.disconnect(self.moderation.pre_save_handler,
                                     UserProfile)
@@ -558,7 +570,7 @@ class ModerationSignalsTestCase(TestCase):
         content_object = moderated_object.content_object
 
         self.assertEqual(original_object.description,
-                         u'Old description')
+                         'Old description')
         self.assertEqual(content_object.description,
                          'New description of user profile')
 

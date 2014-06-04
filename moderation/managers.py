@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.db.models.manager import Manager
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
@@ -22,7 +23,7 @@ class ModerationObjectsManager(Manager):
 
         exclude_pks = []
 
-        from models import ModeratedObject
+        from .models import ModeratedObject
 
         mobjs_set = ModeratedObject.objects.filter(
             content_type=ContentType.objects.get_for_model(query_set.model),
