@@ -126,6 +126,26 @@ class DiffModeratedObjectTestCase(TestCase):
         self.assertIn("'userprofile__url': Change object: http://www"
                       ".google.com - http://www.google.com", str(changes))
 
+    def test_foreign_key_changes_resolve_foreignkeys(self):
+        self.profile.user = User.objects.get(username='admin')
+        moderated_object = ModeratedObject(content_object=self.profile)
+        moderated_object.save()
+
+        self.profile = UserProfile.objects.get(user__username='moderator')
+
+        changes = get_changes_between_models(moderated_object.changed_object,
+                                             self.profile,
+                                             resolve_foreignkeys=True)
+
+        self.assertIn("'userprofile__user': Change object: admin - moderator",
+                      str(changes))
+        self.assertIn(
+            "'userprofile__description': Change object: Old description - Old "
+            "description",
+            str(changes))
+        self.assertIn("'userprofile__url': Change object: http://www"
+                      ".google.com - http://www.google.com", str(changes))
+
     def test_get_changes_between_models_image(self):
         '''Verify proper diff for ImageField fields'''
 

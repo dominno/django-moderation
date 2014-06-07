@@ -4,6 +4,10 @@ import re
 import difflib
 
 from django.db.models import fields
+try:
+    from django.db.models.fields.related import ForeignObject
+except ImportError:
+    from django.db.models.fields.related import RelatedField as ForeignObject
 from django.utils.html import escape
 
 
@@ -47,13 +51,17 @@ class ImageChange(BaseChange):
             {'left_image': left_image, 'right_image': right_image})
 
 
-def get_change(model1, model2, field):
+def get_change(model1, model2, field, resolve_foreignkeys=False):
     try:
         value1 = getattr(model1, "get_%s_display" % field.name)()
         value2 = getattr(model2, "get_%s_display" % field.name)()
     except AttributeError:
-        value1 = field.value_from_object(model1)
-        value2 = field.value_from_object(model2)
+        if isinstance(field, ForeignObject) and resolve_foreignkeys:
+            value1 = str(getattr(model1, field.name))
+            value2 = str(getattr(model2, field.name))
+        else:
+            value1 = field.value_from_object(model1)
+            value2 = field.value_from_object(model2)
 
     change = get_change_for_type(
         field.verbose_name,
@@ -64,7 +72,8 @@ def get_change(model1, model2, field):
     return change
 
 
-def get_changes_between_models(model1, model2, excludes=[]):
+def get_changes_between_models(model1, model2, excludes=[],
+                               resolve_foreignkeys=False):
     changes = {}
 
     for field in model1._meta.fields:
@@ -74,7 +83,8 @@ def get_changes_between_models(model1, model2, excludes=[]):
 
             name = "%s__%s" % (model1.__class__.__name__.lower(), field.name)
 
-            changes[name] = get_change(model1, model2, field)
+            changes[name] = get_change(model1, model2, field,
+                                       resolve_foreignkeys)
 
     return changes
 
