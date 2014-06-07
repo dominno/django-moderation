@@ -134,7 +134,8 @@ class DiffModeratedObjectTestCase(TestCase):
         self.profile = UserProfile.objects.get(user__username='moderator')
 
         changes = get_changes_between_models(moderated_object.changed_object,
-                                             self.profile, resolve_foreignkeys=True)
+                                             self.profile,
+                                             resolve_foreignkeys=True)
 
         self.assertIn("'userprofile__user': Change object: admin - moderator",
                       str(changes))

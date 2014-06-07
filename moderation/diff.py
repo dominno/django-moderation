@@ -72,7 +72,8 @@ def get_change(model1, model2, field, resolve_foreignkeys=False):
     return change
 
 
-def get_changes_between_models(model1, model2, excludes=[], resolve_foreignkeys=False):
+def get_changes_between_models(model1, model2, excludes=[],
+                               resolve_foreignkeys=False):
     changes = {}
 
     for field in model1._meta.fields:
@@ -82,7 +83,8 @@ def get_changes_between_models(model1, model2, excludes=[], resolve_foreignkeys=
 
             name = "%s__%s" % (model1.__class__.__name__.lower(), field.name)
 
-            changes[name] = get_change(model1, model2, field, resolve_foreignkeys)
+            changes[name] = get_change(model1, model2, field,
+                                       resolve_foreignkeys)
 
     return changes
 
