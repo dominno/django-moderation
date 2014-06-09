@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 import sys
 
-version = '0.3.5'
+version = '0.3.6'
 
 tests_require = ['django>=1.4.8,<1.7', 'django-webtest>=1.5.7,<1.6',
                  'webtest>=2.0,<2.1', 'mock', 'pillow', 'ipdb']
