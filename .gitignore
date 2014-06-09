@@ -13,3 +13,5 @@ parts
 *.egg-info
 */example_project.db
 venv
+build
+docs/_build
