@@ -68,7 +68,8 @@ Added features
 
 0.3.5 (2014-06-02)
 ------------------
-
+- Added message backends
+- Added support for custom user model
 - Added support for django 1.6.X
 
 
