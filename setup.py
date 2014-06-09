@@ -20,7 +20,7 @@ setup(name='django-moderation',
       version=version,
       description="Generic Django objects moderation application",
       long_description=open("README.rst").read() + "\n" +
-                       open(os.path.join("docs", "HISTORY.txt")).read(),
+                       open(os.path.join("docs", "history.rst")).read(),
 
       classifiers=[
         'Development Status :: 4 - Beta',

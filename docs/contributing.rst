@@ -1,30 +1,30 @@
-CONTRIBUTING GUIDE
+Contributing guide
 ==================
 
 Setup
-=====
+-----
 
 Fork on GitHub
---------------
+^^^^^^^^^^^^^^
 
 Before you do anything else, login/signup on GitHub and fork **django-moderation** from the `GitHub project`_.
 
 Clone your fork locally
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 If you have git-scm installed, you now clone your git repo using the following command-line argument where <my-github-name> is your account name on GitHub::
 
     git clone git@github.com:<my-github-name>/django-moderation.git
 
 Local Installation
--------------------------
+^^^^^^^^^^^^^^^^^^
 
 1. Create a virtualenv_ (or use virtualenvwrapper_). Activate it.
 2. cd into django-moderation
 3. type ``$ python setup.py develop``
 
 Try the example projects
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. cd into example_project/
 2. create the database: ``$ python manage.py syncdb``
@@ -34,7 +34,7 @@ Try the example projects
 .. _virtualenvwrapper: http://virtualenvwrapper.readthedocs.org/en/latest/
 
 How to get your pull request accepted
-=====================================
+-------------------------------------
 
 We want your submission. But we also want to provide a stable experience for our users and the community. Follow these rules and you should succeed without a problem!
 
@@ -55,7 +55,7 @@ For now, we use the Django Test framework (based on unittest).
 
 
 Keep your pull requests limited to a single issue
---------------------------------------------------
+-------------------------------------------------
 
 django-moderation pull requests should be as small/atomic as possible. Large, wide-sweeping changes in a pull request will be **rejected**, with comments to isolate the specific code in your pull request
 
@@ -67,7 +67,7 @@ Please follow PEP8 rules for code style.
 
 
 Code structure
-==============
+--------------
 
 - moderation/admin.py - Django admin classes for moderation queue
 - moderation/diff.py - used for generation of differences between model fields
@@ -87,3 +87,18 @@ Test are located in directory tests/tests.
 Each file is used for tests of different part of the moderation module.
 
 Example: tests/unit/register - tests all things related with model registration with moderation system.
+
+
+How to run django-moderation tests
+----------------------------------
+
+1. Download source from http://github.com/dominno/django-moderation
+2. Run: python setup.py test
+
+
+Continuous Integration system
+-----------------------------
+
+Continuous Integration system for django-moderation is available at:
+
+https://travis-ci.org/dominno/django-moderation
