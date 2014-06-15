@@ -115,3 +115,37 @@ class ModeratedObjectManagerTestCase(TestCase):
                          "<ModeratedObject: ModelWithSlugField2 object>")
         self.assertEqual(repr(moderated_obj2),
                          '<ModeratedObject: user1 - http://www.yahoo.com>')
+
+    def test_instance_with_many_moderations(self):
+        # Register a moderator that keeps the history
+        # un-register UserProfile
+        from moderation import moderation
+
+        class KeepHistoryModerator(GenericModerator):
+            keep_history = True
+
+        moderation.unregister(UserProfile)
+        moderation.register(UserProfile, KeepHistoryModerator)
+
+        profile = UserProfile(description='Profile for new user',
+                              url='http://www.yahoo.com',
+                              user=self.user)
+        profile.save()
+
+        # There should only be one ModeratedObject
+        self.assertEqual(1, ModeratedObject.objects.count())
+
+        profile.url = 'http://www.google.com'
+        profile.save()
+
+        # Should now be two
+        self.assertEqual(2, ModeratedObject.objects.count())
+
+        # Getting for instance should return the one with the google url
+        moderated_object = ModeratedObject.objects.get_for_instance(profile)
+        self.assertEqual(profile.url, moderated_object.changed_object.url)
+
+        # Get the first object, and does it have the yahoo address
+        moderated_object_pk1 = ModeratedObject.objects.get(pk=1)
+        self.assertEqual('http://www.yahoo.com',
+                         moderated_object_pk1.changed_object.url)

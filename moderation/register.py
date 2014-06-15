@@ -70,8 +70,12 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
 
         def get_moderated_object(self):
             if not hasattr(self, '_moderated_object'):
-                self._moderated_object = getattr(self,
-                                                 '_relation_object').get()
+                if self._relation_object.count() > 0:
+                    self._moderated_object = getattr(self, '_relation_object')\
+                        .filter().order_by('-date_updated')[0]
+                else:
+                    self._moderated_object = getattr(self, '_relation_object')\
+                        .get()
             return self._moderated_object
 
         model_class.add_to_class('moderated_object',
@@ -163,13 +167,20 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         If moderated object is not equal instance then serialize unchanged
         in moderated object in order to use it later in post_save_handler
         """
-        try:
-            moderated_object = ModeratedObject.objects.\
-                get_for_instance(instance)
-
-        except ObjectDoesNotExist:
+        def get_new_instance(unchanged_obj):
             moderated_object = ModeratedObject(content_object=unchanged_obj)
             moderated_object.changed_object = unchanged_obj
+            return moderated_object
+
+        try:
+            if moderator.keep_history:
+                moderated_object = get_new_instance(unchanged_obj)
+            else:
+                moderated_object = ModeratedObject.objects.\
+                    get_for_instance(instance)
+
+        except ObjectDoesNotExist:
+            moderated_object = get_new_instance(unchanged_obj)
 
         else:
             if moderated_object.has_object_been_changed(instance):

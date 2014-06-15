@@ -390,6 +390,30 @@ class ModerationManagerTestCase(TestCase):
 
         self.moderation.unregister(UserProfile)
 
+    def test_get_or_create_moderated_object_keep_history(self):
+        profile = UserProfile.objects.get(user__username='moderator')
+        profile.description = "New description"
+
+        self.moderation.register(UserProfile)
+        moderator = self.moderation.get_moderator(UserProfile)
+        moderator.keep_history = True
+
+        unchanged_obj = self.moderation._get_unchanged_object(profile)
+
+        moderated_object = self.moderation._get_or_create_moderated_object(
+            profile, unchanged_obj, moderator)
+        self.assertEqual(moderated_object.pk, None)
+        self.assertEqual(moderated_object.changed_object.description,
+                         'Old description')
+
+        moderated_object.save()
+
+        moderated_object_2 = self.moderation._get_or_create_moderated_object(
+            profile, unchanged_obj, moderator)
+        self.assertEqual(moderated_object_2.pk, None)
+        self.assertEqual(moderated_object_2.changed_object.description,
+                         'Old description')
+
     def test_get_unchanged_object(self):
         profile = UserProfile.objects.get(user__username='moderator')
         profile.description = "New description"
@@ -598,6 +622,48 @@ class ModerationSignalsTestCase(TestCase):
                                     UserProfile)
         signals.post_save.disconnect(self.moderation.post_save_handler,
                                      UserProfile)
+
+    def test_post_save_handler_keep_history(self):
+        # de-register current Moderator and replace it with one that
+        # has keep_history set to True
+        from moderation import moderation
+
+        class KeepHistoryModerator(GenericModerator):
+            keep_history = True
+            notify_moderator = False
+
+        moderation.unregister(UserProfile)
+        moderation.register(UserProfile, KeepHistoryModerator)
+
+        from django.db.models import signals
+
+        signals.pre_save.connect(self.moderation.pre_save_handler,
+                                 sender=UserProfile)
+        signals.post_save.connect(self.moderation.post_save_handler,
+                                  sender=UserProfile)
+        profile = UserProfile(description='Profile for new user',
+                              url='http://www.yahoo.com',
+                              user=User.objects.get(username='user1'))
+
+        profile.save()
+
+        moderated_object = ModeratedObject.objects.get_for_instance(profile)
+
+        self.assertEqual(moderated_object.content_object, profile)
+
+        # Now update it and make sure it gets the right history object...
+        profile.url = 'http://www.google.com'
+        profile.save()
+
+        moderated_object = ModeratedObject.objects.get_for_instance(profile)
+        self.assertEqual(moderated_object.content_object, profile)
+
+        signals.pre_save.disconnect(self.moderation.pre_save_handler,
+                                    UserProfile)
+        signals.post_save.disconnect(self.moderation.post_save_handler,
+                                     UserProfile)
+
+        self.moderation = False
 
     def test_pre_save_handler_for_new_object(self):
         from django.db.models import signals
