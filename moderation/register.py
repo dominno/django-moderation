@@ -132,8 +132,9 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         signals.post_save.disconnect(self.post_save_handler, model_class)
 
     def pre_save_handler(self, sender, instance, **kwargs):
-        """Update moderation object when moderation object for
-           existing instance of model does not exists
+        """
+        Create a new moderation for the instance if it doesn't have any.
+        If it does have a previous moderation, get that one
         """
         # check if object was loaded from fixture, bypass moderation if so
         if kwargs['raw']:
@@ -173,11 +174,22 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             return moderated_object
 
         try:
-            if moderator.keep_history:
+            # if moderator.keep_history:
+            #     moderated_object = get_new_instance(unchanged_obj)
+            # else:
+            #     moderated_object = ModeratedObject.objects.\
+            #         get_for_instance(instance)
+
+            moderated_object = ModeratedObject.objects.get_for_instance(
+                instance)
+            if moderated_object is None:
                 moderated_object = get_new_instance(unchanged_obj)
-            else:
-                moderated_object = ModeratedObject.objects.\
-                    get_for_instance(instance)
+            elif moderator.keep_history and \
+                    moderated_object.has_object_been_changed(
+                    instance):
+                # We're keeping history and this isn't an update of an existing
+                # moderation
+                moderated_object = get_new_instance(unchanged_obj)
 
         except ObjectDoesNotExist:
             moderated_object = get_new_instance(unchanged_obj)

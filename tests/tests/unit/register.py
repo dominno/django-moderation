@@ -408,8 +408,16 @@ class ModerationManagerTestCase(TestCase):
 
         moderated_object.save()
 
+        # moderated_object should have a pk now, and since it's the first one
+        # it should be 1
+        self.assertEqual(1, moderated_object.pk)
+
+        # If we call it again, we should get a new moderated_object, evidenced
+        # by having no pk
+
         moderated_object_2 = self.moderation._get_or_create_moderated_object(
             profile, unchanged_obj, moderator)
+
         self.assertEqual(moderated_object_2.pk, None)
         self.assertEqual(moderated_object_2.changed_object.description,
                          'Old description')
@@ -623,7 +631,7 @@ class ModerationSignalsTestCase(TestCase):
         signals.post_save.disconnect(self.moderation.post_save_handler,
                                      UserProfile)
 
-    def test_post_save_handler_keep_history(self):
+    def test_save_handler_keep_history(self):
         # de-register current Moderator and replace it with one that
         # has keep_history set to True
         from moderation import moderation
@@ -657,6 +665,16 @@ class ModerationSignalsTestCase(TestCase):
 
         moderated_object = ModeratedObject.objects.get_for_instance(profile)
         self.assertEqual(moderated_object.content_object, profile)
+
+        # There should only be two moderated objects
+        self.assertEqual(2, ModeratedObject.objects.count())
+
+        # Approve the change
+        moderated_object.approve(moderated_by=self.user,
+                                 reason='Testing post save handlers')
+
+        # There should *still* only be two moderated objects
+        self.assertEqual(2, ModeratedObject.objects.count())
 
         signals.pre_save.disconnect(self.moderation.pre_save_handler,
                                     UserProfile)
