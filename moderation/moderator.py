@@ -19,6 +19,7 @@ class GenericModerator(object):
     moderation_manager_class = ModerationObjectsManager
     bypass_moderation_after_approval = False
     visible_until_rejected = False
+    keep_history = False
 
     fields_exclude = []
 

@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.db.models.manager import Manager
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 
 class MetaClass(type(Manager)):
@@ -75,9 +75,16 @@ class ModerationObjectsManager(Manager):
 
 
 class ModeratedObjectManager(Manager):
-
     def get_for_instance(self, instance):
         '''Returns ModeratedObject for given model instance'''
-        return self.get(
-            object_pk=instance.pk,
-            content_type=ContentType.objects.get_for_model(instance.__class__))
+        try:
+            moderated_object = self.get(object_pk=instance.pk,
+                                        content_type=ContentType.objects
+                                        .get_for_model(instance.__class__))
+        except MultipleObjectsReturned:
+            # Get the most recent one
+            moderated_object = self.filter(object_pk=instance.pk,
+                                           content_type=ContentType.objects
+                                           .get_for_model(instance.__class__))\
+                .order_by('-date_updated')[0]
+        return moderated_object
