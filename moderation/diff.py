@@ -128,7 +128,7 @@ def get_change_for_type(verbose_name, change, field):
         change = TextChange(
             verbose_name,
             field,
-            (str(value1), str(value2)),
+            (unicode(value1), unicode(value2)),
         )
 
     return change
