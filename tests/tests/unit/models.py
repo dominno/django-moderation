@@ -194,176 +194,8 @@ class ModerateTestCase(TestCase):
 
         moderated_object.approve(moderated_by=self.user)
 
-        user_profile = UserProfile.objects.get(user__username='moderator')
-
-        self.assertEqual(user_profile.description, 'New description')
-
-    def test_approve_moderated_object_new_model_instance(self):
-        profile = UserProfile(description='Profile for new user',
-                              url='http://www.test.com',
-                              user=User.objects.get(username='user1'))
-
-        profile.save()
-
-        profile.moderated_object.approve(self.user)
-
-        user_profile = UserProfile.objects.get(url='http://www.test.com')
-
-        self.assertEqual(user_profile.description, 'Profile for new user')
-
-    def test_reject_moderated_object(self):
-        self.profile.description = 'New description'
-        self.profile.save()
-
-        self.profile.moderated_object.reject(self.user)
-
-        user_profile = UserProfile.objects.get(user__username='moderator')
-
-        self.assertEqual(user_profile.description, "Old description")
-        self.assertEqual(self.profile.moderated_object.moderation_status,
-                         MODERATION_STATUS_REJECTED)
-
-    def test_has_object_been_changed_should_be_true(self):
-        self.profile.description = 'Old description'
-        moderated_object = ModeratedObject(content_object=self.profile)
-        moderated_object.save()
-        moderated_object.approve(moderated_by=self.user)
-
-        user_profile = UserProfile.objects.get(user__username='moderator')
-
-        self.profile.description = 'New description'
-        moderated_object = ModeratedObject(content_object=self.profile)
-        moderated_object.save()
-
-        value = moderated_object.has_object_been_changed(user_profile)
-
-        self.assertEqual(value, True)
-
-    def test_has_object_been_changed_should_be_false(self):
-        moderated_object = ModeratedObject(content_object=self.profile)
-        moderated_object.save()
-
-        value = moderated_object.has_object_been_changed(self.profile)
-
-        self.assertEqual(value, False)
-
-
-class AutoModerateTestCase(TestCase):
-    fixtures = ['test_users.json', 'test_moderation.json']
-
-    def setUp(self):
-        self.moderation = ModerationManager()
-
-        class UserProfileModerator(GenericModerator):
-            auto_approve_for_superusers = True
-            auto_approve_for_staff = True
-            auto_reject_for_groups = ['banned']
-
-        self.moderation.register(UserProfile, UserProfileModerator)
-
-        self.user = User.objects.get(username='moderator')
-        self.profile = UserProfile.objects.get(user__username='moderator')
-
-    def tearDown(self):
-        teardown_moderation()
-
-    def test_auto_approve_helper_status_approved(self):
-        self.profile.description = 'New description'
-        self.profile.save()
-
-        status = automoderate(self.profile, self.user)
-
-        self.assertEqual(status, MODERATION_STATUS_APPROVED)
-
-        profile = UserProfile.objects.get(user__username='moderator')
-        self.assertEqual(profile.description, 'New description')
-
-    def test_auto_approve_helper_status_rejected(self):
-        group = Group(name='banned')
-        group.save()
-        self.user.groups.add(group)
-        self.user.save()
-
-        self.profile.description = 'New description'
-        self.profile.save()
-
-        status = automoderate(self.profile, self.user)
-
-        profile = UserProfile.objects.get(user__username='moderator')
-
-        self.assertEqual(status,
-                         MODERATION_STATUS_REJECTED)
-        self.assertEqual(profile.description, 'Old description')
-
-    def test_model_not_registered_with_moderation(self):
-        obj = ModelWithSlugField2(slug='test')
-        obj.save()
-
-        self.assertRaises(RegistrationError, automoderate, obj, self.user)
-
-
-@unittest.skipIf(VERSION[:2] < (1, 5), "Custom auth users require 1.5")
-# Using the decorator is causing problems with Django 1.3, so use
-# the non-decorated version below.
-# @override_settings(AUTH_USER_MODEL='tests.CustomUser')
-class ModerateCustomUserTestCase(TestCase):
-
-    def setUp(self):
-        from tests.models import CustomUser,\
-            UserProfileWithCustomUser
-        from django.conf import settings
-        self.user = CustomUser.objects.create(
-            username='custom_user',
-            password='aaaa')
-        self.copy_m = ModeratedObject.moderated_by
-        ModeratedObject.moderated_by = models.ForeignKey(
-            getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
-            blank=True, null=True, editable=False,
-            related_name='moderated_by_set')
-
-        self.profile = UserProfileWithCustomUser.objects.create(
-            user=self.user,
-            description='Old description',
-            url='http://google.com')
-        self.moderation = setup_moderation([UserProfileWithCustomUser])
-
-    def tearDown(self):
-        teardown_moderation()
-        ModeratedObject.moderated_by = self.copy_m
-
-    def test_approval_status_pending(self):
-        """test if before object approval status is pending"""
-
-        self.profile.description = 'New description'
-        self.profile.save()
-
-        self.assertEqual(self.profile.moderated_object.moderation_status,
-                         MODERATION_STATUS_PENDING)
-
-    def test_moderate(self):
-        self.profile.description = 'New description'
-        self.profile.save()
-
-        self.profile.moderated_object._moderate(MODERATION_STATUS_APPROVED,
-                                                self.user, "Reason")
-
-        self.assertEqual(self.profile.moderated_object.moderation_status,
-                         MODERATION_STATUS_APPROVED)
-        self.assertEqual(self.profile.moderated_object.moderated_by, self.user)
-        self.assertEqual(self.profile.moderated_object.moderation_reason,
-                         "Reason")
-
-    def test_approve_moderated_object(self):
-        """test if after object approval new data is saved."""
-        self.profile.description = 'New description'
-
-        moderated_object = ModeratedObject(content_object=self.profile)
-
-        moderated_object.save()
-
-        moderated_object.approve(moderated_by=self.user)
-
-        user_profile = self.profile.__class__.objects.get(id=self.profile.id)
+        user_profile = self.profile.__class__.objects.get(
+            id=self.profile.id)
 
         self.assertEqual(user_profile.description, 'New description')
 
@@ -416,6 +248,91 @@ class ModerateCustomUserTestCase(TestCase):
         value = moderated_object.has_object_been_changed(self.profile)
 
         self.assertEqual(value, False)
+
+
+class AutoModerateTestCase(TestCase):
+    fixtures = ['test_users.json', 'test_moderation.json']
+
+    def setUp(self):
+        self.moderation = ModerationManager()
+
+        class UserProfileModerator(GenericModerator):
+            auto_approve_for_superusers = True
+            auto_approve_for_staff = True
+            auto_reject_for_groups = ['banned']
+
+        self.moderation.register(UserProfile, UserProfileModerator)
+
+        self.user = User.objects.get(username='moderator')
+        self.profile = UserProfile.objects.get(user__username='moderator')
+
+    def tearDown(self):
+        teardown_moderation()
+
+    def test_auto_approve_helper_status_approved(self):
+        self.profile.description = 'New description'
+        self.profile.save()
+
+        status = automoderate(self.profile, self.user)
+        self.assertEqual(status, MODERATION_STATUS_APPROVED)
+
+        profile = UserProfile.objects.get(user__username='moderator')
+        self.assertEqual(profile.description, 'New description')
+
+    def test_auto_approve_helper_status_rejected(self):
+        group = Group(name='banned')
+        group.save()
+        self.user.groups.add(group)
+        self.user.save()
+
+        self.profile.description = 'New description'
+        self.profile.save()
+
+        status = automoderate(self.profile, self.user)
+
+        profile = UserProfile.objects.get(user__username='moderator')
+
+        self.assertEqual(status,
+                         MODERATION_STATUS_REJECTED)
+        self.assertEqual(profile.description, 'Old description')
+
+    def test_model_not_registered_with_moderation(self):
+        obj = ModelWithSlugField2(slug='test')
+        obj.save()
+
+        self.assertRaises(RegistrationError, automoderate, obj, self.user)
+
+
+@unittest.skipIf(VERSION[:2] < (1, 5), "Custom auth users require 1.5")
+# Using the decorator is causing problems with Django 1.3, so use
+# the non-decorated version below.
+# @override_settings(AUTH_USER_MODEL='tests.CustomUser')
+class ModerateCustomUserTestCase(ModerateTestCase):
+
+    def setUp(self):
+        from tests.models import CustomUser,\
+            UserProfileWithCustomUser
+        from django.conf import settings
+        self.user = CustomUser.objects.create(
+            username='custom_user',
+            password='aaaa')
+        self.copy_m = ModeratedObject.moderated_by
+        ModeratedObject.moderated_by = models.ForeignKey(
+            getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
+            blank=True, null=True, editable=False,
+            related_name='moderated_by_set')
+
+        self.profile = UserProfileWithCustomUser.objects.create(
+            user=self.user,
+            description='Old description',
+            url='http://google.com')
+        self.moderation = setup_moderation([UserProfileWithCustomUser])
+
+    def tearDown(self):
+        teardown_moderation()
+        ModeratedObject.moderated_by = self.copy_m
+
+    # The actual tests are inherited from ModerateTestCase
 
 if VERSION >= (1, 5):
     ModerateCustomUserTestCase = override_settings(
