@@ -11,6 +11,13 @@ class MetaClass(type(Manager)):
 
 
 class ModerationObjectsManager(Manager):
+    class MultipleModerations(Exception):
+        def __init__(self, base_object):
+            self.base_object = base_object
+            super(ModerationObjectsManager.MultipleModerations,
+                  self).__init__(
+                "Multiple moderations found for a single object, %s" %
+                base_object)
 
     def __call__(self, base_manager, *args, **kwargs):
         return MetaClass(
@@ -30,8 +37,14 @@ class ModerationObjectsManager(Manager):
             object_pk__in=query_set.values_list('pk', flat=True))
 
         # TODO: Load this query in chunks to avoid huge RAM usage spikes
-        mobjects = dict(
-            [(mobject.object_pk, mobject) for mobject in mobjs_set])
+        mobjects = {}
+        for mobject in mobjs_set:
+            if mobject.object_pk in mobjects:
+                # No sensible default action here. You need to override
+                # filter_moderated_objects() to handle this as you see fit.
+                raise self.MultipleModerations(mobject)
+            else:
+                mobjects[mobject.object_pk] = mobject
 
         full_query_set = super(ModerationObjectsManager, self).get_query_set()\
             .filter(pk__in=query_set.values_list('pk', flat=True))
