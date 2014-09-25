@@ -88,6 +88,30 @@ class RegistrationTestCase(TestCase):
 
         self.assertEqual(old_profile.description, 'Old description')
 
+    def test_can_use_object_without_moderated_object(self):
+        """
+        For backwards compatibility, when django-moderation is added to an
+        existing project, records with no ModeratedObject should be visible
+        as before.
+        """
+
+        profile = UserProfile.objects.get(user__username='moderator')
+        # Pretend that it was created before django-moderation was installed,
+        # by deleting the ModeratedObject.
+        ModeratedObject.objects.filter(object_pk=profile.pk).delete()
+
+        # We should be able to load it
+        profile = UserProfile.objects.get(user__username='moderator')
+        # And save changes to it
+        profile.description = "New description"
+        profile.save()
+        # And now it should be invisible, because it's pending
+        self.assertEqual(
+            [],
+            list(UserProfile.objects.all()),
+            "The previously unmoderated object should now be invisible, "
+            "because it has never been accepted.")
+
     def test_register(self):
         """Tests if after creation of new model instance new 
         moderation object is created"""
