@@ -107,8 +107,7 @@ class RegistrationTestCase(TestCase):
         profile.save()
         # And now it should be invisible, because it's pending
         self.assertEqual(
-            [],
-            list(UserProfile.objects.all()),
+            [], list(UserProfile.objects.all()),
             "The previously unmoderated object should now be invisible, "
             "because it has never been accepted.")
 
@@ -119,8 +118,7 @@ class RegistrationTestCase(TestCase):
                     url='http://www.yahoo.com',
                     user=User.objects.get(username='user1')).save()
 
-        self.assertEqual(ModeratedObject.objects.all().count(),
-                         1,
+        self.assertEqual(ModeratedObject.objects.all().count(), 1,
                          "New moderation object was not created"
                          " after creation of new model instance "
                          "from model class that is registered with moderation")
