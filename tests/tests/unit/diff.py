@@ -233,15 +233,15 @@ class DateFieldTestCase(TestCase):
         self.obj2.save()
 
     def test_date_field_in_model_object_should_be_unicode(self):
-        '''Test if when model field value is not unicode, then when getting 
+        '''Test if when model field value is not unicode, then when getting
            changes between models, all changes should be unicode.
         '''
         changes = get_changes_between_models(self.obj1, self.obj2)
 
         date_change = changes['modelwithdatefield__date']
 
-        self.assertTrue(isinstance(date_change.change[0], str))
-        self.assertTrue(isinstance(date_change.change[1], str))
+        self.assertTrue(isinstance(date_change.change[0], unicode))
+        self.assertTrue(isinstance(date_change.change[1], unicode))
 
     def test_html_to_list_should_return_list(self):
         '''Test if changes dict generated from model that has non unicode field
