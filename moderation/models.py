@@ -93,7 +93,8 @@ class ModeratedObject(models.Model):
             user = self.changed_by
         else:
             self.changed_by = user
-            self.save()
+            # No need to save here, both reject() and approve() will save us.
+            # Just save below if the moderation result is PENDING.
 
         if self.moderator.visible_until_rejected:
             changed_object = self.get_object_for_this_type()
@@ -107,6 +108,8 @@ class ModeratedObject(models.Model):
             self.reject(moderated_by=self.moderated_by, reason=reason)
         elif moderate_status == MODERATION_STATUS_APPROVED:
             self.approve(moderated_by=self.moderated_by, reason=reason)
+        else:  # MODERATION_STATUS_PENDING
+            self.save()
 
         return moderate_status
 
