@@ -21,9 +21,10 @@ def setup_moderation(models=[]):
     for model in models:
         try:
             model_class, generic_moderator = model
-            moderation.register(model_class, generic_moderator)
         except TypeError:
             moderation.register(model)
+        else:
+            moderation.register(model_class, generic_moderator)
 
     return moderation
 

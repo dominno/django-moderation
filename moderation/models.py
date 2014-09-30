@@ -42,7 +42,7 @@ class ModeratedObject(models.Model):
     date_updated = models.DateTimeField(auto_now=True,
                                         default=datetime.datetime.now)
     moderation_state = models.SmallIntegerField(choices=MODERATION_STATES,
-                                                default=MODERATION_READY_STATE,
+                                                default=MODERATION_DRAFT_STATE,
                                                 editable=False)
     moderation_status = models.SmallIntegerField(
         choices=STATUS_CHOICES,
@@ -168,6 +168,11 @@ class ModeratedObject(models.Model):
             pk = self.changed_object.pk
             base_object = obj_class._default_manager.get(pk=pk)
             base_object_force_save = False
+
+        if new_status == MODERATION_STATUS_APPROVED:
+            # This version is now approved, and will be reverted to if
+            # future changes are rejected by a moderator.
+            self.moderation_state = MODERATION_READY_STATE
 
         self.moderation_status = new_status
         self.moderation_date = datetime.datetime.now()

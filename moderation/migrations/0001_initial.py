@@ -22,7 +22,7 @@ class Migration(SchemaMigration):
             ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'], null=True, blank=True)),
             ('object_pk', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
             ('date_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('moderation_state', self.gf('django.db.models.fields.SmallIntegerField')(default=0)),
+            ('moderation_state', self.gf('django.db.models.fields.SmallIntegerField')(default=1)),  # draft state
             ('moderation_status', self.gf('django.db.models.fields.SmallIntegerField')(default=2)),
             ('moderated_by', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='moderated_by_set', null=True, to=orm[USER_MODEL])),
             ('moderation_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),

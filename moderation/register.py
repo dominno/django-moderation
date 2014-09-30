@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.utils.six import with_metaclass
 from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
-    MODERATION_STATUS_APPROVED
+    MODERATION_STATUS_APPROVED, MODERATION_DRAFT_STATE
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes import generic
 from moderation.moderator import GenericModerator
@@ -229,6 +229,9 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         if kwargs['created']:
             old_object = sender._default_manager.get(pk=pk)
             moderated_obj = ModeratedObject(content_object=old_object)
+            if not moderator.visible_until_rejected:
+                # Hide it by placing in draft state
+                moderated_obj.moderation_state = MODERATION_DRAFT_STATE
             moderated_obj.save()
             moderator.inform_moderator(instance)
             return
