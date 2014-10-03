@@ -240,7 +240,6 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
 
         if (moderated_obj.moderation_status == MODERATION_STATUS_APPROVED and
                 moderator.bypass_moderation_after_approval):
-
             # save new data in moderated object
             moderated_obj.changed_object = instance
             moderated_obj.save()
