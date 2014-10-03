@@ -5,9 +5,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 import django
 
-from moderation.models import ModeratedObject, MODERATION_DRAFT_STATE,\
-    MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED,\
-    MODERATION_STATUS_APPROVED
+from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
+    MODERATION_STATUS_REJECTED, MODERATION_STATUS_APPROVED
 
 from django.utils.translation import ugettext as _
 from moderation.forms import BaseModeratedObjectForm
@@ -137,11 +136,6 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
     def content_object(self, obj):
         return str(obj.changed_object)
-
-    def queryset(self, request):
-        qs = super(ModeratedObjectAdmin, self).queryset(request)
-
-        return qs.exclude(moderation_state=MODERATION_DRAFT_STATE)
 
     def get_moderated_object_form(self, model_class):
 

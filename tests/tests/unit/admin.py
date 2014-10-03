@@ -10,8 +10,8 @@ from moderation.admin import ModerationAdmin, approve_objects, reject_objects,\
 from tests.utils.testcases import WebTestCase
 from moderation.moderator import GenericModerator
 from moderation.models import ModeratedObject,\
-    MODERATION_DRAFT_STATE, MODERATION_STATUS_APPROVED,\
-    MODERATION_STATUS_REJECTED, MODERATION_STATUS_PENDING
+    MODERATION_STATUS_APPROVED, MODERATION_STATUS_REJECTED,\
+    MODERATION_STATUS_PENDING
 from tests.models import UserProfile, Book, \
     ModelWithSlugField, ModelWithSlugField2, SuperUserProfile
 from tests.utils import setup_moderation, teardown_moderation
@@ -99,11 +99,6 @@ class AdminActionsTestCase(TestCase):
 
     def tearDown(self):
         teardown_moderation()
-
-    def test_queryset_should_return_only_moderation_ready_objects(self):
-        qs = self.admin.queryset(self.request)
-        qs = qs.filter(moderation_state=MODERATION_DRAFT_STATE)
-        self.assertEqual(list(qs), [])
 
     def test_approve_objects(self):
         approve_objects(self.admin, self.request, self.moderated_objects)

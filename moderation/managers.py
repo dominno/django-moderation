@@ -19,7 +19,7 @@ class ModerationObjectsManager(Manager):
             {'use_for_related_fields': True})
 
     def filter_moderated_objects(self, query_set):
-        from moderation.models import MODERATION_STATUS_PENDING
+        from moderation.models import MODERATION_READY_STATE
 
         exclude_pks = []
 
@@ -42,8 +42,7 @@ class ModerationObjectsManager(Manager):
                 mobject = mobjects[obj.pk] if obj.pk in mobjects else \
                     obj.moderated_object
 
-                if mobject.moderation_status == MODERATION_STATUS_PENDING and \
-                   not mobject.moderation_date:
+                if mobject.moderation_state != MODERATION_READY_STATE:
                     exclude_pks.append(obj.pk)
             except ObjectDoesNotExist:
                 pass

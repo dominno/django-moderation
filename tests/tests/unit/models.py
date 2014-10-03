@@ -8,7 +8,8 @@ if VERSION >= (1, 4):
 from tests.models import UserProfile,\
     SuperUserProfile, ModelWithSlugField2, ProxyProfile
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED,\
-    MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED
+    MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED,\
+    MODERATION_READY_STATE, MODERATION_DRAFT_STATE
 from moderation.fields import SerializedObjectField
 from moderation.register import ModerationManager, RegistrationError
 from moderation.moderator import GenericModerator
@@ -162,6 +163,19 @@ class ModerateTestCase(TestCase):
     def tearDown(self):
         teardown_moderation()
 
+    def test_objects_with_no_moderated_object_are_visible(self):
+        """
+        Simulate conditions where moderation is added to a model which
+        already has existing objects, which should remain visible.
+        """
+
+        ModeratedObject.objects.all().delete()
+
+        self.assertEqual(
+            [self.profile], list(self.profile.__class__.objects.all()),
+            "Objects with no attached ModeratedObject should be visible "
+            "by default.")
+
     def test_approval_status_pending(self):
         """test if before object approval status is pending"""
 
@@ -199,22 +213,121 @@ class ModerateTestCase(TestCase):
 
         self.assertEqual(user_profile.description, 'New description')
 
-    def test_approve_moderated_object_new_model_instance(self):
+    def test_approve_new_moderated_object(self):
+        """
+        When a newly created object is approved, it should become visible
+        in standard querysets.
+        """
         profile = self.profile.__class__(description='Profile for new user',
                                          url='http://www.test.com',
                                          user=self.user)
 
         profile.save()
+        self.assertEqual(
+            MODERATION_DRAFT_STATE, profile.moderated_object.moderation_state,
+            "Before first approval, the profile should be in draft state, "
+            "to hide it from querysets.")
 
         profile.moderated_object.approve(self.user)
+        self.assertEqual(
+            MODERATION_READY_STATE, profile.moderated_object.moderation_state,
+            "After first approval, the profile should be in ready state, "
+            "to show it in querysets.")
 
         user_profile = self.profile.__class__.objects.get(
             url='http://www.test.com')
 
         self.assertEqual(user_profile.description, 'Profile for new user')
+        self.assertEqual(
+            [profile],
+            list(self.profile.__class__.objects.filter(pk=profile.pk)),
+            "New profile objects should be visible after being accepted")
 
-    def test_reject_moderated_object(self):
+    def test_reject_new_moderated_object(self):
+        """
+        When a newly created object is rejected, it should remain invisible
+        in standard querysets.
+        """
+        profile = self.profile.__class__(description='Profile for new user',
+                                         url='http://www.test.com',
+                                         user=self.user)
+
+        profile.save()
+        self.assertEqual(
+            MODERATION_DRAFT_STATE, profile.moderated_object.moderation_state,
+            "Before first approval, the profile should be in draft state, "
+            "to hide it from querysets.")
+
+        profile.moderated_object.reject(self.user)
+        self.assertEqual(
+            MODERATION_DRAFT_STATE, profile.moderated_object.moderation_state,
+            "After rejection, the profile should still be in draft state, "
+            "to hide it from querysets.")
+
+        user_profile = self.profile.__class__.unmoderated_objects.get(
+            url='http://www.test.com')
+        self.assertEqual(user_profile.description, 'Profile for new user')
+        self.assertEqual(
+            [], list(self.profile.__class__.objects.filter(pk=profile.pk)),
+            "New profile objects should be hidden after being rejected")
+
+    def test_approve_modified_moderated_object(self):
+        """
+        When a previously approved object is updated and approved, it should
+        remain visible in standard querysets, with the new data saved in the
+        object.
+        """
         self.profile.description = 'New description'
+        self.profile.save()
+        self.profile.moderated_object.approve(self.user)
+
+        self.assertEqual(
+            MODERATION_READY_STATE,
+            self.profile.moderated_object.moderation_state,
+            "After first approval, the profile should be in ready state, "
+            "to show it in querysets.")
+
+        user_profile = self.profile.__class__.objects.get(
+            id=self.profile.id)
+        self.assertEqual(user_profile.description, 'New description')
+        self.assertEqual(
+            [self.profile],
+            list(self.profile.__class__.objects.filter(pk=self.profile.pk)),
+            "Modified profile objects should be visible after being accepted")
+
+    def test_reject_modified_moderated_object(self):
+        """
+        When a previously approved object is updated and rejected, it should
+        remain visible in standard querysets, but with the old (previously
+        approved) data saved in the object.
+        """
+        ModeratedObject.objects.create(content_object=self.profile)
+        self.profile.moderated_object.approve(self.user)
+
+        self.profile.description = 'New description'
+        self.profile.save()
+
+        self.profile.moderated_object.reject(self.user)
+        self.assertEqual(
+            MODERATION_READY_STATE,
+            self.profile.moderated_object.moderation_state,
+            "After rejection, the profile should still be in ready state, "
+            "to show it in querysets, but with the old data.")
+
+        user_profile = self.profile.__class__.objects.get(id=self.profile.id)
+
+        self.assertEqual(user_profile.description, "Old description")
+        self.assertEqual(self.profile.moderated_object.moderation_status,
+                         MODERATION_STATUS_REJECTED)
+        self.assertEqual(
+            [self.profile],
+            list(self.profile.__class__.objects.filter(pk=self.profile.pk)),
+            "Modified profile objects should still be visible after being "
+            "rejected, but with the old data")
+
+        # Test making another change that's rejected, and that the data
+        # saved in the object is still the previously approved data.
+        self.profile.description = 'Another bad description'
         self.profile.save()
 
         self.profile.moderated_object.reject(self.user)
@@ -224,6 +337,11 @@ class ModerateTestCase(TestCase):
         self.assertEqual(user_profile.description, "Old description")
         self.assertEqual(self.profile.moderated_object.moderation_status,
                          MODERATION_STATUS_REJECTED)
+        self.assertEqual(
+            [self.profile],
+            list(self.profile.__class__.objects.filter(pk=self.profile.pk)),
+            "Modified profile objects should still be visible after being "
+            "rejected, but with the old data")
 
     def test_has_object_been_changed_should_be_true(self):
         self.profile.description = 'Old description'
@@ -290,10 +408,10 @@ class AutoModerateTestCase(TestCase):
 
         status = automoderate(self.profile, self.user)
 
-        profile = UserProfile.objects.get(user__username='moderator')
+        profile = UserProfile.unmoderated_objects.get(
+            user__username='moderator')
 
-        self.assertEqual(status,
-                         MODERATION_STATUS_REJECTED)
+        self.assertEqual(status, MODERATION_STATUS_REJECTED)
         self.assertEqual(profile.description, 'Old description')
 
     def test_model_not_registered_with_moderation(self):
