@@ -12,6 +12,7 @@ from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED,\
     MODERATION_READY_STATE, MODERATION_DRAFT_STATE
 from moderation.fields import SerializedObjectField
 from moderation.register import ModerationManager, RegistrationError
+from moderation.managers import ModerationObjectsManager
 from moderation.moderator import GenericModerator
 from moderation.helpers import automoderate
 from tests.utils import setup_moderation, teardown_moderation
@@ -198,20 +199,16 @@ class ModerateTestCase(TestCase):
         self.assertEqual(self.profile.moderated_object.moderation_reason,
                          "Reason")
 
-    def test_approve_moderated_object(self):
-        """test if after object approval new data is saved."""
+    def test_multiple_moderations_throws_exception_by_default(self):
         self.profile.description = 'New description'
+        self.profile.save()
 
-        moderated_object = ModeratedObject(content_object=self.profile)
-
-        moderated_object.save()
-
+        moderated_object = ModeratedObject.objects.create(
+            content_object=self.profile)
         moderated_object.approve(moderated_by=self.user)
 
-        user_profile = self.profile.__class__.objects.get(
-            id=self.profile.id)
-
-        self.assertEqual(user_profile.description, 'New description')
+        with self.assertRaises(ModerationObjectsManager.MultipleModerations):
+            self.profile.__class__.objects.get(id=self.profile.id)
 
     def test_approve_new_moderated_object(self):
         """
