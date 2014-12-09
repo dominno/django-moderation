@@ -14,6 +14,16 @@ installation script::
     $> python setup.py install
 
 
+Update to Django 1.7
+--------------------
+
+If you are updating an existing project which uses django-moderation to Django 1.7 you need to follow these simple steps:
+
+1. Remove ``'south'`` from your ``INSTALLED_APPS`` if present.
+2. Run ``python manage.py migrate``.
+
+That's it!
+
 
 Configuration
 -------------
