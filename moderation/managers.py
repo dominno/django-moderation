@@ -46,7 +46,7 @@ class ModerationObjectsManager(Manager):
             else:
                 mobjects[mobject.object_pk] = mobject
 
-        full_query_set = super(ModerationObjectsManager, self).get_query_set()\
+        full_query_set = super(ModerationObjectsManager, self).get_queryset()\
             .filter(pk__in=query_set.values_list('pk', flat=True))
 
         for obj in full_query_set:
@@ -71,8 +71,8 @@ class ModerationObjectsManager(Manager):
 
         return query_set.exclude(**kwargs)
 
-    def get_query_set(self):
-        query_set = super(ModerationObjectsManager, self).get_query_set()
+    def get_queryset(self):
+        query_set = super(ModerationObjectsManager, self).get_queryset()
 
         if self.moderator.visibility_column:
             return self.exclude_objs_by_visibility_col(query_set)
