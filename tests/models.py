@@ -41,15 +41,15 @@ class ModelWithSlugField2(models.Model):
 
 class MenManager(Manager):
 
-    def get_query_set(self):
-        query_set = super(MenManager, self).get_query_set()
+    def get_queryset(self):
+        query_set = super(MenManager, self).get_queryset()
         return query_set.filter(gender=1)
 
 
 class WomenManager(Manager):
 
-    def get_query_set(self):
-        query_set = super(WomenManager, self).get_query_set()
+    def get_queryset(self):
+        query_set = super(WomenManager, self).get_queryset()
         return query_set.filter(gender=0)
 
 
