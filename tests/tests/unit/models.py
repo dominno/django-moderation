@@ -15,6 +15,7 @@ from moderation.register import ModerationManager, RegistrationError
 from moderation.managers import ModerationObjectsManager
 from moderation.moderator import GenericModerator
 from moderation.helpers import automoderate
+from moderation.db import ModeratedModel
 from tests.utils import setup_moderation, teardown_moderation
 from tests.utils import unittest
 
@@ -433,7 +434,7 @@ class ModerateCustomUserTestCase(ModerateTestCase):
             password='aaaa')
         self.copy_m = ModeratedObject.moderated_by
         ModeratedObject.moderated_by = models.ForeignKey(
-            getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
+            getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
             blank=True, null=True, editable=False,
             related_name='moderated_by_set')
 
@@ -453,3 +454,19 @@ if VERSION >= (1, 5):
     ModerateCustomUserTestCase = override_settings(
         AUTH_USER_MODEL='tests.CustomUser'
     )(ModerateCustomUserTestCase)
+
+
+class ModeratedModelTestCase(TestCase):
+    def setUp(self):
+        self.moderation = ModerationManager()
+
+    def tearDown(self):
+        teardown_moderation()
+
+    def test_moderatedmodel_automatic_registration(self):
+        class MyTestModel(ModeratedModel):
+            pass
+
+        registered_models = self.moderation._registered_models
+        is_registered = registered_models.get(MyTestModel, None) is not None
+        self.assertEqual(is_registered, True)
