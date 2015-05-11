@@ -8,19 +8,22 @@ env:
   - DJANGO=1.4.8
   - DJANGO=1.5.4
   - DJANGO=1.6.5
+  - DJANGO=1.7.0
 matrix:
   exclude:
     - python: "3.3"
       env: DJANGO=1.4.8
     - python: "3.4"
       env: DJANGO=1.4.8
+    - python: "2.6"
+      env: DJANGO=1.7.0
 install:
   - pip install -q Django==$DJANGO
   - pip install -q coverage>=3.6
   - pip install -q flake8
   - pip install -q -e .
 before_script:
-  - flake8 --exclude=migrations --ignore=W291,F403 moderation tests
+    - flake8 --exclude=migrations,migrations-pre17 --ignore=W291,F403 moderation tests
 script:
   - coverage run setup.py test
 after_success:

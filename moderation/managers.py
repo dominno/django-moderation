@@ -3,6 +3,8 @@ from django.db.models.manager import Manager
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
+from utils import django_17
+
 
 class MetaClass(type(Manager)):
 
@@ -46,8 +48,14 @@ class ModerationObjectsManager(Manager):
             else:
                 mobjects[mobject.object_pk] = mobject
 
-        full_query_set = super(ModerationObjectsManager, self).get_query_set()\
-            .filter(pk__in=query_set.values_list('pk', flat=True))
+        full_query_set = None
+
+        if django_17():
+            full_query_set = super(ModerationObjectsManager, self).get_queryset()\
+                .filter(pk__in=query_set.values_list('pk', flat=True))
+        else:
+            full_query_set = super(ModerationObjectsManager, self).get_query_set()\
+                .filter(pk__in=query_set.values_list('pk', flat=True))
 
         for obj in full_query_set:
             try:
@@ -71,8 +79,13 @@ class ModerationObjectsManager(Manager):
 
         return query_set.exclude(**kwargs)
 
-    def get_query_set(self):
-        query_set = super(ModerationObjectsManager, self).get_query_set()
+    def get_queryset(self):
+        query_set = None
+
+        if django_17():
+            query_set = super(ModerationObjectsManager, self).get_queryset()
+        else:
+            query_set = super(ModerationObjectsManager, self).get_query_set()
 
         if self.moderator.visibility_column:
             return self.exclude_objs_by_visibility_col(query_set)
