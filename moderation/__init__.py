@@ -1,3 +1,6 @@
-from moderation.register import ModerationManager
+default_app_config = "moderation.apps.ModerationConfig"
 
-moderation = ModerationManager()
+from django import VERSION
+if VERSION < (1, 8):
+    from moderation.register import ModerationManager
+    moderation = ModerationManager()

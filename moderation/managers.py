@@ -3,7 +3,7 @@ from django.db.models.manager import Manager
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-from utils import django_17
+from moderation.utils import django_17
 
 
 class MetaClass(type(Manager)):

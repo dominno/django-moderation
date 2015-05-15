@@ -3,7 +3,13 @@ from django.utils.six import with_metaclass
 from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
     MODERATION_STATUS_APPROVED, MODERATION_DRAFT_STATE
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.contenttypes import generic
+
+from django import VERSION
+if VERSION >= (1, 8):
+    from django.contrib.contenttypes.fields import GenericRelation
+else:
+    from django.contrib.contenttypes import GenericRelation
+
 from moderation.moderator import GenericModerator
 
 
@@ -62,7 +68,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         if hasattr(model_class, '_relation_object'):
             relation_object = getattr(model_class, '_relation_object')
         else:
-            relation_object = generic.GenericRelation(
+            relation_object = GenericRelation(
                 ModeratedObject,
                 object_id_field='object_pk')
 
