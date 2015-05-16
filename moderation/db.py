@@ -17,4 +17,6 @@ class ModelBase(ModeratedModelBase, base.ModelBase):
 
 
 class ModeratedModel(six.with_metaclass(ModelBase, base.Model)):
-    pass
+
+    class Meta:
+        abstract = True

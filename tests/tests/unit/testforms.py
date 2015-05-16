@@ -7,6 +7,7 @@ from django.test.testcases import TestCase
 from tests.models import UserProfile, ModelWithImage
 from moderation.forms import BaseModeratedObjectForm
 from tests.utils import setup_moderation, teardown_moderation
+from moderation.utils import django_17
 
 
 class FormsTestCase(TestCase):
@@ -20,6 +21,8 @@ class FormsTestCase(TestCase):
 
             class Meta:
                 model = UserProfile
+                if django_17():
+                    fields = '__all__'
 
         self.ModeratedObjectForm = ModeratedObjectForm
         self.moderation = setup_moderation([UserProfile, ModelWithImage])

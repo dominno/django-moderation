@@ -130,3 +130,7 @@ if VERSION[:2] >= (1, 5):
 
         def get_absolute_url(self):
             return '/test/'
+
+
+class CustomModel(models.Model):
+    name = models.CharField(max_length=20)

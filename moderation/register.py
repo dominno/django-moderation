@@ -8,7 +8,7 @@ from django import VERSION
 if VERSION >= (1, 8):
     from django.contrib.contenttypes.fields import GenericRelation
 else:
-    from django.contrib.contenttypes import GenericRelation
+    from django.contrib.contenttypes.generic import GenericRelation
 
 from moderation.moderator import GenericModerator
 

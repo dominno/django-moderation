@@ -15,7 +15,6 @@ from moderation.register import ModerationManager, RegistrationError
 from moderation.managers import ModerationObjectsManager
 from moderation.moderator import GenericModerator
 from moderation.helpers import automoderate
-from moderation.db import ModeratedModel
 from tests.utils import setup_moderation, teardown_moderation
 from tests.utils import unittest
 
@@ -457,16 +456,13 @@ if VERSION >= (1, 5):
 
 
 class ModeratedModelTestCase(TestCase):
-    def setUp(self):
-        self.moderation = ModerationManager()
-
     def tearDown(self):
         teardown_moderation()
 
     def test_moderatedmodel_automatic_registration(self):
-        class MyTestModel(ModeratedModel):
-            pass
+        from tests.more_models import MyTestModel
+        from moderation import moderation
 
-        registered_models = self.moderation._registered_models
+        registered_models = moderation._registered_models
         is_registered = registered_models.get(MyTestModel, None) is not None
         self.assertEqual(is_registered, True)

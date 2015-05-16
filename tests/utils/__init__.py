@@ -16,8 +16,6 @@ except ImportError:
 def setup_moderation(models=[]):
     from moderation import moderation
 
-    moderation._registered_models = {}
-
     for model in models:
         try:
             model_class, generic_moderator = model

@@ -8,7 +8,7 @@ from optparse import OptionParser
 
 from django.conf import settings, global_settings
 
-from utils import django_17
+from moderation.utils import django_17
 
 
 # For convenience configure settings if they are not pre-configured or if we
@@ -65,10 +65,10 @@ def prepare_test_runner(*args, **kwargs):
         django.setup()
         from django.test.runner import DiscoverRunner
         test_runner = DiscoverRunner(
-            pattern='*.py',
+            pattern='test*.py',
             verbosity=kwargs.get('verbosity', 1),
             interactive=kwargs.get('interactive', False),
-            failfast=kwargs.get('failfast')
+            failfast=kwargs.get('failfast'),
         )
     else:
         from django.test.simple import DjangoTestSuiteRunner

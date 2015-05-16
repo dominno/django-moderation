@@ -39,6 +39,26 @@ class Migration(migrations.Migration):
             bases=('auth.user',),
         ),
         migrations.CreateModel(
+            name='CustomModel',
+            fields=[
+                ('name', models.CharField(max_length=20)),
+            ],
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='MyTestModel',
+            fields=[
+                ('name', models.CharField(max_length=20)),
+            ],
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ModelClass',
+            fields=[
+            ],
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='ModelWIthDateField',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
