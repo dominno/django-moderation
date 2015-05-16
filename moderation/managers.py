@@ -92,6 +92,10 @@ class ModerationObjectsManager(Manager):
 
         return self.filter_moderated_objects(query_set)
 
+    if not django_17():
+        get_query_set = get_queryset
+        del get_queryset
+
     @property
     def moderator(self):
         from moderation import moderation
