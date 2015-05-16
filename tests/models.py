@@ -45,12 +45,16 @@ class MenManager(Manager):
         query_set = super(MenManager, self).get_queryset()
         return query_set.filter(gender=1)
 
+    get_query_set = get_queryset
+
 
 class WomenManager(Manager):
 
     def get_queryset(self):
         query_set = super(WomenManager, self).get_queryset()
         return query_set.filter(gender=0)
+
+    get_query_set = get_queryset
 
 
 class ModelWithMultipleManagers(models.Model):
