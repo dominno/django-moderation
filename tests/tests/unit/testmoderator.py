@@ -257,20 +257,19 @@ class ByPassModerationTestCase(TestCase):
 
 
 class BaseManagerTestCase(unittest.TestCase):
+    from django.db import models
+
+    class CustomManager(models.Manager):
+        pass
+
+    class ModelClass(models.Model):
+        pass
 
     def setUp(self):
-        from django.db import models
-
         self.moderator = GenericModerator(UserProfile)
 
-        class CustomManager(models.Manager):
-            pass
-
-        class ModelClass(models.Model):
-            pass
-
-        self.custom_manager = CustomManager
-        self.model_class = ModelClass
+        self.custom_manager = self.CustomManager
+        self.model_class = self.ModelClass
 
     def test_get_base_manager(self):
         self.model_class.add_to_class('objects', self.custom_manager())

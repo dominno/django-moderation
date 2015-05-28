@@ -7,6 +7,8 @@ from django.db import models
 from django.db.models.manager import Manager
 from django import VERSION
 
+from moderation.utils import django_17
+
 
 class UserProfile(models.Model):
     user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
@@ -41,16 +43,26 @@ class ModelWithSlugField2(models.Model):
 
 class MenManager(Manager):
 
-    def get_query_set(self):
-        query_set = super(MenManager, self).get_query_set()
+    def get_queryset(self):
+        if django_17():
+            query_set = super(MenManager, self).get_queryset()
+        else:
+            query_set = super(MenManager, self).get_query_set()
         return query_set.filter(gender=1)
+
+    get_query_set = get_queryset
 
 
 class WomenManager(Manager):
 
-    def get_query_set(self):
-        query_set = super(WomenManager, self).get_query_set()
+    def get_queryset(self):
+        if django_17():
+            query_set = super(WomenManager, self).get_queryset()
+        else:
+            query_set = super(WomenManager, self).get_query_set()
         return query_set.filter(gender=0)
+
+    get_query_set = get_queryset
 
 
 class ModelWithMultipleManagers(models.Model):
@@ -130,3 +142,7 @@ if VERSION[:2] >= (1, 5):
 
         def get_absolute_url(self):
             return '/test/'
+
+
+class CustomModel(models.Model):
+    name = models.CharField(max_length=20)

@@ -1,8 +1,13 @@
 from __future__ import unicode_literals
+from django import VERSION
 from django.conf import settings
-from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+
+if VERSION >= (1, 8):
+    from django.contrib.contenttypes.fields import GenericForeignKey
+else:
+    from django.contrib.contenttypes.generic import GenericForeignKey
 
 from moderation.diff import get_changes_between_models
 from moderation.fields import SerializedObjectField
@@ -36,11 +41,10 @@ class ModeratedObject(models.Model):
                                      editable=False)
     object_pk = models.PositiveIntegerField(null=True, blank=True,
                                             editable=False)
-    content_object = generic.GenericForeignKey(ct_field="content_type",
-                                               fk_field="object_pk")
+    content_object = GenericForeignKey(ct_field="content_type",
+                                       fk_field="object_pk")
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
-    date_updated = models.DateTimeField(auto_now=True,
-                                        default=datetime.datetime.now)
+    date_updated = models.DateTimeField(auto_now=True)
     moderation_state = models.SmallIntegerField(choices=MODERATION_STATES,
                                                 default=MODERATION_DRAFT_STATE,
                                                 editable=False)

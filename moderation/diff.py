@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import re
 import difflib
+import re
+import sys
 
 from django.db.models import fields
 try:
@@ -125,6 +126,12 @@ def get_change_for_type(verbose_name, change, field):
             change)
     else:
         value1, value2 = change
+        if sys.version < '3':
+            if value1 and (type(value1) is str or type(value1) is unicode):  # NOQA
+                value1 = value1.encode('utf-8')
+            if value2 and (type(value2) is str or type(value2) is unicode):  # NOQA
+                value2 = value2.encode('utf-8')
+
         change = TextChange(
             verbose_name,
             field,

@@ -12,6 +12,7 @@ from django.utils.translation import ugettext as _
 from moderation.forms import BaseModeratedObjectForm
 from moderation.helpers import automoderate
 from moderation.diff import get_changes_between_models
+from moderation.utils import django_17
 
 
 def approve_objects(modeladmin, request, queryset):
@@ -98,6 +99,8 @@ class ModerationAdmin(admin.ModelAdmin):
 
             class Meta:
                 model = model_class
+                if django_17():
+                    fields = '__all__'
 
         return ModeratedObjectForm
 
@@ -143,6 +146,8 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
             class Meta:
                 model = model_class
+                if django_17():
+                    fields = '__all__'
 
         return ModeratedObjectForm
 

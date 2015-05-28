@@ -10,7 +10,8 @@ from moderation.managers import ModerationObjectsManager
 from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
 from moderation.signals import pre_moderation, post_moderation
 from tests.models import UserProfile, \
-    ModelWithSlugField, ModelWithSlugField2, ModelWithMultipleManagers
+    ModelWithSlugField, ModelWithSlugField2, ModelWithMultipleManagers, \
+    CustomModel
 from tests.utils import setup_moderation
 from tests.utils import teardown_moderation
 from moderation.helpers import import_moderator
@@ -26,6 +27,10 @@ except ImportError:
         pass
 
 from django.db import IntegrityError, transaction
+
+
+class MyModelModerator(GenericModerator):
+    pass
 
 
 class RegistrationTestCase(TestCase):
@@ -128,18 +133,8 @@ class RegistrationTestCase(TestCase):
                           UserProfile)
 
     def test_custom_moderator_should_be_registered_with_moderation(self):
-        from moderation.moderator import GenericModerator
-        from django.db import models
-
-        class MyModel(models.Model):
-            pass
-
-        class MyModelModerator(GenericModerator):
-            pass
-
-        self.moderation.register(MyModel, MyModelModerator)
-
-        moderator_instance = self.moderation._registered_models[MyModel]
+        self.moderation.register(CustomModel, MyModelModerator)
+        moderator_instance = self.moderation._registered_models[CustomModel]
 
         self.assertTrue(isinstance(moderator_instance, MyModelModerator))
 
@@ -156,12 +151,10 @@ class AutoDiscoverTestCase(TestCase):
     def test_models_should_be_registered_if_moderator_in_module(self):
         module = import_moderator('tests')
 
-        # try:  # force module reload
-        #     reload(module)
-        # except:
-        #     pass
-
-        reload(module)
+        try:  # force module reload
+            reload(module)
+        except:
+            pass
 
         self.assertTrue(Book in self.moderation._registered_models)
         self.assertEqual(module.__name__,
