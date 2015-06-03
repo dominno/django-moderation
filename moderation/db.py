@@ -17,6 +17,8 @@ from django.db.models import base
 
 from moderation.register import ModerationManager
 from moderation.moderator import GenericModerator
+from moderation.utils import clear_builtins
+from moderation.utils import django_14
 
 moderation = ModerationManager()
 
@@ -49,11 +51,14 @@ class ModeratedModelBase(type):
         """
         if hasattr(cls, 'Moderator') and inspect.isclass(cls.Moderator):
             Moderator = cls.Moderator
+            # in python3 __dict__ is dictproxy
+            attrs = dict(Moderator.__dict__)
+            attrs = clear_builtins(attrs)
 
             return type(
                 '%sModerator' % cls.__name__,
                 (GenericModerator,),
-                Moderator.__dict__
+                attrs,
             )
         else:
             return None
@@ -76,7 +81,8 @@ class ModelBase(ModeratedModelBase, base.ModelBase):
 
     """
 
-
-class ModeratedModel(with_metaclass(ModelBase, base.Model)):
-    class Meta:
-        abstract = True
+if not django_14():
+    # django.utils.six.with_metaclass is broken in django < 1.5
+    class ModeratedModel(with_metaclass(ModelBase, base.Model)):
+        class Meta:
+            abstract = True

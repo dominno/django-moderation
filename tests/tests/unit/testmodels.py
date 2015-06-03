@@ -455,7 +455,10 @@ if VERSION >= (1, 5):
     )(ModerateCustomUserTestCase)
 
 
+@unittest.skipIf(VERSION[:2] < (1, 5),
+    "django.utils.six.with_metaclass does not work properly until 1.5")
 class ModeratedModelTestCase(TestCase):
+
     def tearDown(self):
         teardown_moderation()
 
@@ -465,9 +468,9 @@ class ModeratedModelTestCase(TestCase):
 
         registered_models = moderation._registered_models
         moderator = registered_models.get(MyTestModel, None)
-        is_registered = registered_models.get(MyTestModel, None) is not None
+        is_registered = moderator is not None
         self.assertEqual(is_registered, True)
-        # if Moderator extended then default setting should be overwritten
+        # if Moderator extended then default notify_user should be overwritten
         notify_user = moderator.notify_user
         self.assertEqual(notify_user, False)
         # the value added to the Moderator should also show up
