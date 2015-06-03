@@ -455,8 +455,10 @@ if VERSION >= (1, 5):
     )(ModerateCustomUserTestCase)
 
 
-@unittest.skipIf(VERSION[:2] < (1, 5),
-    "django.utils.six.with_metaclass does not work properly until 1.5")
+@unittest.skipIf(
+    VERSION[:2] < (1, 5),
+    "django.utils.six.with_metaclass does not work properly until 1.5"
+)
 class ModeratedModelTestCase(TestCase):
 
     def tearDown(self):
