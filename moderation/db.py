@@ -1,8 +1,9 @@
-import six
+from django.utils import six
 
-from . import moderation
+from moderation.register import ModerationManager
 from django.db.models import base
 
+moderation = ModerationManager()
 
 class ModeratedModelBase(type):
     def __init__(cls, name, bases, clsdict):
