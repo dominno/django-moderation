@@ -464,5 +464,12 @@ class ModeratedModelTestCase(TestCase):
         from moderation import moderation
 
         registered_models = moderation._registered_models
+        moderator = registered_models.get(MyTestModel, None)
         is_registered = registered_models.get(MyTestModel, None) is not None
         self.assertEqual(is_registered, True)
+        # if Moderator extended then default setting should be overwritten
+        notify_user = moderator.notify_user
+        self.assertEqual(notify_user, False)
+        # the value added to the Moderator should also show up
+        made_up_value = moderator.made_up_value
+        self.assertEqual(made_up_value, 'made_up')
