@@ -455,14 +455,44 @@ if VERSION >= (1, 5):
     )(ModerateCustomUserTestCase)
 
 
+@unittest.skipIf(
+    VERSION[:2] < (1, 5),
+    "django.utils.six.with_metaclass does not work properly until 1.5"
+)
 class ModeratedModelTestCase(TestCase):
+
     def tearDown(self):
         teardown_moderation()
 
     def test_moderatedmodel_automatic_registration(self):
         from tests.more_models import MyTestModel
+        from tests.more_models import MyTestModelWithoutModerator
         from moderation import moderation
 
         registered_models = moderation._registered_models
-        is_registered = registered_models.get(MyTestModel, None) is not None
+        # test registration with moderator
+        moderator = registered_models.get(MyTestModel, None)
+        is_registered = moderator is not None
         self.assertEqual(is_registered, True)
+        # if Moderator extended then default notify_user should be overwritten
+        notify_user = moderator.notify_user
+        self.assertEqual(notify_user, False)
+        # the value added to the Moderator should also show up
+        made_up_value = moderator.made_up_value
+        self.assertEqual(made_up_value, 'made_up')
+
+        # test registration without custom moderator
+        moderator = registered_models.get(MyTestModelWithoutModerator)
+        self.assertEqual(
+            moderator.__class__.__name__,
+            'GenericModerator'
+        )
+
+    def test_django_14(self):
+        # django_14 test
+        from mock import patch, Mock
+        from moderation.utils import django_14
+        version = Mock()
+        version.return_value = '1.4.8'
+        with patch('django.get_version', version):
+            self.assertTrue(django_14())
