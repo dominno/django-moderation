@@ -41,6 +41,7 @@ To start using ``django-moderation`` follow these steps:
 
 1. Create your models by extending ``moderation.db.ModeratedModel``::
 
+    from django.db import models
     from moderation.db import ModeratedModel
 
     class MyModel(ModeratedModel):
