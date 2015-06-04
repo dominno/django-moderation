@@ -3,9 +3,13 @@ from django.forms.models import ModelForm, model_to_dict
 from moderation.models import MODERATION_STATUS_PENDING,\
     MODERATION_STATUS_REJECTED
 from django.core.exceptions import ObjectDoesNotExist
+from moderation.utils import django_17
 
 
 class BaseModeratedObjectForm(ModelForm):
+    class Meta:
+        if django_17():
+            exclude = '__all__'
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance', None)
