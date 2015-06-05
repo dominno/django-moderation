@@ -14,10 +14,10 @@ installation script::
     $> python setup.py install
 
 
-Update to Django 1.7
---------------------
+Updating existing projects to Django 1.7
+----------------------------------------
 
-If you are updating an existing project which uses django-moderation to Django 1.7 you need to follow these simple steps:
+If you are updating an existing project which uses ``django-moderation`` to Django 1.7 you need to follow these simple steps:
 
 1. Remove ``'south'`` from your ``INSTALLED_APPS`` if present.
 2. Run ``python manage.py migrate``.
@@ -32,7 +32,43 @@ Configuration
 
     ``moderation``
 2. Run command ``manage.py syncdb``
-3. Register Models with moderation, put these models in module ``moderator.py`` in side of your app, ex ``myapp.moderator``::
+
+
+Usage
+-----
+
+To start using ``django-moderation`` follow these steps:
+
+1. Create your models by extending ``moderation.db.ModeratedModel``::
+
+    from django.db import models
+    from moderation.db import ModeratedModel
+
+    class MyModel(ModeratedModel):
+         my_field = models.TextField()
+
+
+2. To customize ``Moderator`` settings create ``class Moderator`` within your model definition::
+
+    from django.db import models
+    from moderation.db import ModeratedModel
+
+    class MyModel(ModeratedModel):
+        my_field = models.TextField()
+
+        class Moderator:
+            notify_user = False
+
+
+The models will be automatically registered with ``django-moderation``.
+
+
+Usage alternative
+-----------------
+
+Alternatively, you can follow the steps below:
+
+1. Register Models with moderation, put these models in module ``moderator.py`` inside of your app, e.g. ``myapp.moderator``::
 
     from moderation import moderation
     from yourapp.models import YourModel
@@ -42,12 +78,16 @@ Configuration
 
 
 
-4. Add function ``auto_discover`` in to main urls.py::
+2. Add function ``auto_discover`` in to main urls.py::
 
     from moderation.helpers import auto_discover
     auto_discover()
 
-5. If you want to enable integration with Django Admin, then register admin class with your Model::
+
+Admin integration
+-----------------
+
+1. If you want to enable integration with Django Admin, then register admin class with your Model::
 
     from django.contrib import admin
     from moderation.admin import ModerationAdmin
