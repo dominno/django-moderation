@@ -80,7 +80,9 @@ class SerializedObjectField(models.TextField):
 
     def post_init(self, **kwargs):
         if 'sender' in kwargs and 'instance' in kwargs:
-            if kwargs['sender'] == self.class_name and\
+            sender = kwargs['sender']
+            if (sender == self.class_name or sender._meta.proxy
+                and issubclass(sender, self.class_name)) and\
                hasattr(kwargs['instance'], self.attname):
                 value = self.value_from_object(kwargs['instance'])
 
