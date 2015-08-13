@@ -42,22 +42,22 @@ background:#BBFFBB none repeat scroll 0 0;
 {% endblock %}
 <form enctype="multipart/form-data" action="" method="post"
 id="moderatedobject_form">{% csrf_token %}
-	
-	
+
+
 <div>
 	<fieldset class="module aligned ">
-	<h2>Object differences</h2>
+	<h2>{% trans "Object differences" %}</h2>
 
 	{% for change in changes %}
 	<div class="form-row {{ change.verbose_name }}">
 		<div>
 			<label style="font-size: 14px; font-weight: bold;">{{ change.verbose_name }}</label><p style="width:800px;">{{ change.diff|safe }}</p>
 		</div>
-		
+
 	</div>
 	{% endfor %}
 	</fieldset>
-	
+
 	{% for fieldset in adminform %}
 		{% include "admin/includes/fieldset.html" %}
 	{% endfor %}
@@ -65,9 +65,9 @@ id="moderatedobject_form">{% csrf_token %}
 
 <div class="submit-row" >
 
-<input type="submit" value="Approve" name="approve" />
+<input type="submit" value="{% trans 'Approve' %}" name="approve" />
 
-<input type="submit" value="Reject" name="reject"  />
+<input type="submit" value="{% trans 'Reject' %}" name="reject"  />
 
 </div>
 
@@ -75,8 +75,3 @@ id="moderatedobject_form">{% csrf_token %}
 </div>
 
 {% endblock %}
-
-
-
-
-
