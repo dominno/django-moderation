@@ -4,7 +4,7 @@ import sys
 
 version = '0.3.6'
 
-tests_require = ['django>=1.4.8', 'django-webtest>=1.5.7,<1.6',
+tests_require = ['django>=1.4.8', 'django-webtest>=1.5.7-web',
                  'webtest>=2.0,<2.1', 'mock', 'pillow', 'ipdb']
 
 # ipython>2 is only supported on Python 2.7+
