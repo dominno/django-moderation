@@ -3,6 +3,7 @@ from django import VERSION
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 if VERSION >= (1, 8):
     from django.contrib.contenttypes.fields import GenericForeignKey
@@ -25,14 +26,14 @@ MODERATION_STATUS_APPROVED = 1
 MODERATION_STATUS_PENDING = 2
 
 MODERATION_STATES = (
-    (MODERATION_READY_STATE, 'Ready for moderation'),
-    (MODERATION_DRAFT_STATE, 'Draft'),
+    (MODERATION_READY_STATE, _('Ready for moderation')),
+    (MODERATION_DRAFT_STATE, _('Draft')),
 )
 
 STATUS_CHOICES = (
-    (MODERATION_STATUS_APPROVED, "Approved"),
-    (MODERATION_STATUS_PENDING, "Pending"),
-    (MODERATION_STATUS_REJECTED, "Rejected"),
+    (MODERATION_STATUS_APPROVED, _("Approved")),
+    (MODERATION_STATUS_PENDING, _("Pending")),
+    (MODERATION_STATUS_REJECTED, _("Rejected")),
 )
 
 
@@ -53,8 +54,8 @@ class ModeratedObject(models.Model):
         default=MODERATION_STATUS_PENDING,
         editable=False)
     moderated_by = models.ForeignKey(
-        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
-        blank=True, null=True, editable=False, 
+        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
+        blank=True, null=True, editable=False,
         related_name='moderated_by_set')
     moderation_date = models.DateTimeField(editable=False, blank=True,
                                            null=True)
@@ -62,8 +63,8 @@ class ModeratedObject(models.Model):
     changed_object = SerializedObjectField(serialize_format='json',
                                            editable=False)
     changed_by = models.ForeignKey(
-        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
-        blank=True, null=True, editable=True, 
+        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
+        blank=True, null=True, editable=True,
         related_name='changed_by_set')
 
     objects = ModeratedObjectManager()
@@ -87,6 +88,8 @@ class ModeratedObject(models.Model):
         super(ModeratedObject, self).save(*args, **kwargs)
 
     class Meta:
+        verbose_name = _('Moderated Object')
+        verbose_name_plural = _('Moderated Objects')
         ordering = ['moderation_status', 'date_created']
 
     def automoderate(self, user=None):
