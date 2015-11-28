@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from django import VERSION
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
 if VERSION >= (1, 8):
@@ -205,7 +205,11 @@ class ModeratedObject(models.Model):
 
         if base_object_force_save:
             # avoid triggering pre/post_save_handler
-            base_object.save_base(raw=True)
+            with transaction.atomic(using=None, savepoint=False):
+                base_object.save_base(raw=True)
+                # The _save_parents call is required for models with an
+                # inherited visibility_column.
+                base_object._save_parents(base_object.__class__, None, None)
 
         if self.changed_by:
             self.moderator.inform_user(self.content_object, self.changed_by)
