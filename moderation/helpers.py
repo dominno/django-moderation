@@ -21,7 +21,7 @@ def import_moderator(app):
     '''
     Import moderator module and register all models it contains with moderation
     '''
-    from django.utils.importlib import import_module
+    from importlib import import_module
     import imp
 
     try:
