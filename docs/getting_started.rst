@@ -78,10 +78,9 @@ Alternatively, you can follow the steps below:
 
 
 
-2. Add function ``auto_discover`` in to main urls.py::
+2. Add the ``MODERATION_AUTODISCOVER`` setting to your project's ``settings.py``::
 
-    from moderation.helpers import auto_discover
-    auto_discover()
+    MODERATION_AUTODISCOVER = True
 
 
 Admin integration
