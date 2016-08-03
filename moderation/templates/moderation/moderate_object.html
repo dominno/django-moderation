@@ -30,8 +30,15 @@ background:#BBFFBB none repeat scroll 0 0;
 .img-wrapper img + img {
 	margin-top: 10px;
 }
+.submit-row input[name=reject] {
+	background: #ba2121;
+}
+.submit-row input[name=approve] {
+	background: #5bc76a;
+}
 </style>
 {% endblock %}
+
 {% block content %}
 {% block object-tools %}
 {% if object_admin_url %}
@@ -39,7 +46,7 @@ background:#BBFFBB none repeat scroll 0 0;
 	<li><a href="{{ object_admin_url }}" class="historylink">{% trans "Change object" %}</a></li>
 	</ul>
 {% endif %}
-{% endblock %}
+{% endblock %}{# object-tools #}
 <form enctype="multipart/form-data" action="" method="post"
 id="moderatedobject_form">{% csrf_token %}
 
@@ -62,14 +69,13 @@ id="moderatedobject_form">{% csrf_token %}
 		{% include "admin/includes/fieldset.html" %}
 	{% endfor %}
 
+	<div class="submit-row">
+		<p class="deletelink-box">
+			<input type="submit" value="{% trans 'Reject' %}" name="reject"  />
+		</p>
 
-<div class="submit-row" >
-
-<input type="submit" value="{% trans 'Approve' %}" name="approve" />
-
-<input type="submit" value="{% trans 'Reject' %}" name="reject"  />
-
-</div>
+		<input type="submit" value="{% trans 'Approve' %}" name="approve" />
+	</div>
 
 </form>
 </div>
