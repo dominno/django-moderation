@@ -87,6 +87,17 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         model_class.add_to_class('moderated_object',
                                  property(get_moderated_object))
 
+    def _add_moderated_status_to_class(self, model_class):
+        # Add the moderation_object to the class if it hasn't been yet
+        if not hasattr(model_class, 'moderation_object'):
+            self._add_moderated_object_to_class(model_class)
+
+        def get_moderated_status(self):
+            return STATUS_CHOICES[self.moderated_object.status]
+
+        model_class.add_to_class('moderated_status',
+                                 property(get_moderated_status))
+
     def _and_fields_to_model_class(self, moderator_class_instance):
         """Sets moderation manager on model class,
            adds generic relation to ModeratedObject,
@@ -106,6 +117,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             model_class.add_to_class(manager_name, manager)
 
         self._add_moderated_object_to_class(model_class)
+        self._add_moderated_status_to_class(model_class)
 
     def unregister(self, model_class):
         """Unregister model class from moderation"""
