@@ -22,6 +22,7 @@ class GenericModerator(object):
     keep_history = False
 
     fields_exclude = []
+    resolve_foreignkeys = True
 
     visibility_column = None
 

@@ -170,7 +170,8 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
         changes = list(get_changes_between_models(
             old_object,
             new_object,
-            moderator.fields_exclude).values())
+            moderator.fields_exclude,
+            resolve_foreignkeys=moderator.resolve_foreignkeys).values())
         if request.POST:
             admin_form = self.get_form(request, moderated_object)(request.POST)
 

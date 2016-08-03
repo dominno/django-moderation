@@ -43,6 +43,9 @@ GenericModerator options
 ``fields_exclude``
     Fields to exclude from object change list. Default: []
 
+``resolve_foreignkeys``
+    Display related object's string representation instead of their primary key. Default: True
+
 ``auto_approve_for_superusers``
     Auto approve objects changed by superusers. Default: True
 
