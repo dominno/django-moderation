@@ -7,9 +7,12 @@ if VERSION >= (1, 4):
     from django.test.utils import override_settings
 from tests.models import UserProfile,\
     SuperUserProfile, ModelWithSlugField2, ProxyProfile
-from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED,\
-    MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED,\
-    MODERATION_READY_STATE, MODERATION_DRAFT_STATE
+from moderation.models import ModeratedObject
+from moderation.constants import (MODERATION_STATUS_APPROVED,
+                                  MODERATION_STATUS_PENDING,
+                                  MODERATION_STATUS_REJECTED,
+                                  MODERATION_READY_STATE,
+                                  MODERATION_DRAFT_STATE)
 from moderation.fields import SerializedObjectField
 from moderation.register import ModerationManager, RegistrationError
 from moderation.managers import ModerationObjectsManager

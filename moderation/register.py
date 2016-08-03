@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 from django.utils.six import with_metaclass
-from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
-    MODERATION_STATUS_APPROVED, MODERATION_DRAFT_STATE
+from moderation.constants import (MODERATION_DRAFT_STATE,
+                                  MODERATION_STATUS_PENDING,
+                                  MODERATION_STATUS_APPROVED)
+from moderation.models import (ModeratedObject, STATUS_CHOICES)
 from django.core.exceptions import ObjectDoesNotExist
 
 from django import VERSION

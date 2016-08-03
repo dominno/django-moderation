@@ -28,7 +28,7 @@ class ModerationObjectsManager(Manager):
             {'use_for_related_fields': True})
 
     def filter_moderated_objects(self, query_set):
-        from moderation.models import MODERATION_READY_STATE
+        from moderation.constants import MODERATION_READY_STATE
 
         exclude_pks = []
 

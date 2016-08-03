@@ -4,9 +4,10 @@ from django.forms.models import ModelForm
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 import django
-
-from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
-    MODERATION_STATUS_REJECTED, MODERATION_STATUS_APPROVED
+from moderation.models import ModeratedObject
+from moderation.constants import (MODERATION_STATUS_REJECTED,
+                                  MODERATION_STATUS_APPROVED,
+                                  MODERATION_STATUS_PENDING)
 
 from django.utils.translation import ugettext as _
 from moderation.forms import BaseModeratedObjectForm

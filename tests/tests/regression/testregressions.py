@@ -5,7 +5,7 @@ from django.test.testcases import TestCase
 from django.contrib.auth.models import User
 
 from moderation.helpers import automoderate
-from moderation.models import MODERATION_STATUS_APPROVED
+from moderation.constants import MODERATION_STATUS_APPROVED
 from moderation.moderator import GenericModerator
 
 from tests.models import UserProfile, ModelWithVisibilityField

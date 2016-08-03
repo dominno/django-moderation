@@ -17,13 +17,11 @@ from moderation.managers import ModeratedObjectManager
 
 import datetime
 
-
-MODERATION_READY_STATE = 0
-MODERATION_DRAFT_STATE = 1
-
-MODERATION_STATUS_REJECTED = 0
-MODERATION_STATUS_APPROVED = 1
-MODERATION_STATUS_PENDING = 2
+from moderation.constants import (MODERATION_READY_STATE,
+                                  MODERATION_DRAFT_STATE,
+                                  MODERATION_STATUS_REJECTED,
+                                  MODERATION_STATUS_APPROVED,
+                                  MODERATION_STATUS_PENDING)
 
 MODERATION_STATES = (
     (MODERATION_READY_STATE, _('Ready for moderation')),

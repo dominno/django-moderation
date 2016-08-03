@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.forms.models import ModelForm, model_to_dict
-from moderation.models import MODERATION_STATUS_PENDING,\
-    MODERATION_STATUS_REJECTED
+from moderation.constants import (MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED)
+
 from django.core.exceptions import ObjectDoesNotExist
 from moderation.utils import django_17
 
