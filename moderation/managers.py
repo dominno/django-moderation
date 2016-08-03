@@ -6,6 +6,7 @@ from django.db.models.manager import Manager
 
 from . import moderation
 from .constants import MODERATION_READY_STATE
+from .queryset import ModeratedObjectQuerySet
 from .utils import django_17
 
 
@@ -99,6 +100,9 @@ class ModerationObjectsManager(Manager):
 
 
 class ModeratedObjectManager(Manager):
+    def get_queryset(self):
+        return ModeratedObjectQuerySet(self.model, using=self._db)
+
     if not django_17():
         get_query_set = get_queryset
         del get_queryset

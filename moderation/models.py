@@ -153,6 +153,17 @@ class ModeratedObject(models.Model):
 
         return moderation.get_moderator(model_class)
 
+    def _send_signals_and_moderate(self, new_status, by, reason):
+        pre_moderation.send(sender=self.changed_object.__class__,
+                            instance=self.changed_object,
+                            status=new_status)
+
+        self._moderate(new_status, by, reason)
+
+        post_moderation.send(sender=self.content_object.__class__,
+                             instance=self.content_object,
+                             status=new_status)
+
     def _moderate(self, new_status, moderated_by, reason):
         # See register.py pre_save_handler() for the case where the model is
         # reset to its old values, and the new values are stored in the
@@ -232,21 +243,7 @@ class ModeratedObject(models.Model):
         return False
 
     def approve(self, moderated_by=None, reason=None):
-        pre_moderation.send(sender=self.changed_object.__class__,
-                            instance=self.changed_object,
-                            status=MODERATION_STATUS_APPROVED)
-
-        self._moderate(MODERATION_STATUS_APPROVED, moderated_by, reason)
-
-        post_moderation.send(sender=self.content_object.__class__,
-                             instance=self.content_object,
-                             status=MODERATION_STATUS_APPROVED)
+        self._send_signals_and_moderate(MODERATION_STATUS_APPROVED, moderated_by, reason)
 
     def reject(self, moderated_by=None, reason=None):
-        pre_moderation.send(sender=self.changed_object.__class__,
-                            instance=self.changed_object,
-                            status=MODERATION_STATUS_REJECTED)
-        self._moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)
-        post_moderation.send(sender=self.content_object.__class__,
-                             instance=self.content_object,
-                             status=MODERATION_STATUS_REJECTED)
+        self._send_signals_and_moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)

@@ -7,7 +7,10 @@ from django.db.models.manager import Manager
 from django.template.loader import render_to_string
 
 from .managers import ModerationObjectsManager
-from .message_backends import (BaseMessageBackend, EmailMessageBackend)
+from .message_backends import (BaseMessageBackend,
+                               EmailMessageBackend,
+                               BaseMultipleMessageBackend,
+                               EmailMultipleMessageBackend)
 
 
 class GenericModerator(object):
@@ -37,6 +40,7 @@ class GenericModerator(object):
     notify_user = True
 
     message_backend_class = EmailMessageBackend
+    multiple_message_backend_class = EmailMultipleMessageBackend
     subject_template_moderator = \
         'moderation/notification_subject_moderator.txt'
     message_template_moderator = \
@@ -114,6 +118,13 @@ class GenericModerator(object):
                             "class" % self.message_backend_class)
         return self.message_backend_class()
 
+    def get_multiple_message_backend(self):
+        if not issubclass(self.multiple_message_backend_class, BaseMultipleMessageBackend):
+            raise TypeError("The message backend used '{}' needs to "
+                            "inherit from the BaseMultipleMessageBackend "
+                            "class".format(self.message_backend_class))
+        return self.multiple_message_backend_class()
+
     def send(self, content_object, subject_template, message_template,
              recipient_list, extra_context=None):
         context = {
@@ -133,6 +144,36 @@ class GenericModerator(object):
             subject=subject,
             message=message,
             recipient_list=recipient_list)
+
+    def send_many(self, queryset, subject_template, message_template,
+                  extra_context=None):
+        site = Site.objects.get_current()
+
+        ctx = extra_context if extra_context else {}
+
+        datatuples = tuple({
+            'subject': render_to_string(
+                subject_template, ctx.update({
+                    'moderated_object': mobj,
+                    'content_object': mobj.content_object,
+                    'site': site,
+                    'content_type': mobj.content_type,
+                    'user': mobj.changed_by,
+                })),
+            'message': render_to_string(
+                message_template, ctx.update({
+                    'moderated_object': mobj,
+                    'content_object': mobj.content_object,
+                    'site': site,
+                    'content_type': mobj.content_type,
+                    'user': mobj.changed_by,
+                })),
+            # from_email will need to be added
+            'recipient_list': [mobj.changed_by.email]
+        } for mobj in queryset)
+
+        multiple_backend = self.get_multiple_message_backend()
+        multiple_backend.send(datatuples)
 
     def inform_moderator(self,
                          content_object,
@@ -163,6 +204,18 @@ class GenericModerator(object):
                 subject_template=self.subject_template_user,
                 message_template=self.message_template_user,
                 recipient_list=[user.email],
+                extra_context=extra_context)
+
+    def inform_users(self, queryset, extra_context=None):
+        '''
+        Send notifications to users when their objects are approved or rejected
+        '''
+        if self.notify_user:
+            self.send_many(
+                queryset=queryset.exclude(changed_by=None)
+                                 .select_related('changed_by__email'),
+                subject_template=self.subject_template_user,
+                message_template=self.message_template_user,
                 extra_context=extra_context)
 
     def _get_base_managers(self):
