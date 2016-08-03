@@ -16,11 +16,11 @@ try:
     from .filterspecs import RegisteredContentTypeListFilter
 except ImportError:
     # Django < 1.4
-    available_filters = ('content_type', 'status')
+    available_filters = ('content_type', 'moderation_status')
 else:
     # Django >= 1.4
     available_filters = (
-        ('content_type', RegisteredContentTypeListFilter), 'status')
+        ('content_type', RegisteredContentTypeListFilter), 'moderation_status')
 from .forms import BaseModeratedObjectForm
 from .helpers import automoderate
 from .models import ModeratedObject

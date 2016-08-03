@@ -33,7 +33,7 @@ MODERATION_STATES = Choices(
 STATUS_CHOICES = Choices(
     (MODERATION_STATUS_REJECTED, 'rejected', _("Rejected")),
     (MODERATION_STATUS_APPROVED, 'approved', _("Approved")),
-    (MODERATION_STATUS_PENDING,  'pending',  _("Pending")),
+    (MODERATION_STATUS_PENDING, 'pending', _("Pending")),
 )
 
 

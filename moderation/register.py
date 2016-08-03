@@ -9,7 +9,7 @@ from django.utils.six import with_metaclass
 from .constants import (MODERATION_DRAFT_STATE,
                         MODERATION_STATUS_APPROVED,
                         MODERATION_STATUS_PENDING)
-from .models import ModeratedObject
+from .models import ModeratedObject, STATUS_CHOICES
 from .moderator import GenericModerator
 
 

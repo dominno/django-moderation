@@ -4,8 +4,8 @@ import sys
 
 version = '0.3.6'
 
-tests_require = ['django>=1.4.8', 'django-webtest>=1.5.7-web',
-                 'webtest>=2.0,<2.1', 'mock', 'pillow', 'ipdb']
+tests_require = ['django>=1.7', 'django-webtest>=1.5.7-web',
+                 'webtest>=2.0,<2.1', 'mock', 'pillow',]
 
 # ipython>2 is only supported on Python 2.7+
 if sys.hexversion < 0x02070000:
@@ -41,8 +41,7 @@ setup(name='django-moderation',
       tests_require=tests_require,
       test_suite='runtests.runtests',
       install_requires=[
-          'django>=1.4.8',
-          'setuptools',
+          'django>=1.7',
           'django-model-utils',
       ],
       zip_safe=False,

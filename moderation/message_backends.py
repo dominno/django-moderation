@@ -44,15 +44,11 @@ class EmailMultipleMessageBackend(SyncMessageBackend):
     """
 
     def send(self, datatuples, **kwargs):
-        subject = kwargs.get('subject', None)
-        message = kwargs.get('message', None)
-        recipient_list = kwargs.get('recipient_list', None)
-
         send_mass_mail(
             tuple(tuple(
-                d['subject'],
-                d['message'],
+                d.get('subject', None),
+                d.get('message', None),
                 settings.DEFAULT_FROM_EMAIL,
-                d['recipient_list'])
+                d.get('recipient_list', None))
                 for d in datatuples),
             fail_silently=True)

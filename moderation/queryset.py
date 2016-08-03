@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 
 from . import moderation
@@ -24,7 +27,7 @@ class ModeratedObjectQuerySet(QuerySet):
                                  moderated_by=by,
                                  reason=reason)
 
-        self._moderate(cls, new_status, moderated_by, reason)
+        self._moderate(cls, new_status, by, reason)
 
         post_many_moderation.send(sender=cls,
                                   queryset=self,
@@ -35,11 +38,6 @@ class ModeratedObjectQuerySet(QuerySet):
     def _moderate(self, cls, new_status, by, reason):
         mod = self.moderator(cls)
         ct = ContentType.objects.get_for_model(cls)
-
-        if new_status == MODERATION_STATUS_APPROVED and mod.visibile_until_rejected:
-            base_object_force_save = True
-        else:
-            base_object_force_save = False
 
         update_kwargs = {
             'moderation_status': new_status,
