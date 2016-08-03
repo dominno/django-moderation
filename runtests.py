@@ -41,7 +41,7 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         STATIC_URL = '/static/',
         ROOT_URLCONF = 'tests.urls.default',
 
-        DJANGO_MODERATION_MODERATORS = (
+        MODERATION_MODERATORS = (
             'test@example.com',
         ),
         DEBUG=True,
