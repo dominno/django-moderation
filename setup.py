@@ -43,6 +43,7 @@ setup(name='django-moderation',
       install_requires=[
           'django>=1.4.8',
           'setuptools',
+          'django-model-utils',
       ],
       zip_safe=False,
       )
