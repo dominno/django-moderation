@@ -114,7 +114,7 @@ class GenericModerator(object):
     def get_message_backend(self):
         if not issubclass(self.message_backend_class, BaseMessageBackend):
             raise TypeError("The message backend used '%s' needs to "
-                            "inherit from the BaseMessageBakend "
+                            "inherit from the BaseMessageBackend "
                             "class" % self.message_backend_class)
         return self.message_backend_class()
 
