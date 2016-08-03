@@ -36,17 +36,17 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
             'moderation',
             'tests',
         ],
-        SERIALIZATION_MODULES = {},
-        MEDIA_URL = '/media/',
-        STATIC_URL = '/static/',
-        ROOT_URLCONF = 'tests.urls.default',
+        SERIALIZATION_MODULES={},
+        MEDIA_URL='/media/',
+        STATIC_URL='/static/',
+        ROOT_URLCONF='tests.urls.default',
 
-        MODERATION_MODERATORS = (
+        MODERATION_MODERATORS=(
             'test@example.com',
         ),
         DEBUG=True,
         SITE_ID=1,
-        SOUTH_MIGRATION_MODULES = {
+        SOUTH_MIGRATION_MODULES={
             'moderation': 'moderation.migrations-pre17',
         },
     )
@@ -102,4 +102,3 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     runtests(failfast=options.failfast, *args)
-

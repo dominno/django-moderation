@@ -1,23 +1,24 @@
 from __future__ import unicode_literals
-from django.test.testcases import TestCase
+
 from django import VERSION
-from django.db import models
 from django.contrib.auth.models import User, Group
-if VERSION >= (1, 4):
-    from django.test.utils import override_settings
-from tests.models import UserProfile,\
-    SuperUserProfile, ModelWithSlugField2, ProxyProfile
-from moderation.models import ModeratedObject
-from moderation.constants import (MODERATION_STATUS_APPROVED,
+from django.db import models
+from django.test.testcases import TestCase
+from django.test.utils import override_settings
+
+from moderation.constants import (MODERATION_STATUS_REJECTED,
+                                  MODERATION_STATUS_APPROVED,
                                   MODERATION_STATUS_PENDING,
-                                  MODERATION_STATUS_REJECTED,
                                   MODERATION_READY_STATE,
                                   MODERATION_DRAFT_STATE)
 from moderation.fields import SerializedObjectField
-from moderation.register import ModerationManager, RegistrationError
-from moderation.managers import ModerationObjectsManager
-from moderation.moderator import GenericModerator
 from moderation.helpers import automoderate
+from moderation.managers import ModerationObjectsManager
+from moderation.models import ModeratedObject
+from moderation.moderator import GenericModerator
+from moderation.register import ModerationManager, RegistrationError
+from tests.models import (UserProfile, SuperUserProfile, ModelWithSlugField2,
+                          ProxyProfile)
 from tests.utils import setup_moderation, teardown_moderation
 from tests.utils import unittest
 

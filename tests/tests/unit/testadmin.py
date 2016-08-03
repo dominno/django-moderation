@@ -58,7 +58,7 @@ class ModeratedObjectAdminBehaviorTestCase(WebTestCase):
         self.user.user_permissions.add(
             Permission.objects.get(codename='change_book'))
 
-        self.book = Book.objects.create(title="Book not modified", 
+        self.book = Book.objects.create(title="Book not modified",
                                         author="Nico")
 
     def tearDown(self):

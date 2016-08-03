@@ -31,7 +31,8 @@ except ImportError:
             self.lookup_choices = [(ct.id, ct.name.capitalize()) for ct in
                                    self.content_types]
 
-    get_filter = lambda f: getattr(f, 'content_type_filter', False)
+    def get_filter(f):
+        return getattr(f, 'content_type_filter', False)
     FilterSpec.filter_specs.insert(0, (get_filter, ContentTypeFilterSpec))
 else:
     # Django >= 1.4

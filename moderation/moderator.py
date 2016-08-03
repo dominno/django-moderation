@@ -150,7 +150,9 @@ class GenericModerator(object):
     def inform_user(self, content_object,
                     user,
                     extra_context=None):
-        '''Send notification to user when object is approved or rejected'''
+        '''
+        Send notification to user when object is approved or rejected
+        '''
         if extra_context:
             extra_context.update({'user': user})
         else:

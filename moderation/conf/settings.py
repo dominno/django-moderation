@@ -9,8 +9,7 @@ MODERATORS = getattr(settings, "DJANGO_MODERATION_MODERATORS", ())
 if MODERATORS:
     warnings.warn(
         "`%s` is deprecated, use `%s` instead." %
-        ("DJANGO_MODERATION_MODERATORS", "MODERATION_MODERATORS"),
-        self.deprecation_warning, 2)
+        ("DJANGO_MODERATION_MODERATORS", "MODERATION_MODERATORS"))
 MODERATORS = getattr(settings, "MODERATION_MODERATORS", ())
 
 AUTODISCOVER = getattr(settings, "MODERATION_AUTODISCOVER", False)
