@@ -1,19 +1,30 @@
 from __future__ import unicode_literals
+
+import django
 from django.contrib import admin
-from django.forms.models import ModelForm
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
-import django
-from moderation.models import ModeratedObject
-from moderation.constants import (MODERATION_STATUS_REJECTED,
-                                  MODERATION_STATUS_APPROVED,
-                                  MODERATION_STATUS_PENDING)
-
+from django.forms.models import ModelForm
 from django.utils.translation import ugettext as _
-from moderation.forms import BaseModeratedObjectForm
-from moderation.helpers import automoderate
-from moderation.diff import get_changes_between_models
-from moderation.utils import django_17
+
+from . import moderation
+from .constants import (MODERATION_STATUS_REJECTED,
+                        MODERATION_STATUS_APPROVED,
+                        MODERATION_STATUS_PENDING)
+from .diff import get_changes_between_models
+try:
+    from .filterspecs import RegisteredContentTypeListFilter
+except ImportError:
+    # Django < 1.4
+    available_filters = ('content_type', 'status')
+else:
+    # Django >= 1.4
+    available_filters = (
+        ('content_type', RegisteredContentTypeListFilter), 'status')
+from .forms import BaseModeratedObjectForm
+from .helpers import automoderate
+from .models import ModeratedObject
+from .utils import django_17
 
 
 def approve_objects(modeladmin, request, queryset):
@@ -106,17 +117,6 @@ class ModerationAdmin(admin.ModelAdmin):
         return ModeratedObjectForm
 
 
-try:
-    from moderation.filterspecs import RegisteredContentTypeListFilter
-except ImportError:
-    # Django < 1.4
-    available_filters = ('content_type', 'moderation_status')
-else:
-    # Django >= 1.4
-    available_filters = (
-        ('content_type', RegisteredContentTypeListFilter), 'moderation_status')
-
-
 class ModeratedObjectAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_created'
     list_display = ('content_object', 'content_type', 'date_created',
@@ -153,8 +153,6 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
         return ModeratedObjectForm
 
     def change_view(self, request, object_id, extra_context=None):
-        from moderation import moderation
-
         moderated_object = ModeratedObject.objects.get(pk=object_id)
 
         changed_obj = moderated_object.changed_object

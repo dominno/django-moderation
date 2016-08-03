@@ -12,13 +12,12 @@
 """
 import inspect
 
-from django.utils.six import with_metaclass
 from django.db.models import base
+from django.utils.six import with_metaclass
 
-from moderation.register import ModerationManager
-from moderation.moderator import GenericModerator
-from moderation.utils import clear_builtins
-from moderation.utils import django_14
+from .moderator import GenericModerator
+from .register import ModerationManager
+from .utils import clear_builtins, django_14
 
 moderation = ModerationManager()
 

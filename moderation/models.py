@@ -1,27 +1,28 @@
 from __future__ import unicode_literals
+
 from django import VERSION
 from django.conf import settings
+try:
+    from django.contrib.contenttypes.fields import GenericForeignKey
+except ImportError:
+    from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
-if VERSION >= (1, 8):
-    from django.contrib.contenttypes.fields import GenericForeignKey
-else:
-    from django.contrib.contenttypes.generic import GenericForeignKey
-
-from moderation.diff import get_changes_between_models
-from moderation.fields import SerializedObjectField
-from moderation.signals import post_moderation, pre_moderation
-from moderation.managers import ModeratedObjectManager
+from . import moderation
+from .constants import (MODERATION_READY_STATE,
+                        MODERATION_DRAFT_STATE,
+                        MODERATION_STATUS_REJECTED,
+                        MODERATION_STATUS_APPROVED,
+                        MODERATION_STATUS_PENDING)
+from .diff import get_changes_between_models
+from .fields import SerializedObjectField
+from .managers import ModeratedObjectManager
+from .signals import post_moderation, pre_moderation
 
 import datetime
 
-from moderation.constants import (MODERATION_READY_STATE,
-                                  MODERATION_DRAFT_STATE,
-                                  MODERATION_STATUS_REJECTED,
-                                  MODERATION_STATUS_APPROVED,
-                                  MODERATION_STATUS_PENDING)
 
 MODERATION_STATES = (
     (MODERATION_READY_STATE, _('Ready for moderation')),
@@ -147,8 +148,6 @@ class ModeratedObject(models.Model):
 
     @property
     def moderator(self):
-        from moderation import moderation
-
         model_class = self.content_object.__class__
 
         return moderation.get_moderator(model_class)

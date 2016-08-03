@@ -6,8 +6,8 @@ from django.db.models.fields import BooleanField
 from django.db.models.manager import Manager
 from django.template.loader import render_to_string
 
-from moderation.managers import ModerationObjectsManager
-from moderation.message_backends import BaseMessageBackend, EmailMessageBackend
+from .managers import ModerationObjectsManager
+from .message_backends import (BaseMessageBackend, EmailMessageBackend)
 
 
 class GenericModerator(object):
@@ -138,7 +138,7 @@ class GenericModerator(object):
                          content_object,
                          extra_context=None):
         '''Send notification to moderator'''
-        from moderation.conf.settings import MODERATORS
+        from .conf.settings import MODERATORS
 
         if self.notify_moderator:
             self.send(

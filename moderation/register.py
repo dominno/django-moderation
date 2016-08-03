@@ -1,18 +1,17 @@
 from __future__ import unicode_literals
-from django.utils.six import with_metaclass
-from moderation.constants import (MODERATION_DRAFT_STATE,
-                                  MODERATION_STATUS_PENDING,
-                                  MODERATION_STATUS_APPROVED)
-from moderation.models import (ModeratedObject, STATUS_CHOICES)
-from django.core.exceptions import ObjectDoesNotExist
 
-from django import VERSION
-if VERSION >= (1, 8):
+try:
     from django.contrib.contenttypes.fields import GenericRelation
-else:
+except ImportError:
     from django.contrib.contenttypes.generic import GenericRelation
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.six import with_metaclass
 
-from moderation.moderator import GenericModerator
+from .constants import (MODERATION_DRAFT_STATE,
+                        MODERATION_STATUS_APPROVED,
+                        MODERATION_STATUS_PENDING)
+from .models import (ModeratedObject, STATUS_CHOICES)
+from .moderator import GenericModerator
 
 
 class RegistrationError(Exception):

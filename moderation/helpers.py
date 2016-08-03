@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
-from moderation.register import RegistrationError
+
+from .register import RegistrationError
 
 
 def automoderate(instance, user):

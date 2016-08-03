@@ -1,15 +1,16 @@
 from __future__ import unicode_literals
+
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
 
-import moderation
+from . import moderation
 
 
 def _registered_content_types():
     "Return sorted content types for all registered models."
     content_types = []
-    registered = list(moderation.moderation._registered_models.keys())
+    registered = list(moderation._registered_models.keys())
     registered.sort(key=lambda obj: obj.__name__)
     for model in registered:
         content_types.append(ContentType.objects.get_for_model(model))

@@ -1,9 +1,12 @@
 from __future__ import unicode_literals
-from django.db.models.manager import Manager
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.db.models.manager import Manager
 
-from moderation.utils import django_17
+from . import moderation
+from .constants import MODERATION_READY_STATE, MODERATION_STATUS_REJECTED
+from .utils import django_17
 
 
 class MetaClass(type(Manager)):
@@ -28,11 +31,11 @@ class ModerationObjectsManager(Manager):
             {'use_for_related_fields': True})
 
     def filter_moderated_objects(self, query_set):
-        from moderation.constants import MODERATION_READY_STATE
+        # We have to import this here to avoid a circular import between
+        # .models and .managers
+        from .models import ModeratedObject
 
         exclude_pks = []
-
-        from .models import ModeratedObject
 
         mobjs_set = ModeratedObject.objects.filter(
             content_type=ContentType.objects.get_for_model(query_set.model),
@@ -71,8 +74,6 @@ class ModerationObjectsManager(Manager):
         return query_set.exclude(pk__in=exclude_pks)
 
     def exclude_objs_by_visibility_col(self, query_set):
-        from moderation.models import MODERATION_STATUS_REJECTED
-
         kwargs = {}
         kwargs[self.moderator.visibility_column] =\
             bool(MODERATION_STATUS_REJECTED)
@@ -98,8 +99,6 @@ class ModerationObjectsManager(Manager):
 
     @property
     def moderator(self):
-        from moderation import moderation
-
         return moderation.get_moderator(self.model)
 
 

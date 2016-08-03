@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
-from django.db import models
+
 from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 
 
 class SerializedObjectField(models.TextField):

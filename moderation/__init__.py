@@ -11,7 +11,7 @@ class _ModerationProxy(object):
 
     def _ensure_obj(self):
         if _ModerationProxy._moderation is None:
-            from moderation.register import ModerationManager
+            from .register import ModerationManager
             _ModerationProxy._moderation = ModerationManager()
 
     def __getattr__(self, attribute):
