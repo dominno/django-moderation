@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db.models.manager import Manager
 
 from . import moderation
-from .constants import MODERATION_READY_STATE, MODERATION_STATUS_REJECTED
+from .constants import MODERATION_READY_STATE
 from .utils import django_17
 
 
@@ -74,18 +74,14 @@ class ModerationObjectsManager(Manager):
         return query_set.exclude(pk__in=exclude_pks)
 
     def exclude_objs_by_visibility_col(self, query_set):
-        kwargs = {}
-        kwargs[self.moderator.visibility_column] =\
-            bool(MODERATION_STATUS_REJECTED)
-
-        return query_set.exclude(**kwargs)
+        return query_set.exclude(**{self.moderator.visibility_column: False})
 
     def get_queryset(self):
         query_set = None
 
-        if django_17():
+        try:
             query_set = super(ModerationObjectsManager, self).get_queryset()
-        else:
+        except AttributeError:
             query_set = super(ModerationObjectsManager, self).get_query_set()
 
         if self.moderator.visibility_column:
@@ -103,13 +99,17 @@ class ModerationObjectsManager(Manager):
 
 
 class ModeratedObjectManager(Manager):
+    if not django_17():
+        get_query_set = get_queryset
+        del get_queryset
+
     def get_for_instance(self, instance):
         '''Returns ModeratedObject for given model instance'''
         try:
             moderated_object = self.get(object_pk=instance.pk,
                                         content_type=ContentType.objects
                                         .get_for_model(instance.__class__))
-        except MultipleObjectsReturned:
+        except self.model.MultipleObjectsReturned:
             # Get the most recent one
             moderated_object = self.filter(object_pk=instance.pk,
                                            content_type=ContentType.objects

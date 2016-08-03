@@ -4,7 +4,6 @@ try:
     from django.contrib.contenttypes.fields import GenericRelation
 except ImportError:
     from django.contrib.contenttypes.generic import GenericRelation
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.six import with_metaclass
 
 from .constants import (MODERATION_DRAFT_STATE,
@@ -165,7 +164,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         try:
             unchanged_obj = instance.__class__._default_manager.get(pk=pk)
             return unchanged_obj
-        except ObjectDoesNotExist:
+        except instance.__class__.DoesNotExist:
             return None
 
     def _get_updated_object(self, instance, unchanged_obj, moderator):
@@ -211,7 +210,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
                 # moderation
                 moderated_object = get_new_instance(unchanged_obj)
 
-        except ObjectDoesNotExist:
+        except ModeratedObject.DoesNotExist:
             moderated_object = get_new_instance(unchanged_obj)
 
         else:
