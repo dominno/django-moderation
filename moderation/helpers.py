@@ -46,5 +46,5 @@ def auto_discover():
     '''
     from django.conf import settings
 
-    for app in settings.INSTALLED_APPS:
+    for app in [app for app in settings.INSTALLED_APPS if app != 'moderation']:
         import_moderator(app)
