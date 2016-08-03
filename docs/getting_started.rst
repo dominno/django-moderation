@@ -98,7 +98,7 @@ Admin integration
     admin.site.register(YourModel, YourModelAdmin)
 
 
-If admin_integration_enabled is enabled then when saving object in admin, data
+If ``admin_integration_enabled`` is enabled then when saving object in admin, data
 will not be saved in model instance but it will be stored in moderation queue.
 Also data in the change form will not display data from the original model
 instance but data from the ModeratedObject instance instead.

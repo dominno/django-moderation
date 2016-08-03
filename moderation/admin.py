@@ -171,6 +171,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
             new_object,
             moderator.fields_exclude,
             resolve_foreignkeys=moderator.resolve_foreignkeys).values())
+
         if request.POST:
             admin_form = self.get_form(request, moderated_object)(request.POST)
 
