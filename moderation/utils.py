@@ -24,6 +24,12 @@ def django_19():
     return False
 
 
+def django_18():
+    if StrictVersion(django.get_version()) >= StrictVersion('1.8.0'):
+        return True
+    return False
+
+
 def django_17():
     if StrictVersion(django.get_version()) >= StrictVersion('1.7.0'):
         return True

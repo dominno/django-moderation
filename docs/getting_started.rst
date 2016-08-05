@@ -4,14 +4,18 @@ Getting started quick guide
 Installation
 ------------
 
-Use easy_install::
+Use easy_install:
 
-    $> easy_install django-moderation
+.. code-block:: bash
+
+    $ easy_install django-moderation
 
 Or download source code from http://github.com/dominno/django-moderation and run
-installation script::
+installation script:
 
-    $> python setup.py install
+.. code-block:: bash
+
+    $ python setup.py install
 
 
 Updating existing projects to Django 1.7
@@ -89,7 +93,9 @@ Then you will need to subclass your models from ``moderation.db.ModeratedModel``
 Admin integration
 -----------------
 
-1. If you want to enable integration with Django Admin, then register admin class with your Model::
+1. If you want to enable integration with Django Admin, then register admin class with your model:
+
+.. code-block:: python
 
     from django.contrib import admin
     from moderation.admin import ModerationAdmin
@@ -111,7 +117,9 @@ How django-moderation works
 ---------------------------
 
 When you change existing object or create new one, it will not be publicly
-available until moderator approves it. It will be stored in ModeratedObject model.::
+available until moderator approves it. It will be stored in ModeratedObject model.:
+
+.. code-block:: python
 
     your_model = YourModel(description='test')
     your_model.save()
@@ -120,7 +128,9 @@ available until moderator approves it. It will be stored in ModeratedObject mode
     Traceback (most recent call last):
     DoesNotExist: YourModel matching query does not exist.
 
-When you will approve object, then it will be publicly available.::
+When you will approve object, then it will be publicly available.:
+
+.. code-block:: python
 
     your_model.moderated_object.approve(moderated_by=user,
                                        reason='Reason for approve')
@@ -130,9 +140,13 @@ When you will approve object, then it will be publicly available.::
 
 Please note that you can also access objects that are not approved by using unmoderated_objects manager, this manager will bypass the moderation system
 
+.. code-block:: python
+
     YourModel.unmoderated_objects.get(pk=your_model.pk)
 
 You can access changed object by calling changed_object on moderated_object:
+
+.. code-block:: python
 
     your_model.moderated_object.changed_object
     <YourModel: YourModel object>
@@ -140,7 +154,9 @@ You can access changed object by calling changed_object on moderated_object:
 This is deserialized version of object that was changed.
 
 Now when you will change an object, old version of it will be available publicly,
-new version will be saved in moderated_object::
+new version will be saved in moderated_object:
+
+.. code-block:: python
 
     your_model.description = 'New description'
     your_model.save()

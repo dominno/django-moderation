@@ -39,15 +39,18 @@ Features:
 Requirements
 ============
 
-python 2.6+, 3.3+
+python 2.7, 3.3+
 
-django >= 1.4.8
+django >= 1.7
+
+django-model-utils
 
 
 Known issues
 ============
 
 - m2m relations in models are not currently supported
+- For Django 1.7, a query is run for every object in a query, resulting in N+1 total queries. For Django >= 1.8 only one additional query is run for each unmoderated query.
 
 
 Documentation
