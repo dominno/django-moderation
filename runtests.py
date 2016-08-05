@@ -49,6 +49,14 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         SOUTH_MIGRATION_MODULES={
             'moderation': 'moderation.migrations-pre17',
         },
+        # For Django 1.10 compatibility
+        # See https://docs.djangoproject.com/en/1.10/ref/settings/#std:setting-TEMPLATES
+        TEMPLATES=[
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'APP_DIRS': True,
+            }
+        ]
     )
 
 
