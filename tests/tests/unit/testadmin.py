@@ -1,20 +1,24 @@
 from __future__ import unicode_literals
+
 import mock
+
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import User, Permission
 from django.test.testcases import TestCase
 
-from tests.utils.request_factory import RequestFactory
 from moderation.admin import ModerationAdmin, approve_objects, reject_objects,\
     ModeratedObjectAdmin, set_objects_as_pending
-from tests.utils.testcases import WebTestCase
+from moderation.constants import (MODERATION_STATUS_APPROVED,
+                                  MODERATION_STATUS_REJECTED,
+                                  MODERATION_STATUS_PENDING)
 from moderation.moderator import GenericModerator
-from moderation.models import ModeratedObject,\
-    MODERATION_STATUS_APPROVED, MODERATION_STATUS_REJECTED,\
-    MODERATION_STATUS_PENDING
+from moderation.models import ModeratedObject
+from moderation.utils import django_19
 from tests.models import UserProfile, Book, \
     ModelWithSlugField, ModelWithSlugField2, SuperUserProfile
 from tests.utils import setup_moderation, teardown_moderation
+from tests.utils.request_factory import RequestFactory
+from tests.utils.testcases import WebTestCase
 
 
 class ModeratedObjectAdminTestCase(TestCase):
@@ -67,7 +71,11 @@ class ModeratedObjectAdminBehaviorTestCase(WebTestCase):
     def test_set_changed_by_property(self):
         """even_when_auto_approve_for_staff_is_false"""
         self.assertEquals(self.book.moderated_object.changed_by, None)
-        page = self.get('/admin/tests/book/1/')
+        if django_19():
+            url = '/admin/tests/book/1/change/'
+        else:
+            url = '/admin/tests/book/1/'
+        page = self.get(url)
         form = page.form
         form['title'] = "Book modified"
         page = form.submit()

@@ -21,6 +21,7 @@ from .diff import get_changes_between_models
 from .fields import SerializedObjectField
 from .managers import ModeratedObjectManager
 from .signals import post_moderation, pre_moderation
+from .utils import django_19
 
 import datetime
 
@@ -145,7 +146,10 @@ class ModeratedObject(models.Model):
         return None
 
     def get_admin_moderate_url(self):
-        return "/admin/moderation/moderatedobject/%s/" % self.pk
+        if django_19():
+            return "/admin/moderation/moderatedobject/%s/change/" % self.pk
+        else:
+            return "/admin/moderation/moderatedobject/%s/" % self.pk
 
     @property
     def moderator(self):
