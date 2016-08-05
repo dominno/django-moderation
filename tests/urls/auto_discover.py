@@ -5,10 +5,8 @@ except ImportError:
     from django.conf.urls import patterns, include, handler500
 from django.conf import settings
 from django.contrib import admin
-from moderation.helpers import auto_discover
 
 admin.autodiscover()
-auto_discover()
 
 handler500
 
