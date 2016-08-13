@@ -28,59 +28,62 @@ That's it!
 Configuration
 -------------
 
-1. Add to your INSTALLED_APPS in your settings.py:
+``django-moderation`` will autodiscover moderation classes in ``<app>/moderator.py`` files by default. So the simplest moderation configuration is to simply add ``moderation`` (or ``moderation.apps.ModerationConfig``) to ``INSTALLED_APPS`` in your ``settings.py``:
 
-    ``moderation``
-2. Run command ``manage.py syncdb``
+.. code-block:: python
+
+    INSTALLED_APPS = [
+        # ...
+        'moderation',  # or 'moderation.apps.ModerationConfig',
+        # ...
+    ]
+
+Then add all of your moderation classes to a ``moderator.py`` file in an app and register them with moderation:
+
+.. code-block:: python
+
+    from moderation import moderation
+    from moderation.db import ModeratedModel
+
+    from yourapp.models import YourModel, AnotherModel
 
 
-Usage
------
+    class AnotherModelModerator(ModelModerator):
+        # Add your moderator settings for AnotherModel here
 
-To start using ``django-moderation`` follow these steps:
 
-1. Create your models by extending ``moderation.db.ModeratedModel``::
+    moderation.register(YourModel)  # Uses default moderation settings
+    moderation.register(AnotherModel, AnotherModelModerator)  # Uses custom moderation settings
+
+This is exactly how Django's contributed admin app registers models.
+
+
+Alternative Configuration
+-------------------------
+
+If you don't want ``django-moderation`` to autodiscover your moderation classes, you will add ``moderation.apps.SimpleModerationConfig`` to ``INSTALLED_APPS`` in your ``settings.py``:
+
+.. code-block:: python
+
+    INSTALLED_APPS = [
+        # ...
+        'moderation.apps.SimpleModerationConfig',
+        # ...
+    ]
+
+Then you will need to subclass your models from ``moderation.db.ModeratedModel`` and add moderation classes to each moderated model in ``models.py``:
+
+.. code-block:: python
 
     from django.db import models
     from moderation.db import ModeratedModel
 
-    class MyModel(ModeratedModel):
-         my_field = models.TextField()
-
-
-2. To customize ``Moderator`` settings create ``class Moderator`` within your model definition::
-
-    from django.db import models
-    from moderation.db import ModeratedModel
 
     class MyModel(ModeratedModel):
         my_field = models.TextField()
 
         class Moderator:
             notify_user = False
-
-
-The models will be automatically registered with ``django-moderation``.
-
-
-Usage alternative
------------------
-
-Alternatively, you can follow the steps below:
-
-1. Register Models with moderation, put these models in module ``moderator.py`` inside of your app, e.g. ``myapp.moderator``::
-
-    from moderation import moderation
-    from yourapp.models import YourModel
-
-
-    moderation.register(YourModel)
-
-
-
-2. Add the ``MODERATION_AUTODISCOVER`` setting to your project's ``settings.py``::
-
-    MODERATION_AUTODISCOVER = True
 
 
 Admin integration

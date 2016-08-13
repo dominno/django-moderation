@@ -44,7 +44,6 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         MODERATION_MODERATORS=(
             'test@example.com',
         ),
-        MODERATION_AUTODISCOVER=True,
         DEBUG=True,
         SITE_ID=1,
         SOUTH_MIGRATION_MODULES={

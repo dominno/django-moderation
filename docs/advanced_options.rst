@@ -269,6 +269,3 @@ Settings
 
 ``MODERATION_MODERATORS``
     Tuple of moderators' email addresses to which notifications will be sent.
-
-``MODERATION_AUTODISCOVER``
-    Boolean that enables autodiscovery of moderation options in ``<app>/moderator.py``.

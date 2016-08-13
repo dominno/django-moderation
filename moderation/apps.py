@@ -1,13 +1,13 @@
 from django.apps import AppConfig
 
-from .conf.settings import AUTODISCOVER
 
-
-class ModerationConfig(AppConfig):
+class SimpleModerationConfig(AppConfig):
     name = "moderation"
     verbose_name = "Moderation"
 
+
+class ModerationConfig(SimpleModerationConfig):
     def ready(self):
-        if AUTODISCOVER:
-            from .helpers import auto_discover
-            auto_discover()
+        # We have to import this here because it imports from models.py
+        from .helpers import auto_discover
+        auto_discover()
