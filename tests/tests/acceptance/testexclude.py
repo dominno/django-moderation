@@ -88,6 +88,34 @@ class ExcludeAcceptanceTestCase(TestCase):
         self.assertFalse(('http://www.dominno.com',
                           'http://www.dominno.com') in changes)
 
+    def test_excluded_field_should_always_be_saved(self):
+        '''
+        Ensure that excluded fields are always saved to the object.
+        '''
+        profile = UserProfile(description='Profile for new user',
+                              url='http://www.dominno.com',
+                              user=User.objects.get(username='user1'))
+        profile.save()
+        profile.moderated_object.approve()
+
+        profile = UserProfile.objects.get(id=profile.id)
+        profile.description = 'New profile'
+        profile.save()
+        profile.url = 'http://dominno.pl'
+        profile.save()
+        profile.moderated_object.approve()
+        profile = UserProfile.objects.get(id=profile.id)
+
+        self.assertEqual(profile.description, 'New profile')
+        self.assertEqual(profile.url, 'http://dominno.pl')
+
+        profile.url = 'http://www.google.com'
+        profile.save()
+        profile.moderated_object.approve()
+        profile = UserProfile.objects.get(id=profile.id)
+
+        self.assertEqual(profile.url, 'http://www.google.com')
+
 
 class ModeratedFieldsAcceptanceTestCase(TestCase):
     '''

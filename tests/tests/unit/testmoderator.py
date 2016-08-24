@@ -8,7 +8,8 @@ from moderation.moderator import GenericModerator
 from moderation.managers import ModerationObjectsManager
 from django.core import mail
 from django.contrib.auth.models import User, Group
-from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
+from moderation.models import ModeratedObject
+from moderation.constants import MODERATION_STATUS_APPROVED
 from moderation.message_backends import BaseMessageBackend
 from django.db.models.manager import Manager
 from tests.utils import setup_moderation, teardown_moderation

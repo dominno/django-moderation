@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
-from moderation.register import RegistrationError
+
+from .register import RegistrationError
 
 
 def automoderate(instance, user):
@@ -21,7 +22,7 @@ def import_moderator(app):
     '''
     Import moderator module and register all models it contains with moderation
     '''
-    from django.utils.importlib import import_module
+    from importlib import import_module
     import imp
 
     try:
@@ -45,5 +46,5 @@ def auto_discover():
     '''
     from django.conf import settings
 
-    for app in settings.INSTALLED_APPS:
+    for app in [app for app in settings.INSTALLED_APPS if app != 'moderation']:
         import_moderator(app)

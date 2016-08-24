@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
-from django.db import models
+
 from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 
 
 class SerializedObjectField(models.TextField):
@@ -81,8 +82,8 @@ class SerializedObjectField(models.TextField):
     def post_init(self, **kwargs):
         if 'sender' in kwargs and 'instance' in kwargs:
             sender = kwargs['sender']
-            if (sender == self.class_name or sender._meta.proxy
-                and issubclass(sender, self.class_name)) and\
+            if (sender == self.class_name or sender._meta.proxy and
+                issubclass(sender, self.class_name)) and\
                hasattr(kwargs['instance'], self.attname):
                 value = self.value_from_object(kwargs['instance'])
 

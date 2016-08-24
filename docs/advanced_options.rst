@@ -38,10 +38,13 @@ GenericModerator options
     Default manager class that will enabled on model class managers passed in ``manager_names``. This class takes care of filtering out any objects that are not approved yet. Default: ModerationObjectsManager
 
 ``visibility_column``
-    If you want a performance boost, define visibility field on your model and add option ``visibility_column = 'your_field'`` on moderator class. Field must by a BooleanField. The manager that decides which model objects should be excluded when it were rejected, will first use this option to properly display (or hide) objects that are registered with moderation. Use this option if you can define visibility column in your model and want to boost performance. By default when accessing model objects that are under moderation, one extra query is executed per object in query set to determine if object should be excluded from query set. This method benefit those who do not want to add any fields to their Models. Default: None.
+    If you want a performance boost, define visibility field on your model and add option ``visibility_column = 'your_field'`` on moderator class. Field must by a BooleanField. The manager that decides which model objects should be excluded when it were rejected, will first use this option to properly display (or hide) objects that are registered with moderation. Use this option if you can define visibility column in your model and want to boost performance. This method benefits those who can add fields to their models. Default: None.
 
 ``fields_exclude``
     Fields to exclude from object change list. Default: []
+
+``resolve_foreignkeys``
+    Display related object's string representation instead of their primary key. Default: True
 
 ``auto_approve_for_superusers``
     Auto approve objects changed by superusers. Default: True
@@ -84,8 +87,9 @@ GenericModerator options
 
 
 ``Notes on auto moderation``
-    If you want to use auto moderation in your views, then you need to save user object that has changed the object in ModeratedObject instance. You can use following helper. Example::
+    If you want to use auto moderation in your views, then you need to save user object that has changed the object in ModeratedObject instance. You can use following helper. Example:
 
+    .. code-block:: python
 
         moderation.register(UserProfile)
 
@@ -102,7 +106,9 @@ GenericModerator options
     If you want to define your custom logic in auto moderation, you can overwrite methods: ``is_auto_reject`` or ``is_auto_approve`` of GenericModerator class
 
 
-    Example::
+    Example:
+
+    .. code-block:: python
 
 
         class MyModelModerator(GenericModerator):
@@ -137,7 +143,9 @@ How to pass extra context to email notification templates
 
 Subclass GenericModerator class and overwrite ``inform_moderator`` and
 ``inform_user``
-methods.::
+methods.:
+
+.. code-block:: python
 
     class UserProfileModerator(GenericModerator):
 
@@ -163,8 +171,9 @@ ModerationAdmin
 ---------------
 
 If you have defined your own ``save_model`` method in your ModelAdmin then you
-must::
+must:
 
+.. code-block:: python
 
     # Custom save_model in MyModelAdmin
     def save_model(self, request, obj, form, change):
@@ -262,4 +271,7 @@ Settings
 --------
 
 ``DJANGO_MODERATION_MODERATORS``
+    This option is deprecated in favor of ``MODERATION_MODERATORS``.
+
+``MODERATION_MODERATORS``
     Tuple of moderators' email addresses to which notifications will be sent.

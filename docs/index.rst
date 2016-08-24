@@ -54,7 +54,7 @@ Requirements
 
 python 2.6+, 3.3+
 
-django >= 1.4.8
+django >= 1.7
 
 
 Contents:

@@ -36,19 +36,27 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
             'moderation',
             'tests',
         ],
-        SERIALIZATION_MODULES = {},
-        MEDIA_URL = '/media/',
-        STATIC_URL = '/static/',
-        ROOT_URLCONF = 'tests.urls.default',
+        SERIALIZATION_MODULES={},
+        MEDIA_URL='/media/',
+        STATIC_URL='/static/',
+        ROOT_URLCONF='tests.urls.default',
 
-        DJANGO_MODERATION_MODERATORS = (
+        MODERATION_MODERATORS=(
             'test@example.com',
         ),
         DEBUG=True,
         SITE_ID=1,
-        SOUTH_MIGRATION_MODULES = {
+        SOUTH_MIGRATION_MODULES={
             'moderation': 'moderation.migrations-pre17',
         },
+        # For Django 1.10 compatibility
+        # See https://docs.djangoproject.com/en/1.10/ref/settings/#std:setting-TEMPLATES
+        TEMPLATES=[
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'APP_DIRS': True,
+            }
+        ],
     )
 
 
@@ -102,4 +110,3 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     runtests(failfast=options.failfast, *args)
-

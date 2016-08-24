@@ -7,7 +7,10 @@ from django.test.testcases import TestCase
 from moderation.register import ModerationManager, RegistrationError
 from moderation.moderator import GenericModerator
 from moderation.managers import ModerationObjectsManager
-from moderation.models import ModeratedObject, MODERATION_STATUS_APPROVED
+from moderation.models import ModeratedObject
+from moderation.constants import (MODERATION_STATUS_REJECTED,
+                                  MODERATION_STATUS_APPROVED,
+                                  MODERATION_STATUS_PENDING)
 from moderation.signals import pre_moderation, post_moderation
 from tests.models import UserProfile, \
     ModelWithSlugField, ModelWithSlugField2, ModelWithMultipleManagers, \
@@ -239,9 +242,6 @@ class IntegrityErrorRegressionTestCase(TestCase):
             filter_moderated_objects
 
         def filter_moderated_objects(query_set):
-            from moderation.models import MODERATION_STATUS_PENDING,\
-                MODERATION_STATUS_REJECTED
-
             exclude_pks = []
             for obj in query_set:
                 try:

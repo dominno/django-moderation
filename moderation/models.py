@@ -1,39 +1,40 @@
 from __future__ import unicode_literals
-from django import VERSION
+
 from django.conf import settings
+try:
+    from django.contrib.contenttypes.fields import GenericForeignKey
+except ImportError:
+    from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
-if VERSION >= (1, 8):
-    from django.contrib.contenttypes.fields import GenericForeignKey
-else:
-    from django.contrib.contenttypes.generic import GenericForeignKey
+from model_utils import Choices
 
-from moderation.diff import get_changes_between_models
-from moderation.fields import SerializedObjectField
-from moderation.signals import post_moderation, pre_moderation
-from moderation.managers import ModeratedObjectManager
+from . import moderation
+from .constants import (MODERATION_READY_STATE,
+                        MODERATION_DRAFT_STATE,
+                        MODERATION_STATUS_REJECTED,
+                        MODERATION_STATUS_APPROVED,
+                        MODERATION_STATUS_PENDING)
+from .diff import get_changes_between_models
+from .fields import SerializedObjectField
+from .managers import ModeratedObjectManager
+from .signals import post_moderation, pre_moderation
+from .utils import django_19
 
 import datetime
 
 
-MODERATION_READY_STATE = 0
-MODERATION_DRAFT_STATE = 1
-
-MODERATION_STATUS_REJECTED = 0
-MODERATION_STATUS_APPROVED = 1
-MODERATION_STATUS_PENDING = 2
-
-MODERATION_STATES = (
-    (MODERATION_READY_STATE, _('Ready for moderation')),
-    (MODERATION_DRAFT_STATE, _('Draft')),
+MODERATION_STATES = Choices(
+    (MODERATION_READY_STATE, 'ready', _('Ready for moderation')),
+    (MODERATION_DRAFT_STATE, 'draft', _('Draft')),
 )
 
-STATUS_CHOICES = (
-    (MODERATION_STATUS_APPROVED, _("Approved")),
-    (MODERATION_STATUS_PENDING, _("Pending")),
-    (MODERATION_STATUS_REJECTED, _("Rejected")),
+STATUS_CHOICES = Choices(
+    (MODERATION_STATUS_REJECTED, 'rejected', _("Rejected")),
+    (MODERATION_STATUS_APPROVED, 'approved', _("Approved")),
+    (MODERATION_STATUS_PENDING, 'pending', _("Pending")),
 )
 
 
@@ -145,15 +146,27 @@ class ModeratedObject(models.Model):
         return None
 
     def get_admin_moderate_url(self):
-        return "/admin/moderation/moderatedobject/%s/" % self.pk
+        if django_19():
+            return "/admin/moderation/moderatedobject/%s/change/" % self.pk
+        else:
+            return "/admin/moderation/moderatedobject/%s/" % self.pk
 
     @property
     def moderator(self):
-        from moderation import moderation
-
         model_class = self.content_object.__class__
 
         return moderation.get_moderator(model_class)
+
+    def _send_signals_and_moderate(self, new_status, by, reason):
+        pre_moderation.send(sender=self.changed_object.__class__,
+                            instance=self.changed_object,
+                            status=new_status)
+
+        self._moderate(new_status, by, reason)
+
+        post_moderation.send(sender=self.content_object.__class__,
+                             instance=self.content_object,
+                             status=new_status)
 
     def _moderate(self, new_status, moderated_by, reason):
         # See register.py pre_save_handler() for the case where the model is
@@ -214,12 +227,17 @@ class ModeratedObject(models.Model):
         if self.changed_by:
             self.moderator.inform_user(self.content_object, self.changed_by)
 
-    def has_object_been_changed(self, original_obj, fields_exclude=None):
-        if fields_exclude is None:
-            fields_exclude = self.moderator.fields_exclude
+    def has_object_been_changed(self, original_obj, only_excluded=False):
+        excludes = includes = []
+        if only_excluded:
+            includes = self.moderator.fields_exclude
+        else:
+            excludes = self.moderator.fields_exclude
+
         changes = get_changes_between_models(original_obj,
                                              self.changed_object,
-                                             fields_exclude)
+                                             excludes,
+                                             includes)
 
         for change in changes:
             left_change, right_change = changes[change].change
@@ -229,21 +247,7 @@ class ModeratedObject(models.Model):
         return False
 
     def approve(self, moderated_by=None, reason=None):
-        pre_moderation.send(sender=self.changed_object.__class__,
-                            instance=self.changed_object,
-                            status=MODERATION_STATUS_APPROVED)
-
-        self._moderate(MODERATION_STATUS_APPROVED, moderated_by, reason)
-
-        post_moderation.send(sender=self.content_object.__class__,
-                             instance=self.content_object,
-                             status=MODERATION_STATUS_APPROVED)
+        self._send_signals_and_moderate(MODERATION_STATUS_APPROVED, moderated_by, reason)
 
     def reject(self, moderated_by=None, reason=None):
-        pre_moderation.send(sender=self.changed_object.__class__,
-                            instance=self.changed_object,
-                            status=MODERATION_STATUS_REJECTED)
-        self._moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)
-        post_moderation.send(sender=self.content_object.__class__,
-                             instance=self.content_object,
-                             status=MODERATION_STATUS_REJECTED)
+        self._send_signals_and_moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)

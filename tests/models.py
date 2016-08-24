@@ -11,7 +11,7 @@ from moderation.utils import django_17
 
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'), 
+    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
                              related_name='user_profile_set')
     description = models.TextField()
     url = models.URLField()

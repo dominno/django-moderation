@@ -1,16 +1,16 @@
 from __future__ import unicode_literals
-from django.utils.six import with_metaclass
-from moderation.models import ModeratedObject, MODERATION_STATUS_PENDING,\
-    MODERATION_STATUS_APPROVED, MODERATION_DRAFT_STATE
-from django.core.exceptions import ObjectDoesNotExist
 
-from django import VERSION
-if VERSION >= (1, 8):
+try:
     from django.contrib.contenttypes.fields import GenericRelation
-else:
+except ImportError:
     from django.contrib.contenttypes.generic import GenericRelation
+from django.utils.six import with_metaclass
 
-from moderation.moderator import GenericModerator
+from .constants import (MODERATION_DRAFT_STATE,
+                        MODERATION_STATUS_APPROVED,
+                        MODERATION_STATUS_PENDING)
+from .models import ModeratedObject, STATUS_CHOICES
+from .moderator import GenericModerator
 
 
 class RegistrationError(Exception):
@@ -41,7 +41,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
     def register(self, model_class, moderator_class=None):
         """Registers model class with moderation"""
         if model_class in self._registered_models:
-            msg = "%s has been registered with Moderation." % model_class
+            msg = "{} has been registered with Moderation.".format(model_class)
             raise RegistrationError(msg)
         if not moderator_class:
             moderator_class = GenericModerator
@@ -87,6 +87,17 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         model_class.add_to_class('moderated_object',
                                  property(get_moderated_object))
 
+    def _add_moderated_status_to_class(self, model_class):
+        # Add the moderation_object to the class if it hasn't been yet
+        if not hasattr(model_class, 'moderation_object'):
+            self._add_moderated_object_to_class(model_class)
+
+        def get_moderated_status(self):
+            return STATUS_CHOICES[self.moderated_object.status]
+
+        model_class.add_to_class('moderated_status',
+                                 property(get_moderated_status))
+
     def _and_fields_to_model_class(self, moderator_class_instance):
         """Sets moderation manager on model class,
            adds generic relation to ModeratedObject,
@@ -106,6 +117,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             model_class.add_to_class(manager_name, manager)
 
         self._add_moderated_object_to_class(model_class)
+        self._add_moderated_status_to_class(model_class)
 
     def unregister(self, model_class):
         """Unregister model class from moderation"""
@@ -152,9 +164,9 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             moderated_obj = self._get_or_create_moderated_object(instance,
                                                                  unchanged_obj,
                                                                  moderator)
-            if moderated_obj.moderation_status != \
-               MODERATION_STATUS_APPROVED and \
-               not moderator.bypass_moderation_after_approval:
+            if not (moderated_obj.moderation_status ==
+                    MODERATION_STATUS_APPROVED or
+                    moderator.bypass_moderation_after_approval):
                 moderated_obj.save()
 
     def _get_unchanged_object(self, instance):
@@ -164,8 +176,21 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         try:
             unchanged_obj = instance.__class__._default_manager.get(pk=pk)
             return unchanged_obj
-        except ObjectDoesNotExist:
+        except instance.__class__.DoesNotExist:
             return None
+
+    def _get_updated_object(self, instance, unchanged_obj, moderator):
+        """
+        Returns the unchanged object with the excluded fields updated to
+        those from the instance.
+        """
+        excludes = moderator.fields_exclude
+        for field in instance._meta.fields:
+            if field.name in excludes:
+                value = getattr(instance, field.name)
+                setattr(unchanged_obj, field.name, value)
+
+        return unchanged_obj
 
     def _get_or_create_moderated_object(self, instance,
                                         unchanged_obj, moderator):
@@ -197,7 +222,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
                 # moderation
                 moderated_object = get_new_instance(unchanged_obj)
 
-        except ObjectDoesNotExist:
+        except ModeratedObject.DoesNotExist:
             moderated_object = get_new_instance(unchanged_obj)
 
         else:
@@ -205,7 +230,12 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
                 if moderator.visible_until_rejected:
                     moderated_object.changed_object = instance
                 else:
-                    moderated_object.changed_object = unchanged_obj
+                    moderated_object.changed_object = self._get_updated_object(
+                        instance, unchanged_obj, moderator)
+            elif moderated_object.has_object_been_changed(instance,
+                                                          only_excluded=True):
+                moderated_object.changed_object = self._get_updated_object(
+                    instance, unchanged_obj, moderator)
 
         return moderated_object
 
