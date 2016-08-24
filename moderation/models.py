@@ -45,22 +45,21 @@ class ModeratedObject(models.Model):
                                             editable=False)
     content_object = GenericForeignKey(ct_field="content_type",
                                        fk_field="object_pk")
-    date_created = models.DateTimeField(auto_now_add=True, editable=False)
-    date_updated = models.DateTimeField(auto_now=True)
-    moderation_state = models.SmallIntegerField(choices=MODERATION_STATES,
-                                                default=MODERATION_DRAFT_STATE,
-                                                editable=False)
-    moderation_status = models.SmallIntegerField(
+    created = models.DateTimeField(auto_now_add=True, editable=False)
+    updated = models.DateTimeField(auto_now=True)
+    state = models.SmallIntegerField(choices=MODERATION_STATES,
+                                     default=MODERATION_DRAFT_STATE,
+                                     editable=False)
+    status = models.SmallIntegerField(
         choices=STATUS_CHOICES,
         default=MODERATION_STATUS_PENDING,
         editable=False)
-    moderated_by = models.ForeignKey(
+    by = models.ForeignKey(
         getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
         blank=True, null=True, editable=False,
-        related_name='moderated_by_set')
-    moderation_date = models.DateTimeField(editable=False, blank=True,
-                                           null=True)
-    moderation_reason = models.TextField(blank=True, null=True)
+        related_name='moderated_objects')
+    on = models.DateTimeField(editable=False, blank=True, null=True)
+    reason = models.TextField(blank=True, null=True)
     changed_object = SerializedObjectField(serialize_format='json',
                                            editable=False)
     changed_by = models.ForeignKey(
@@ -91,7 +90,7 @@ class ModeratedObject(models.Model):
     class Meta:
         verbose_name = _('Moderated Object')
         verbose_name_plural = _('Moderated Objects')
-        ordering = ['moderation_status', 'date_created']
+        ordering = ['status', 'created']
 
     def automoderate(self, user=None):
         '''Auto moderate object for given user.
@@ -108,18 +107,18 @@ class ModeratedObject(models.Model):
             changed_object = self.get_object_for_this_type()
         else:
             changed_object = self.changed_object
-        moderate_status, reason = self._get_moderation_status_and_reason(
+        status, reason = self._get_moderation_status_and_reason(
             changed_object,
             user)
 
-        if moderate_status == MODERATION_STATUS_REJECTED:
-            self.reject(moderated_by=self.moderated_by, reason=reason)
-        elif moderate_status == MODERATION_STATUS_APPROVED:
-            self.approve(moderated_by=self.moderated_by, reason=reason)
+        if status == MODERATION_STATUS_REJECTED:
+            self.reject(by=self.by, reason=reason)
+        elif status == MODERATION_STATUS_APPROVED:
+            self.approve(by=self.by, reason=reason)
         else:  # MODERATION_STATUS_PENDING
             self.save()
 
-        return moderate_status
+        return status
 
     def _get_moderation_status_and_reason(self, obj, user):
         '''
@@ -168,14 +167,14 @@ class ModeratedObject(models.Model):
                              instance=self.content_object,
                              status=new_status)
 
-    def _moderate(self, new_status, moderated_by, reason):
+    def _moderate(self, new_status, by, reason):
         # See register.py pre_save_handler() for the case where the model is
         # reset to its old values, and the new values are stored in the
         # ModeratedObject. In such cases, on approval, we should restore the
         # changes to the base object by saving the one attached to the
         # ModeratedObject.
 
-        if (self.moderation_status == MODERATION_STATUS_PENDING and
+        if (self.status == MODERATION_STATUS_PENDING and
                 new_status == MODERATION_STATUS_APPROVED and
                 not self.moderator.visible_until_rejected):
             base_object = self.changed_object
@@ -192,12 +191,12 @@ class ModeratedObject(models.Model):
         if new_status == MODERATION_STATUS_APPROVED:
             # This version is now approved, and will be reverted to if
             # future changes are rejected by a moderator.
-            self.moderation_state = MODERATION_READY_STATE
+            self.state = MODERATION_READY_STATE
 
-        self.moderation_status = new_status
-        self.moderation_date = datetime.datetime.now()
-        self.moderated_by = moderated_by
-        self.moderation_reason = reason
+        self.status = new_status
+        self.on = datetime.datetime.now()
+        self.by = by
+        self.reason = reason
         self.save()
 
         if self.moderator.visibility_column:
@@ -246,8 +245,8 @@ class ModeratedObject(models.Model):
 
         return False
 
-    def approve(self, moderated_by=None, reason=None):
-        self._send_signals_and_moderate(MODERATION_STATUS_APPROVED, moderated_by, reason)
+    def approve(self, by=None, reason=None):
+        self._send_signals_and_moderate(MODERATION_STATUS_APPROVED, by, reason)
 
-    def reject(self, moderated_by=None, reason=None):
-        self._send_signals_and_moderate(MODERATION_STATUS_REJECTED, moderated_by, reason)
+    def reject(self, by=None, reason=None):
+        self._send_signals_and_moderate(MODERATION_STATUS_REJECTED, by, reason)

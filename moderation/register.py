@@ -78,7 +78,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             if not hasattr(self, '_moderated_object'):
                 if self._relation_object.count() > 0:
                     self._moderated_object = getattr(self, '_relation_object')\
-                        .filter().order_by('-date_updated')[0]
+                        .filter().order_by('-updated')[0]
                 else:
                     self._moderated_object = getattr(self, '_relation_object')\
                         .get()
@@ -164,7 +164,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             moderated_obj = self._get_or_create_moderated_object(instance,
                                                                  unchanged_obj,
                                                                  moderator)
-            if not (moderated_obj.moderation_status ==
+            if not (moderated_obj.status ==
                     MODERATION_STATUS_APPROVED or
                     moderator.bypass_moderation_after_approval):
                 moderated_obj.save()
@@ -267,14 +267,14 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             moderated_obj = ModeratedObject(content_object=old_object)
             if not moderator.visible_until_rejected:
                 # Hide it by placing in draft state
-                moderated_obj.moderation_state = MODERATION_DRAFT_STATE
+                moderated_obj.state = MODERATION_DRAFT_STATE
             moderated_obj.save()
             moderator.inform_moderator(instance)
             return
 
         moderated_obj = ModeratedObject.objects.get_for_instance(instance)
 
-        if (moderated_obj.moderation_status == MODERATION_STATUS_APPROVED and
+        if (moderated_obj.status == MODERATION_STATUS_APPROVED and
                 moderator.bypass_moderation_after_approval):
             # save new data in moderated object
             moderated_obj.changed_object = instance
@@ -293,7 +293,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
                 # to the real record when the moderator approves the change.
                 moderated_obj.changed_object = copied_instance
 
-            moderated_obj.moderation_status = MODERATION_STATUS_PENDING
+            moderated_obj.status = MODERATION_STATUS_PENDING
             moderated_obj.save()
             moderator.inform_moderator(instance)
             instance._moderated_object = moderated_obj

@@ -45,7 +45,7 @@ class ModerationObjectsManager(Manager):
                 raise self.MultipleModerations(annotated_queryset)
 
             filter_kwargs = {
-                '_relation_object__moderation_state': MODERATION_READY_STATE,
+                '_relation_object__state': MODERATION_READY_STATE,
             }
 
             return queryset.filter(Q(**{'_relation_object': None}) | Q(**filter_kwargs))
@@ -83,7 +83,7 @@ class ModerationObjectsManager(Manager):
                     mobject = mobjects[obj.pk] if obj.pk in mobjects else \
                         obj.moderated_object
 
-                    if mobject.moderation_state != MODERATION_READY_STATE:
+                    if mobject.state != MODERATION_READY_STATE:
                         exclude_pks.append(obj.pk)
                 except ObjectDoesNotExist:
                     pass
@@ -134,5 +134,5 @@ class ModeratedObjectManager(Manager):
             moderated_object = self.filter(object_pk=instance.pk,
                                            content_type=ContentType.objects
                                            .get_for_model(instance.__class__))\
-                .order_by('-date_updated')[0]
+                .order_by('-updated')[0]
         return moderated_object

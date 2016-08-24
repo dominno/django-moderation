@@ -17,7 +17,7 @@ class BaseModeratedObjectForm(ModelForm):
 
         if instance:
             try:
-                if instance.moderated_object.moderation_status in\
+                if instance.moderated_object.status in\
                    [MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED] and\
                    not instance.moderated_object.moderator.\
                    visible_until_rejected:

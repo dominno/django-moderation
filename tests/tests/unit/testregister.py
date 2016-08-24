@@ -87,7 +87,7 @@ class RegistrationTestCase(TestCase):
         profile = UserProfile.objects.get(user__username='moderator')
         moderated_object = ModeratedObject(content_object=profile)
         moderated_object.save()
-        moderated_object.approve(moderated_by=self.user)
+        moderated_object.approve(by=self.user)
 
         profile.description = "New description"
         profile.save()
@@ -245,7 +245,7 @@ class IntegrityErrorRegressionTestCase(TestCase):
             exclude_pks = []
             for obj in query_set:
                 try:
-                    if obj.moderated_object.moderation_status\
+                    if obj.moderated_object.status\
                        in [MODERATION_STATUS_PENDING,
                            MODERATION_STATUS_REJECTED]\
                        and obj.__dict__ == \
@@ -582,7 +582,7 @@ class ModerationSignalsTestCase(TestCase):
         profile = UserProfile.objects.get(user__username='moderator')
         moderated_object = ModeratedObject(content_object=profile)
         moderated_object.save()
-        moderated_object.approve(moderated_by=self.user)
+        moderated_object.approve(by=self.user)
 
         profile.description = 'New description of user profile'
         profile.save()
@@ -685,7 +685,7 @@ class ModerationSignalsTestCase(TestCase):
         self.assertEqual(2, ModeratedObject.objects.count())
 
         # Approve the change
-        moderated_object.approve(moderated_by=self.user,
+        moderated_object.approve(by=self.user,
                                  reason='Testing post save handlers')
 
         # There should *still* only be two moderated objects

@@ -16,11 +16,11 @@ try:
     from .filterspecs import RegisteredContentTypeListFilter
 except ImportError:
     # Django < 1.4
-    available_filters = ('content_type', 'moderation_status')
+    available_filters = ('content_type', 'status')
 else:
     # Django >= 1.4
     available_filters = (
-        ('content_type', RegisteredContentTypeListFilter), 'moderation_status')
+        ('content_type', RegisteredContentTypeListFilter), 'status')
 from .forms import BaseModeratedObjectForm
 from .helpers import automoderate
 from .models import ModeratedObject
@@ -29,20 +29,20 @@ from .utils import django_17
 
 def approve_objects(modeladmin, request, queryset):
     for obj in queryset:
-        obj.approve(moderated_by=request.user)
+        obj.approve(by=request.user)
 
 approve_objects.short_description = _("Approve selected moderated objects")
 
 
 def reject_objects(modeladmin, request, queryset):
     for obj in queryset:
-        obj.reject(moderated_by=request.user)
+        obj.reject(by=request.user)
 
 reject_objects.short_description = _("Reject selected moderated objects")
 
 
 def set_objects_as_pending(modeladmin, request, queryset):
-    queryset.update(moderation_status=MODERATION_STATUS_PENDING)
+    queryset.update(status=MODERATION_STATUS_PENDING)
 
 set_objects_as_pending.short_description = _("Set selected moderated"
                                              " objects as Pending")
@@ -74,8 +74,8 @@ class ModerationAdmin(admin.ModelAdmin):
             obj = self.model.unmoderated_objects.get(pk=object_id)
             moderated_obj = ModeratedObject.objects.get_for_instance(obj)
             moderator = moderated_obj.moderator
-            msg = self.get_moderation_message(moderated_obj.moderation_status,
-                                              moderated_obj.moderation_reason,
+            msg = self.get_moderation_message(moderated_obj.status,
+                                              moderated_obj.reason,
                                               moderator.visible_until_rejected)
         except ModeratedObject.DoesNotExist:
             msg = self.get_moderation_message()
@@ -86,22 +86,22 @@ class ModerationAdmin(admin.ModelAdmin):
         obj.save()
         automoderate(obj, request.user)
 
-    def get_moderation_message(self, moderation_status=None, reason=None,
+    def get_moderation_message(self, status=None, reason=None,
                                visible_until_rejected=False):
-        if moderation_status == MODERATION_STATUS_PENDING:
+        if status == MODERATION_STATUS_PENDING:
             if visible_until_rejected:
                 return _("Object is viewable on site, "
                          "it will be removed if moderator rejects it")
             else:
                 return _("Object is not viewable on site, "
                          "it will be visible if moderator accepts it")
-        elif moderation_status == MODERATION_STATUS_REJECTED:
+        elif status == MODERATION_STATUS_REJECTED:
             return _("Object has been rejected by moderator, "
                      "reason: %s" % reason)
-        elif moderation_status == MODERATION_STATUS_APPROVED:
+        elif status == MODERATION_STATUS_APPROVED:
             return _("Object has been approved by moderator "
                      "and is visible on site")
-        elif moderation_status is None:
+        elif status is None:
             return _("This object is not registered with "
                      "the moderation system.")
 
@@ -118,15 +118,15 @@ class ModerationAdmin(admin.ModelAdmin):
 
 
 class ModeratedObjectAdmin(admin.ModelAdmin):
-    date_hierarchy = 'date_created'
-    list_display = ('content_object', 'content_type', 'date_created',
-                    'moderation_status', 'moderated_by', 'moderation_date')
+    date_hierarchy = 'created'
+    list_display = ('content_object', 'content_type', 'created',
+                    'status', 'by', 'on')
     list_filter = available_filters
     change_form_template = 'moderation/moderate_object.html'
     change_list_template = 'moderation/moderated_objects_list.html'
     actions = [reject_objects, approve_objects, set_objects_as_pending]
     fieldsets = (
-        ('Object moderation', {'fields': ('moderation_reason',)}),
+        ('Object moderation', {'fields': ('reason',)}),
     )
 
     def get_actions(self, request):
@@ -176,7 +176,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
             admin_form = self.get_form(request, moderated_object)(request.POST)
 
             if admin_form.is_valid():
-                reason = admin_form.cleaned_data['moderation_reason']
+                reason = admin_form.cleaned_data['reason']
                 if 'approve' in request.POST:
                     moderated_object.approve(request.user, reason)
                 elif 'reject' in request.POST:

@@ -187,7 +187,7 @@ class ModerateTestCase(TestCase):
         self.profile.description = 'New description'
         self.profile.save()
 
-        self.assertEqual(self.profile.moderated_object.moderation_status,
+        self.assertEqual(self.profile.moderated_object.status,
                          MODERATION_STATUS_PENDING)
 
     def test_moderate(self):
@@ -197,11 +197,10 @@ class ModerateTestCase(TestCase):
         self.profile.moderated_object._moderate(MODERATION_STATUS_APPROVED,
                                                 self.user, "Reason")
 
-        self.assertEqual(self.profile.moderated_object.moderation_status,
+        self.assertEqual(self.profile.moderated_object.status,
                          MODERATION_STATUS_APPROVED)
-        self.assertEqual(self.profile.moderated_object.moderated_by, self.user)
-        self.assertEqual(self.profile.moderated_object.moderation_reason,
-                         "Reason")
+        self.assertEqual(self.profile.moderated_object.by, self.user)
+        self.assertEqual(self.profile.moderated_object.reason, "Reason")
 
     def test_multiple_moderations_throws_exception_by_default(self):
         self.profile.description = 'New description'
@@ -209,7 +208,7 @@ class ModerateTestCase(TestCase):
 
         moderated_object = ModeratedObject.objects.create(
             content_object=self.profile)
-        moderated_object.approve(moderated_by=self.user)
+        moderated_object.approve(by=self.user)
 
         with self.assertRaises(ModerationObjectsManager.MultipleModerations):
             self.profile.__class__.objects.get(id=self.profile.id)
@@ -225,13 +224,13 @@ class ModerateTestCase(TestCase):
 
         profile.save()
         self.assertEqual(
-            MODERATION_DRAFT_STATE, profile.moderated_object.moderation_state,
+            MODERATION_DRAFT_STATE, profile.moderated_object.state,
             "Before first approval, the profile should be in draft state, "
             "to hide it from querysets.")
 
         profile.moderated_object.approve(self.user)
         self.assertEqual(
-            MODERATION_READY_STATE, profile.moderated_object.moderation_state,
+            MODERATION_READY_STATE, profile.moderated_object.state,
             "After first approval, the profile should be in ready state, "
             "to show it in querysets.")
 
@@ -255,13 +254,13 @@ class ModerateTestCase(TestCase):
 
         profile.save()
         self.assertEqual(
-            MODERATION_DRAFT_STATE, profile.moderated_object.moderation_state,
+            MODERATION_DRAFT_STATE, profile.moderated_object.state,
             "Before first approval, the profile should be in draft state, "
             "to hide it from querysets.")
 
         profile.moderated_object.reject(self.user)
         self.assertEqual(
-            MODERATION_DRAFT_STATE, profile.moderated_object.moderation_state,
+            MODERATION_DRAFT_STATE, profile.moderated_object.state,
             "After rejection, the profile should still be in draft state, "
             "to hide it from querysets.")
 
@@ -284,7 +283,7 @@ class ModerateTestCase(TestCase):
 
         self.assertEqual(
             MODERATION_READY_STATE,
-            self.profile.moderated_object.moderation_state,
+            self.profile.moderated_object.state,
             "After first approval, the profile should be in ready state, "
             "to show it in querysets.")
 
@@ -311,14 +310,14 @@ class ModerateTestCase(TestCase):
         self.profile.moderated_object.reject(self.user)
         self.assertEqual(
             MODERATION_READY_STATE,
-            self.profile.moderated_object.moderation_state,
+            self.profile.moderated_object.state,
             "After rejection, the profile should still be in ready state, "
             "to show it in querysets, but with the old data.")
 
         user_profile = self.profile.__class__.objects.get(id=self.profile.id)
 
         self.assertEqual(user_profile.description, "Old description")
-        self.assertEqual(self.profile.moderated_object.moderation_status,
+        self.assertEqual(self.profile.moderated_object.status,
                          MODERATION_STATUS_REJECTED)
         self.assertEqual(
             [self.profile],
@@ -336,7 +335,7 @@ class ModerateTestCase(TestCase):
         user_profile = self.profile.__class__.objects.get(id=self.profile.id)
 
         self.assertEqual(user_profile.description, "Old description")
-        self.assertEqual(self.profile.moderated_object.moderation_status,
+        self.assertEqual(self.profile.moderated_object.status,
                          MODERATION_STATUS_REJECTED)
         self.assertEqual(
             [self.profile],
@@ -348,7 +347,7 @@ class ModerateTestCase(TestCase):
         self.profile.description = 'Old description'
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
-        moderated_object.approve(moderated_by=self.user)
+        moderated_object.approve(by=self.user)
 
         user_profile = self.profile.__class__.objects.get(id=self.profile.id)
 
@@ -435,11 +434,11 @@ class ModerateCustomUserTestCase(ModerateTestCase):
         self.user = CustomUser.objects.create(
             username='custom_user',
             password='aaaa')
-        self.copy_m = ModeratedObject.moderated_by
-        ModeratedObject.moderated_by = models.ForeignKey(
+        self.copy_m = ModeratedObject.by
+        ModeratedObject.by = models.ForeignKey(
             getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
             blank=True, null=True, editable=False,
-            related_name='moderated_by_set')
+            related_name='moderated_objects')
 
         self.profile = UserProfileWithCustomUser.objects.create(
             user=self.user,
@@ -449,7 +448,7 @@ class ModerateCustomUserTestCase(ModerateTestCase):
 
     def tearDown(self):
         teardown_moderation()
-        ModeratedObject.moderated_by = self.copy_m
+        ModeratedObject.by = self.copy_m
 
     # The actual tests are inherited from ModerateTestCase
 
