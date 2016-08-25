@@ -49,7 +49,7 @@ class CSRFMiddlewareTestCase(TestCase):
 
         profile = UserProfile.objects.get(pk=profile.pk)
 
-        self.assertEqual(profile.moderated_object.moderation_status,
+        self.assertEqual(profile.moderated_object.status,
                          MODERATION_STATUS_APPROVED)
 
 
@@ -100,7 +100,7 @@ class BypassOverwritesUpdatedObjectRegressionTestCase(TestCase):
             "The ModelWithVisibilityField has never been approved and is now "
             "pending, so it should be hidden")
         # So approve it
-        obj.moderated_object.approve(moderated_by=self.user, reason='test')
+        obj.moderated_object.approve(by=self.user, reason='test')
         # Now it should be visible, with the new description
         obj = ModelWithVisibilityField.objects.get()
         self.assertEqual('initial', obj.test)

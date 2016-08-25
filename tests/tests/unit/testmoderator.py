@@ -253,7 +253,7 @@ class ByPassModerationTestCase(TestCase):
         profile.description = 'New description'
         profile.save()
 
-        self.assertEqual(profile.moderated_object.moderation_status,
+        self.assertEqual(profile.moderated_object.status,
                          MODERATION_STATUS_APPROVED)
 
 

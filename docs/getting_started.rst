@@ -132,8 +132,7 @@ When you will approve object, then it will be publicly available.:
 
 .. code-block:: python
 
-    your_model.moderated_object.approve(moderated_by=user,
-                                       reason='Reason for approve')
+    your_model.moderated_object.approve(by=user, reason='Reason for approve')
 
     YourModel.objects.get(pk=1)
     <YourModel: YourModel object>
@@ -168,8 +167,7 @@ new version will be saved in moderated_object:
     your_model.moderated_object.changed_object.__dict__
     {'id': 1, 'description': 'New description'}
 
-    your_model.moderated_object.approve(moderated_by=user,
-                                       reason='Reason for approve')
+    your_model.moderated_object.approve(by=user, reason='Reason for approve')
 
     your_model = YourModel.objects.get(pk=1)
     your_model.__dict__

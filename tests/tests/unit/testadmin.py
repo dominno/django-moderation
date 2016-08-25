@@ -112,8 +112,7 @@ class AdminActionsTestCase(TestCase):
         approve_objects(self.admin, self.request, self.moderated_objects)
 
         for obj in ModeratedObject.objects.all():
-            self.assertEqual(obj.moderation_status,
-                             MODERATION_STATUS_APPROVED)
+            self.assertEqual(obj.status, MODERATION_STATUS_APPROVED)
 
     def test_reject_objects(self):
         qs = ModeratedObject.objects.all()
@@ -121,19 +120,16 @@ class AdminActionsTestCase(TestCase):
         reject_objects(self.admin, self.request, qs)
 
         for obj in ModeratedObject.objects.all():
-            self.assertEqual(obj.moderation_status,
-                             MODERATION_STATUS_REJECTED)
+            self.assertEqual(obj.status, MODERATION_STATUS_REJECTED)
 
     def test_set_objects_as_pending(self):
         for obj in self.moderated_objects:
-            obj.approve(moderated_by=self.request.user)
+            obj.approve(by=self.request.user)
 
-        set_objects_as_pending(self.admin, self.request,
-                               self.moderated_objects)
+        set_objects_as_pending(self.admin, self.request, self.moderated_objects)
 
         for obj in ModeratedObject.objects.all():
-            self.assertEqual(obj.moderation_status,
-                             MODERATION_STATUS_PENDING)
+            self.assertEqual(obj.status, MODERATION_STATUS_PENDING)
 
 
 class ModerationAdminSendMessageTestCase(TestCase):
@@ -174,7 +170,7 @@ class ModerationAdminSendMessageTestCase(TestCase):
                                        "with the moderation system.")
 
     def test_send_message_status_pending(self):
-        self.moderated_obj.moderation_status = MODERATION_STATUS_PENDING
+        self.moderated_obj.status = MODERATION_STATUS_PENDING
         self.moderated_obj.save()
 
         self.admin.send_message(self.request, self.profile.pk)
@@ -186,8 +182,8 @@ class ModerationAdminSendMessageTestCase(TestCase):
                          "it will be visible if moderator accepts it")
 
     def test_send_message_status_rejected(self):
-        self.moderated_obj.moderation_status = MODERATION_STATUS_REJECTED
-        self.moderated_obj.moderation_reason = 'Reason for rejection'
+        self.moderated_obj.status = MODERATION_STATUS_REJECTED
+        self.moderated_obj.reason = 'Reason for rejection'
         self.moderated_obj.save()
 
         self.admin.send_message(self.request, self.profile.pk)
@@ -199,7 +195,7 @@ class ModerationAdminSendMessageTestCase(TestCase):
                          "moderator, reason: Reason for rejection")
 
     def test_send_message_status_approved(self):
-        self.moderated_obj.moderation_status = MODERATION_STATUS_APPROVED
+        self.moderated_obj.status = MODERATION_STATUS_APPROVED
         self.moderated_obj.save()
 
         self.admin.send_message(self.request, self.profile.pk)

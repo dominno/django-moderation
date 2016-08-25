@@ -11,11 +11,11 @@ from .signals import post_many_moderation, pre_many_moderation
 
 
 class ModeratedObjectQuerySet(QuerySet):
-    def approve(self, cls, moderated_by, reason=None):
-        self._send_signals_and_moderate(cls, MODERATION_STATUS_APPROVED, moderated_by, reason)
+    def approve(self, cls, by, reason=None):
+        self._send_signals_and_moderate(cls, MODERATION_STATUS_APPROVED, by, reason)
 
-    def reject(self, cls, moderated_by, reason=None):
-        self._send_signals_and_moderate(cls, MODERATION_STATUS_REJECTED, moderated_by, reason)
+    def reject(self, cls, by, reason=None):
+        self._send_signals_and_moderate(cls, MODERATION_STATUS_REJECTED, by, reason)
 
     def moderator(self, cls):
         return moderation.get_moderator(cls)
@@ -24,7 +24,7 @@ class ModeratedObjectQuerySet(QuerySet):
         pre_many_moderation.send(sender=cls,
                                  queryset=self,
                                  status=new_status,
-                                 moderated_by=by,
+                                 by=by,
                                  reason=reason)
 
         self._moderate(cls, new_status, by, reason)
@@ -32,7 +32,7 @@ class ModeratedObjectQuerySet(QuerySet):
         post_many_moderation.send(sender=cls,
                                   queryset=self,
                                   status=new_status,
-                                  moderated_by=by,
+                                  by=by,
                                   reason=reason)
 
     def _moderate(self, cls, new_status, by, reason):
@@ -40,13 +40,13 @@ class ModeratedObjectQuerySet(QuerySet):
         ct = ContentType.objects.get_for_model(cls)
 
         update_kwargs = {
-            'moderation_status': new_status,
-            'moderation_date': datetime.now(),
-            'moderated_by': by,
-            'moderation_reason': reason,
+            'status': new_status,
+            'on': datetime.now(),
+            'by': by,
+            'reason': reason,
         }
         if new_status == MODERATION_STATUS_APPROVED:
-            update_kwargs['moderation_state'] = MODERATION_READY_STATE
+            update_kwargs['state'] = MODERATION_READY_STATE
 
         self.update(update_kwargs)
 

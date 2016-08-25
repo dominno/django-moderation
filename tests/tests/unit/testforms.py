@@ -49,7 +49,7 @@ class FormsTestCase(TestCase):
                               user=self.user)
         profile.save()
 
-        profile.moderated_object.approve(moderated_by=self.user)
+        profile.moderated_object.approve(by=self.user)
 
         profile.description = "Changed description"
         profile.save()
