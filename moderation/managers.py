@@ -48,7 +48,9 @@ class ModerationObjectsManager(Manager):
                 '_relation_object__state': MODERATION_READY_STATE,
             }
 
-            return queryset.filter(Q(**{'_relation_object': None}) | Q(**filter_kwargs))
+            return queryset.filter(
+                Q(_relation_object=None) |
+                Q(_relation_object__state=MODERATION_READY_STATE))
 
     else:
         # Django < 1.7 doesn't properly annotate using GenericRelation fields,

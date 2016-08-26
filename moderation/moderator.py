@@ -14,7 +14,6 @@ from .message_backends import (BaseMessageBackend,
 
 
 class GenericModerator(object):
-
     """
     Encapsulates moderation options for a given model.
     """
@@ -219,14 +218,10 @@ class GenericModerator(object):
                 extra_context=extra_context)
 
     def _get_base_managers(self):
-        base_managers = []
-
-        for manager_name in self.manager_names:
-            base_managers.append(
-                (
-                    manager_name,
-                    self._get_base_manager(self.model_class, manager_name)))
-        return base_managers
+        return [
+            (manager_name, self._get_base_manager(self.model_class, manager_name))
+            for manager_name in self.manager_names
+        ]
 
     def _get_base_manager(self, model_class, manager_name):
         """Returns base manager class for given model class """
@@ -239,8 +234,13 @@ class GenericModerator(object):
 
     def _validate_options(self):
         if self.visibility_column:
-            field_type = type(self.model_class._meta.get_field_by_name(
-                self.visibility_column)[0])
+            try:
+                # Django 1.10+
+                field_type = type(self.model_class._meta.get_field(
+                    self.visibility_column))
+            except:
+                field_type = type(self.model_class._meta.get_field_by_name(
+                    self.visibility_column)[0])
 
             if field_type != BooleanField:
                 msg = "visibility_column field: %s on model %s should "\
