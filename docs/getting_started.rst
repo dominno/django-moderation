@@ -172,3 +172,49 @@ new version will be saved in moderated_object:
     your_model = YourModel.objects.get(pk=1)
     your_model.__dict__
     {'id': 1, 'description': 'New description'}
+
+
+Upgrading From Previous Versions of Django ModerationAdmin
+----------------------------------------------------------
+
+Upgrading from previous versions of django-moderation will require converting from South migrations to Django 1.7+ migrations.
+
+To do so, you will need to perform the following steps (skip any you have already done):
+
+1. Configure South to use the `migrations-pre17` directory for django-moderation migrations:
+
+    .. code-block:: python
+
+        SOUTH_MIGRATION_MODULES = {
+            'moderation': 'moderation.migrations-pre17',
+        }
+
+2. Use South to migrate up to ``0002`` in the ``migrations-pre17`` directory:
+
+    .. code-block:: bash
+
+        python manage.py syncdb moderation 0001  # Skip this if already applied
+        python manage.py syncdb moderation 0002  # Skip this if already applied
+
+
+3. Fake the first two Django migrations:
+
+    .. code-block:: bash
+
+        python manage.py migrate moderation 0001 --fake
+        python manage.py migrate moderation 0002 --fake
+
+4. Use Django to migrate ``0003``:
+
+    .. code-block:: bash
+
+        python manage.py migrate moderation 0003
+
+5. Finally, remove the settings for South:
+
+    .. code-block:: python
+
+        SOUTH_MIGRATION_MODULES = {
+            # 'moderation': 'moderation.migrations-pre17',
+        }
+
