@@ -80,4 +80,20 @@ Added features
 - Dropped support for django 1.3
 - Added support for ForeignKey relations
 
+0.4.0 (2016-08-25)
+------------------
+
+- Updated to support Django 1.7 - 1.9
+- Added instructions for switching from South migrations to Django 1.7+ migrations
+- Improved filter logic for Django 1.8+ to only create one additional query per queryset, instead of N additional queries (eg: one additional query per object in the querset)
+- Renamed model fields to be shorter, less redundant, and more semantically correct
+- Modified registry to add a ``moderation_status`` shortcut to registered models
+- Added support for moderating multiple objects at once
+- Changed model choice fields to use ``Choices`` from django-model-utils
+- Deprecated the ``DJANGO_MODERATION_MODERATORS`` setting in favor of ``MODERATION_MODERATORS``, which does the same thing
+- Improved default email template formatting
+- PEP8 and Flake Fixups
+- Internal code and documentation typo fixes
+- Bug fixes (specifically, closes #87)
+
 
