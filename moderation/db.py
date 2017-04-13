@@ -80,6 +80,7 @@ class ModelBase(ModeratedModelBase, base.ModelBase):
 
     """
 
+
 if not django_14():
     # django.utils.six.with_metaclass is broken in django < 1.5
     class ModeratedModel(with_metaclass(ModelBase, base.Model)):
