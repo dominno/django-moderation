@@ -452,6 +452,7 @@ class ModerateCustomUserTestCase(ModerateTestCase):
 
     # The actual tests are inherited from ModerateTestCase
 
+
 if VERSION >= (1, 5):
     ModerateCustomUserTestCase = override_settings(
         AUTH_USER_MODEL='tests.CustomUser'
