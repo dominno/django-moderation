@@ -11,6 +11,7 @@ from django.contrib.auth.models import User, Group
 from moderation.models import ModeratedObject
 from moderation.constants import MODERATION_STATUS_APPROVED
 from moderation.message_backends import BaseMessageBackend
+from moderation.utils import django_110
 from django.db.models.manager import Manager
 from tests.utils import setup_moderation, teardown_moderation
 
@@ -274,6 +275,9 @@ class BaseManagerTestCase(unittest.TestCase):
 
     def test_get_base_manager(self):
         self.model_class.add_to_class('objects', self.custom_manager())
+
+        if django_110():
+            setattr(self.model_class, 'objects', self.custom_manager())
 
         base_manager = self.moderator._get_base_manager(self.model_class,
                                                         'objects')

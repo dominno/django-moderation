@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from moderation.helpers import automoderate
 from moderation.constants import MODERATION_STATUS_APPROVED
 from moderation.moderator import GenericModerator
+from moderation.utils import django_19
 
 from tests.models import UserProfile, ModelWithVisibilityField
 from tests.utils import setup_moderation, teardown_moderation
@@ -27,7 +28,11 @@ class CSRFMiddlewareTestCase(TestCase):
 
         profile.save()
 
-        self.client.login(username='admin', password='aaaa')
+        if django_19():
+            user = User.objects.get(username='admin')
+            self.client.force_login(user)
+        else:
+            self.client.login(username='admin', password='aaaa')
 
         url = profile.moderated_object.get_admin_moderate_url()
 

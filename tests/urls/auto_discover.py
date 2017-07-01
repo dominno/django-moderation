@@ -1,18 +1,13 @@
 from __future__ import unicode_literals
-try:
-    from django.conf.urls.defaults import patterns, include, handler500
-except ImportError:
-    from django.conf.urls import patterns, include, handler500
 from django.conf import settings
+from django.conf.urls import include, handler500, url
+from django.conf.urls.static import static
 from django.contrib import admin
 
 admin.autodiscover()
 
 handler500
 
-urlpatterns = patterns(
-    '',
-    (r'^admin/', include(admin.site.urls)),
-    (r'^media/(?P<path>.*)$', 'django.views.static.serve', {
-        'document_root': settings.MEDIA_ROOT}),
-)
+urlpatterns = [
+    url(r'^admin/', include(admin.site.urls)),
+].extend(static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))

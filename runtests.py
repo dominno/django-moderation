@@ -8,8 +8,25 @@ from optparse import OptionParser
 
 from django.conf import settings, global_settings
 
-from moderation.utils import django_17
+from moderation.utils import django_17, django_110
 
+
+if django_110():
+    CONTEXT_PROCESSORS = [
+        'django.contrib.auth.context_processors.auth',
+        'django.template.context_processors.i18n',
+        'django.template.context_processors.request',
+        'django.template.context_processors.media',
+        'django.contrib.messages.context_processors.messages',
+    ]
+else:
+    CONTEXT_PROCESSORS = [
+        'django.contrib.auth.context_processors.auth',
+        'django.core.context_processors.i18n',
+        'django.core.context_processors.request',
+        'django.core.context_processors.media',
+        'django.contrib.messages.context_processors.messages',
+    ]
 
 # For convenience configure settings if they are not pre-configured or if we
 # haven't been provided settings to use by environment variable.
@@ -52,7 +69,10 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'APP_DIRS': True,
-            }
+                'OPTIONS': {
+                    'context_processors': CONTEXT_PROCESSORS,
+                },
+            },
         ],
     )
 

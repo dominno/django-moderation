@@ -136,7 +136,7 @@ class ModeratedObject(models.Model):
 
     def get_object_for_this_type(self):
         pk = self.object_pk
-        obj = self.content_type.model_class()._default_manager.get(pk=pk)
+        obj = self.content_type.model_class()._default_unmoderated_manager.get(pk=pk)
         return obj
 
     def get_absolute_url(self):
@@ -185,7 +185,7 @@ class ModeratedObject(models.Model):
             # ModeratedObject.
             obj_class = self.changed_object.__class__
             pk = self.changed_object.pk
-            base_object = obj_class._default_manager.get(pk=pk)
+            base_object = obj_class._default_unmoderated_manager.get(pk=pk)
             base_object_force_save = False
 
         if new_status == MODERATION_STATUS_APPROVED:

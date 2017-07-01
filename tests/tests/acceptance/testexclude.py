@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from moderation.moderator import GenericModerator
+from moderation.utils import django_110
 from tests.models import UserProfile,\
     ModelWithModeratedFields
 from django.test.testcases import TestCase
@@ -17,7 +18,10 @@ class ExcludeAcceptanceTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
     def setUp(self):
-        self.client.login(username='admin', password='aaaa')
+        if django_110():
+            self.client.force_login(User.objects.get(username='admin'))
+        else:
+            self.client.login(username='admin', password='aaaa')
 
         class UserProfileModerator(GenericModerator):
             fields_exclude = ['url']

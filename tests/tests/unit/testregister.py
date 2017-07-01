@@ -1,24 +1,29 @@
 from __future__ import unicode_literals
+
+from django import VERSION
 from django.contrib.auth.models import User
 from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.manager import Manager
 from django.test.testcases import TestCase
-from moderation.register import ModerationManager, RegistrationError
-from moderation.moderator import GenericModerator
-from moderation.managers import ModerationObjectsManager
-from moderation.models import ModeratedObject
+
+from unittest import skipIf, skipUnless
+
 from moderation.constants import (MODERATION_STATUS_REJECTED,
                                   MODERATION_STATUS_APPROVED,
                                   MODERATION_STATUS_PENDING)
+from moderation.helpers import import_moderator
+from moderation.managers import ModerationObjectsManager
+from moderation.models import ModeratedObject
+from moderation.moderator import GenericModerator
+from moderation.register import ModerationManager, RegistrationError
 from moderation.signals import pre_moderation, post_moderation
-from tests.models import UserProfile, \
+
+from tests.models import Book, UserProfile, \
     ModelWithSlugField, ModelWithSlugField2, ModelWithMultipleManagers, \
     CustomModel
-from tests.utils import setup_moderation
-from tests.utils import teardown_moderation
-from moderation.helpers import import_moderator
-from tests.models import Book
+from tests.utils import setup_moderation, teardown_moderation
+
 # reload is builtin in Python 2.x. Needs to  be imported for Py3k
 try:
     from importlib import reload
@@ -335,7 +340,7 @@ class ModerationManagerTestCase(TestCase):
             pass
 
         moderator = GenericModerator(UserProfile)
-        self.moderation._and_fields_to_model_class(moderator)
+        self.moderation._add_fields_to_model_class(moderator)
 
         self.moderation._remove_fields(moderator)
 
@@ -348,18 +353,34 @@ class ModerationManagerTestCase(TestCase):
         up = UserProfile._default_manager.filter(url='http://www.yahoo.com')
         self.assertEqual(up.count(), 1)
 
-    def test_and_fields_to_model_class(self):
+    @skipIf(VERSION >= (1, 10), "Skipping moderator class test because Django >= 1.10")
+    def test_add_fields_to_model_class_django_1_9(self):
 
         class CustomManager(Manager):
             pass
 
         moderator = GenericModerator(UserProfile)
-        self.moderation._and_fields_to_model_class(moderator)
+        self.moderation._add_fields_to_model_class(moderator)
 
         manager = ModerationObjectsManager()(CustomManager)()
 
         self.assertEqual(repr(UserProfile.objects.__class__),
                          repr(manager.__class__))
+        self.assertEqual(hasattr(UserProfile, 'moderated_object'), True)
+
+        # clean up
+        self.moderation._remove_fields(moderator)
+
+    @skipUnless(VERSION >= (1, 10), "Skipping moderator class test because Django < 1.10")
+    def test_add_fields_to_model_class_django_1_10(self):
+        class CustomManager(Manager):
+            pass
+
+        moderator = GenericModerator(UserProfile)
+        self.moderation._add_fields_to_model_class(moderator)
+
+        self.assertEqual(UserProfile.objects.__class__.__name__,
+                         'ModeratedManager')
         self.assertEqual(hasattr(UserProfile, 'moderated_object'), True)
 
         # clean up

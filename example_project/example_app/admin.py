@@ -65,6 +65,7 @@ if VERSION[:2] >= (1, 5):
 
         class Meta:
             model = CustomUser
+            fields = '__all__'
 
         def clean_password(self):
             # Regardless of what the user provides, return the initial value.
