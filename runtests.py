@@ -46,9 +46,6 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         ),
         DEBUG=True,
         SITE_ID=1,
-        SOUTH_MIGRATION_MODULES={
-            'moderation': 'moderation.migrations-pre17',
-        },
         # For Django 1.10 compatibility
         # See https://docs.djangoproject.com/en/1.10/ref/settings/#std:setting-TEMPLATES
         TEMPLATES=[
@@ -89,10 +86,6 @@ def prepare_test_runner(*args, **kwargs):
 
 
 def runtests(*test_args, **kwargs):
-    if 'south' in settings.INSTALLED_APPS:
-        from south.management.commands import patch_for_test_db_setup
-        patch_for_test_db_setup()
-
     if not test_args:
         test_args = ['tests']
 
