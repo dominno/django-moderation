@@ -7,7 +7,7 @@ from django.test.testcases import TestCase
 from django.contrib.auth.models import User
 from django.db.models import fields
 from tests.models import UserProfile, \
-    ModelWIthDateField, ModelWithImage
+    ModelWithDateField, ModelWithImage
 from moderation.models import ModeratedObject
 import re
 
@@ -226,8 +226,8 @@ class DateFieldTestCase(TestCase):
     fixtures = ['test_users.json']
 
     def setUp(self):
-        self.obj1 = ModelWIthDateField()
-        self.obj2 = ModelWIthDateField()
+        self.obj1 = ModelWithDateField()
+        self.obj2 = ModelWithDateField()
 
         self.obj1.save()
         self.obj2.save()

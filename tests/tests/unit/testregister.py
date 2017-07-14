@@ -376,12 +376,12 @@ class ModerationManagerTestCase(TestCase):
         profile.description = "New description"
 
         unchanged_obj = self.moderation._get_unchanged_object(profile)
-        object = self.moderation._get_or_create_moderated_object(profile,
-                                                                 unchanged_obj,
-                                                                 moderator)
+        obj = self.moderation._get_or_create_moderated_object(profile,
+                                                              unchanged_obj,
+                                                              moderator)
 
-        self.assertNotEqual(object.pk, None)
-        self.assertEqual(object.changed_object.description,
+        self.assertNotEqual(obj.pk, None)
+        self.assertEqual(obj.changed_object.description,
                          'Old description')
 
         self.moderation.unregister(UserProfile)

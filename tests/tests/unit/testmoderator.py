@@ -177,18 +177,18 @@ class AutoModerateModeratorTestCase(TestCase):
     def test_is_auto_reject_user_is_anonymous(self):
         from mock import Mock
 
-        self.user.is_anonymous = Mock()
-        self.user.is_anonymous.return_value = True
-        reason = self.moderator.is_auto_reject(self.obj, self.user)
+        user = Mock()
+        user.is_anonymous = lambda: True
+        reason = self.moderator.is_auto_reject(self.obj, user)
         self.assertTrue(reason)
         self.assertEqual(reason, 'Auto-rejected: Anonymous User')
 
     def test_is_auto_reject_user_is_not_anonymous(self):
         from mock import Mock
 
-        self.user.is_anonymous = Mock()
-        self.user.is_anonymous.return_value = False
-        self.assertFalse(self.moderator.is_auto_reject(self.obj, self.user))
+        user = Mock()
+        user.is_anonymous = lambda: False
+        self.assertFalse(self.moderator.is_auto_reject(self.obj, user))
 
     def test_auto_reject_for_groups_user_in_group(self):
         self.moderator.auto_reject_for_groups = ['banned']
@@ -318,8 +318,8 @@ class VisibilityColumnTestCase(TestCase):
         self.assertEqual(list(objects), [])
 
     def test_approved_obj_should_be_return_by_manager(self):
-        '''Verify new object with visibility column is accessible '''\
-            '''by manager after approve'''
+        '''Verify new object with visibility column is accessible '''
+        '''by manager after approve'''
         profile = self._create_userprofile()
         profile.moderated_object.approve(self.user)
 
@@ -328,8 +328,8 @@ class VisibilityColumnTestCase(TestCase):
         self.assertEqual(objects.count(), 1)
 
     def test_invalid_visibility_column_field_should_rise_exception(self):
-        '''Verify correct exception is raised when model has '''\
-            '''invalid visibility column'''
+        '''Verify correct exception is raised when model has '''
+        '''invalid visibility column'''
 
         class UserProfileModerator(GenericModerator):
             visibility_column = 'is_public'
@@ -340,8 +340,8 @@ class VisibilityColumnTestCase(TestCase):
                           UserProfileModerator)
 
     def test_model_should_be_saved_properly(self):
-        '''Verify that after approve of object that has visibility column '''\
-            '''value is changed from False to True'''
+        '''Verify that after approve of object that has visibility column '''
+        '''value is changed from False to True'''
         profile = self._create_userprofile()
 
         self.assertEqual(profile.is_public, False)

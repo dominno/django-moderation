@@ -13,8 +13,11 @@ except ImportError:
             raise ImportError('unittest2 is required to run the tests.')
 
 
-def setup_moderation(models=[]):
+def setup_moderation(models=None):
     from moderation import moderation
+
+    if models is None:
+        models = []
 
     for model in models:
         try:

@@ -50,11 +50,11 @@ class ModerationObjectsManagerTestCase(TestCase):
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
 
-        self.assertEqual(str(manager.filter_moderated_objects(query_set)),
+        self.assertEqual(str(list(manager.filter_moderated_objects(query_set))),
                          "[]")
 
     def test_filter_moderated_objects_returns_object(self):
-        """Test if filter_moderated_objects return object when object 
+        """Test if filter_moderated_objects return object when object
         doesn't have moderated object or deserialized object is <> object"""
         moderated_object = ModeratedObject(content_object=self.profile)
         moderated_object.save()
@@ -63,7 +63,7 @@ class ModerationObjectsManagerTestCase(TestCase):
         self.profile.description = "New"
         self.profile.save()
 
-        self.assertEqual(str(UserProfile.objects.all()),
+        self.assertEqual(str(list(UserProfile.objects.all())),
                          '[<UserProfile: moderator - http://www.google.com>]')
 
     def test_exclude_objs_by_visibility_col(self):
@@ -79,7 +79,7 @@ class ModerationObjectsManagerTestCase(TestCase):
         query_set = manager.exclude_objs_by_visibility_col(query_set)
 
         self.assertEqual(
-            str(query_set),
+            str(list(query_set)),
             "[<ModelWithVisibilityField: test 2 - is public True>]")
 
 

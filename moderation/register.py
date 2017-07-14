@@ -41,9 +41,9 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
     def register(self, model_class, moderator_class=None):
         """Registers model class with moderation"""
         if model_class in self._registered_models:
-            msg = "{} has been registered with Moderation.".format(model_class)
+            msg = "{} has already been registered with Moderation.".format(model_class)
             raise RegistrationError(msg)
-        if not moderator_class:
+        if moderator_class is None:
             moderator_class = GenericModerator
 
         if not issubclass(moderator_class, GenericModerator):

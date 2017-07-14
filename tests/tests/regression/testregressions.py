@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import django
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
 
@@ -10,8 +9,6 @@ from moderation.moderator import GenericModerator
 
 from tests.models import UserProfile, ModelWithVisibilityField
 from tests.utils import setup_moderation, teardown_moderation
-
-django_version = django.get_version()[:3]
 
 
 class CSRFMiddlewareTestCase(TestCase):
@@ -34,14 +31,7 @@ class CSRFMiddlewareTestCase(TestCase):
 
         url = profile.moderated_object.get_admin_moderate_url()
 
-        if django_version == '1.1':
-            from django.contrib.csrf.middleware import _make_token
-
-            csrf_token = _make_token(self.client.session.session_key)
-            post_data = {'approve': 'Approve',
-                         'csrfmiddlewaretoken': csrf_token}
-        else:
-            post_data = {'approve': 'Approve'}
+        post_data = {'approve': 'Approve'}
 
         response = self.client.post(url, post_data)
 
