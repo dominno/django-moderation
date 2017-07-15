@@ -2,9 +2,14 @@ from __future__ import unicode_literals
 
 import mock
 
+from django import VERSION
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import User, Permission
 from django.test.testcases import TestCase
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 
 from moderation.admin import ModerationAdmin, approve_objects, reject_objects,\
     ModeratedObjectAdmin, set_objects_as_pending
@@ -71,16 +76,13 @@ class ModeratedObjectAdminBehaviorTestCase(WebTestCase):
     def test_set_changed_by_property(self):
         """even_when_auto_approve_for_staff_is_false"""
         self.assertEquals(self.book.moderated_object.changed_by, None)
-        if django_19():
-            url = '/admin/tests/book/1/change/'
-        else:
-            url = '/admin/tests/book/1/'
+        url = reverse('admin:tests_book_change', args=(self.book.pk,))
         page = self.get(url)
         form = page.form
         form['title'] = "Book modified"
         page = form.submit()
         self.assertIn(page.status_code, [302, 200])
-        book = Book._default_manager.get(pk=self.book.pk)  # refetch the obj
+        book = Book.unmoderated_objects.get(pk=self.book.pk)  # refetch the obj
         self.assertEquals(book.title, "Book not modified")
         moderated_obj = ModeratedObject.objects.get_for_instance(book)
         self.assertEquals(moderated_obj.changed_object.title, "Book modified")

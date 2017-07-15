@@ -5,7 +5,7 @@ import sys
 version = '0.4.0'
 
 tests_require = [
-    'django>=1.7,<1.10',
+    'django>=1.7,<=2.0',
     'django-webtest>=1.5.7-web',
     'webtest>=2.0,<2.1',
     'mock',
@@ -46,7 +46,7 @@ setup(
     tests_require=tests_require,
     test_suite='runtests.runtests',
     install_requires=[
-        'django>=1.7,<1.10',
+        'django>=1.7,<=2.0',
         'django-model-utils',
     ],
     zip_safe=False,

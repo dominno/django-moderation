@@ -22,4 +22,5 @@ class _ModerationProxy(object):
         self._ensure_obj()
         return setattr(_ModerationProxy._moderation, attribute, value)
 
+
 moderation = _ModerationProxy()

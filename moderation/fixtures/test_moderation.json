@@ -4,7 +4,7 @@
         "model": "tests.userprofile",
         "fields": {
             "url": "http://www.google.com", 
-            "user": 1, 
+            "user_id": 1,
             "description": "Old description"
         }
     }

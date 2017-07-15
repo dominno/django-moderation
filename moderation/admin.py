@@ -24,12 +24,13 @@ else:
 from .forms import BaseModeratedObjectForm
 from .helpers import automoderate
 from .models import ModeratedObject
-from .utils import django_17
+from .utils import django_17, django_110
 
 
 def approve_objects(modeladmin, request, queryset):
     for obj in queryset:
         obj.approve(by=request.user)
+
 
 approve_objects.short_description = _("Approve selected moderated objects")
 
@@ -38,11 +39,13 @@ def reject_objects(modeladmin, request, queryset):
     for obj in queryset:
         obj.reject(by=request.user)
 
+
 reject_objects.short_description = _("Reject selected moderated objects")
 
 
 def set_objects_as_pending(modeladmin, request, queryset):
     queryset.update(status=MODERATION_STATUS_PENDING)
+
 
 set_objects_as_pending.short_description = _("Set selected moderated"
                                              " objects as Pending")
@@ -50,6 +53,14 @@ set_objects_as_pending.short_description = _("Set selected moderated"
 
 class ModerationAdmin(admin.ModelAdmin):
     admin_integration_enabled = True
+
+    def get_queryset(self, request):
+        # Modified from django.contrib.admin.options.BaseModelAdmin
+        qs = self.model._default_unmoderated_manager.get_queryset()
+        ordering = self.get_ordering(request)
+        if ordering:
+            qs = qs.order_by(*ordering)
+        return qs
 
     def get_form(self, request, obj=None, **kwargs):
         if obj and self.admin_integration_enabled:

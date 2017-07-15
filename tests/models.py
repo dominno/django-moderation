@@ -72,7 +72,7 @@ class ModelWithMultipleManagers(models.Model):
     women = WomenManager()
 
 
-class ModelWIthDateField(models.Model):
+class ModelWithDateField(models.Model):
     date = models.DateField(auto_now=True)
 
 

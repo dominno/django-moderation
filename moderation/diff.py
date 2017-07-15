@@ -73,9 +73,15 @@ def get_change(model1, model2, field, resolve_foreignkeys=False):
     return change
 
 
-def get_changes_between_models(model1, model2, excludes=[], includes=[],
+def get_changes_between_models(model1, model2, excludes=None, includes=None,
                                resolve_foreignkeys=False):
     changes = {}
+
+    if excludes is None:
+        excludes = []
+
+    if includes is None:
+        includes = []
 
     for field in model1._meta.fields:
         if includes and field.name not in includes:

@@ -7,4 +7,5 @@ from .models import Book
 class BookAdmin(ModerationAdmin):
     pass
 
+
 admin.site.register(Book, BookAdmin)

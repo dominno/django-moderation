@@ -85,11 +85,11 @@ class GenericModerator(object):
 
         Overwrite this method if you want to provide your custom logic.
         '''
+        if self.auto_reject_for_anonymous and user.is_anonymous():
+            return self.reason('Auto-rejected: Anonymous User')
         if self.auto_reject_for_groups and \
            self._check_user_in_groups(user, self.auto_reject_for_groups):
             return self.reason('Auto-rejected: User in disallowed group')
-        if self.auto_reject_for_anonymous and user.is_anonymous():
-            return self.reason('Auto-rejected: Anonymous User')
 
         return False
 
@@ -239,8 +239,12 @@ class GenericModerator(object):
 
     def _validate_options(self):
         if self.visibility_column:
-            field_type = type(self.model_class._meta.get_field_by_name(
-                self.visibility_column)[0])
+            try:  # Django 1.10+
+                field_type = type(self.model_class._meta.get_field(
+                    self.visibility_column))
+            except AttributeError:
+                field_type = type(self.model_class._meta.get_field_by_name(
+                    self.visibility_column)[0])
 
             if field_type != BooleanField:
                 msg = "visibility_column field: %s on model %s should "\
