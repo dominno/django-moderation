@@ -41,7 +41,7 @@ Requirements
 
 python 2.7, 3.3+
 
-django >= 1.7, < 1.10
+django >= 1.8, < 2.0 (1.7 is also partially supported)
 
 django-model-utils
 
