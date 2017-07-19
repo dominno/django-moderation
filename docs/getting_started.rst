@@ -52,7 +52,7 @@ Then add all of your moderation classes to a ``moderator.py`` file in an app and
     from yourapp.models import YourModel, AnotherModel
 
 
-    class AnotherModelModerator(ModelModerator):
+    class AnotherModelModerator(ModeratedModel):
         # Add your moderator settings for AnotherModel here
 
 
