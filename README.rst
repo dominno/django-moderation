@@ -3,10 +3,10 @@ Introduction
 .. image:: https://travis-ci.org/dominno/django-moderation.png
    :target: https://travis-ci.org/dominno/django-moderation
    
-.. image:: https://pypip.in/v/django-moderation/badge.png
+.. image:: https://img.shields.io/pypi/v/django-moderation.svg
    :target: https://pypi.python.org/pypi/django-moderation
 
-.. image:: https://pypip.in/d/django-moderation/badge.png
+.. image:: https://img.shields.io/pypi/dm/django-moderation.svg
    :target: https://pypi.python.org/pypi/django-moderation
 
 .. image:: https://coveralls.io/repos/dominno/django-moderation/badge.png?branch=master
