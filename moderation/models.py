@@ -152,7 +152,7 @@ class ModeratedObject(models.Model):
 
     @property
     def moderator(self):
-        model_class = self.content_object.__class__
+        model_class = self.content_type.model_class()
 
         return moderation.get_moderator(model_class)
 
@@ -163,7 +163,7 @@ class ModeratedObject(models.Model):
 
         self._moderate(new_status, by, reason)
 
-        post_moderation.send(sender=self.content_object.__class__,
+        post_moderation.send(sender=self.content_type.model_class(),
                              instance=self.content_object,
                              status=new_status)
 
