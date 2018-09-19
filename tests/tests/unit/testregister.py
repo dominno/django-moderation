@@ -31,7 +31,7 @@ except ImportError:
     try:
         # Python 3.2
         from imp import reload
-    except:
+    except Exception:
         pass
 
 from django.db import IntegrityError, transaction
@@ -161,7 +161,7 @@ class AutoDiscoverTestCase(TestCase):
 
         try:  # force module reload
             reload(module)
-        except:
+        except Exception:
             pass
 
         self.assertTrue(Book in self.moderation._registered_models)

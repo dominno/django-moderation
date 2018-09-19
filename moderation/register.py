@@ -60,7 +60,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             # try/except/else block
             self._add_fields_to_model_class(moderator_class_instance)
             self._connect_signals(model_class)
-        except:
+        except Exception:
             raise
         else:
             self._registered_models[model_class] = moderator_class_instance
@@ -140,7 +140,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
                     manager.model = model_class
                     try:
                         manager_index = manager_names.index(manager_name)
-                    except:
+                    except Exception:
                         model_class._meta.local_managers = [manager]
                     else:
                         model_class._meta.local_managers[manager_index] = manager
@@ -192,7 +192,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         try:
             self._remove_fields(moderator_instance)
             self._disconnect_signals(model_class)
-        except:
+        except Exception:
             raise
         else:
             try:
