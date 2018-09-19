@@ -11,6 +11,14 @@ from django.conf import settings, global_settings
 from moderation.utils import django_17, django_110
 
 
+MIDDLEWARE_LIST = [
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+]
+
+
 if django_110():
     CONTEXT_PROCESSORS = [
         'django.contrib.auth.context_processors.auth',
@@ -19,6 +27,7 @@ if django_110():
         'django.template.context_processors.media',
         'django.contrib.messages.context_processors.messages',
     ]
+    MIDDLEWARE_KWARG = {'MIDDLEWARE': MIDDLEWARE_LIST}
 else:
     CONTEXT_PROCESSORS = [
         'django.contrib.auth.context_processors.auth',
@@ -27,6 +36,7 @@ else:
         'django.core.context_processors.media',
         'django.contrib.messages.context_processors.messages',
     ]
+    MIDDLEWARE_KWARG = {'MIDDLEWARE_CLASSES': MIDDLEWARE_LIST}
 
 # For convenience configure settings if they are not pre-configured or if we
 # haven't been provided settings to use by environment variable.
@@ -37,12 +47,6 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
                 'ENGINE': 'django.db.backends.sqlite3',
             }
         },
-        MIDDLEWARE_CLASSES=(
-            'django.middleware.common.CommonMiddleware',
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'django.contrib.messages.middleware.MessageMiddleware',
-        ),
         INSTALLED_APPS=[
             'django.contrib.auth',
             'django.contrib.admin',
@@ -74,6 +78,7 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
                 },
             },
         ],
+        **MIDDLEWARE_KWARG
     )
 
 
