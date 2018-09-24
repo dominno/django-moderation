@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CustomUser',
             fields=[
-                ('user_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('user_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
                 ('date_of_birth', models.DateField(null=True, blank=True)),
                 ('height', models.FloatField(null=True, blank=True)),
             ],
@@ -156,7 +156,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SuperUserProfile',
             fields=[
-                ('userprofile_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='tests.UserProfile')),
+                ('userprofile_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='tests.UserProfile', on_delete=models.CASCADE)),
                 ('super_power', models.TextField()),
             ],
             options={
@@ -169,7 +169,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('description', models.TextField()),
                 ('url', models.URLField()),
-                ('user', models.ForeignKey(to='tests.CustomUser')),
+                ('user', models.ForeignKey(to='tests.CustomUser', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -178,7 +178,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='user',
-            field=models.ForeignKey(related_name='user_profile_set', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(related_name='user_profile_set', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.CreateModel(
