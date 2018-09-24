@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 
 from moderation.moderator import GenericModerator
 from moderation.utils import django_110
