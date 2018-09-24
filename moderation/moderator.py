@@ -85,7 +85,10 @@ class GenericModerator(object):
 
         Overwrite this method if you want to provide your custom logic.
         '''
-        if self.auto_reject_for_anonymous and user.is_anonymous:
+        is_anon = user.is_anonymous
+        if callable(is_anon):
+            is_anon = is_anon()
+        if self.auto_reject_for_anonymous and is_anon:
             return self.reason('Auto-rejected: Anonymous User')
         if self.auto_reject_for_groups and \
            self._check_user_in_groups(user, self.auto_reject_for_groups):
