@@ -40,6 +40,7 @@ STATUS_CHOICES = Choices(
 
 class ModeratedObject(models.Model):
     content_type = models.ForeignKey(ContentType, null=True, blank=True,
+                                     on_delete=models.SET_NULL,
                                      editable=False)
     object_pk = models.PositiveIntegerField(null=True, blank=True,
                                             editable=False, db_index=True)
@@ -56,7 +57,7 @@ class ModeratedObject(models.Model):
         editable=False)
     by = models.ForeignKey(
         getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
-        blank=True, null=True, editable=False,
+        blank=True, null=True, editable=False, on_delete=models.SET_NULL,
         related_name='moderated_objects')
     on = models.DateTimeField(editable=False, blank=True, null=True)
     reason = models.TextField(blank=True, null=True)
@@ -64,7 +65,7 @@ class ModeratedObject(models.Model):
                                            editable=False)
     changed_by = models.ForeignKey(
         getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
-        blank=True, null=True, editable=True,
+        blank=True, null=True, editable=True, on_delete=models.SET_NULL,
         related_name='changed_by_set')
 
     objects = ModeratedObjectManager()

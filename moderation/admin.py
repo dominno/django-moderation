@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 import django
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
-from django.core import urlresolvers
+try:
+    from django import urls as urlresolvers
+except ImportError:
+    from django.core import urlresolvers
 from django.forms.models import ModelForm
 from django.utils.translation import ugettext as _
 

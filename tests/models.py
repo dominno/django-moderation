@@ -12,6 +12,7 @@ from moderation.utils import django_17
 
 class UserProfile(models.Model):
     user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
+                             on_delete=models.CASCADE,
                              related_name='user_profile_set')
     description = models.TextField()
     url = models.URLField()
@@ -130,7 +131,7 @@ if VERSION[:2] >= (1, 5):
         height = models.FloatField(blank=True, null=True)
 
     class UserProfileWithCustomUser(models.Model):
-        user = models.ForeignKey(CustomUser)
+        user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
         description = models.TextField()
         url = models.URLField()
 
