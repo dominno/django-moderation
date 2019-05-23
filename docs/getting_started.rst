@@ -47,12 +47,12 @@ Then add all of your moderation classes to a ``moderator.py`` file in an app and
 .. code-block:: python
 
     from moderation import moderation
-    from moderation.db import ModeratedModel
+    from moderation.moderator import GenericModerator
 
     from yourapp.models import YourModel, AnotherModel
 
 
-    class AnotherModelModerator(ModelModerator):
+    class AnotherModelModerator(GenericModerator):
         # Add your moderator settings for AnotherModel here
 
 
