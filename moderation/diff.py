@@ -101,8 +101,8 @@ def get_changes_between_models(model1, model2, excludes=None, includes=None,
 
 def get_diff_operations(a, b):
     operations = []
-    a_words = re.split('(\W+)', a)
-    b_words = re.split('(\W+)', b)
+    a_words = re.split(r'(\W+)', a)
+    b_words = re.split(r'(\W+)', b)
     sequence_matcher = difflib.SequenceMatcher(None, a_words, b_words)
     for opcode in sequence_matcher.get_opcodes():
         operation, start_a, end_a, start_b, end_b = opcode
@@ -118,8 +118,8 @@ def get_diff_operations(a, b):
 
 def html_to_list(html):
     pattern = re.compile(r'&.*?;|(?:<[^<]*?>)|'
-                         '(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'
-                         '(?:\s*[,\.\?]*)', re.UNICODE)
+                         r'(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'
+                         r'(?:\s*[,\.\?]*)', re.UNICODE)
 
     return [''.join(element) for element in
             [_f for _f in pattern.findall(html) if _f]]
