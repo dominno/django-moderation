@@ -1,15 +1,9 @@
-from __future__ import unicode_literals
 from django.contrib.auth.models import User
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
+from django.test.testcases import TestCase
+from django.urls import reverse
 
 from moderation.moderator import GenericModerator
-from moderation.utils import django_110
-from tests.models import UserProfile,\
-    ModelWithModeratedFields
-from django.test.testcases import TestCase
+from tests.models import ModelWithModeratedFields, UserProfile
 from tests.utils import setup_moderation, teardown_moderation
 
 
@@ -21,10 +15,7 @@ class ExcludeAcceptanceTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
     def setUp(self):
-        if django_110():
-            self.client.force_login(User.objects.get(username='admin'))
-        else:
-            self.client.login(username='admin', password='aaaa')
+        self.client.force_login(User.objects.get(username='admin'))
 
         class UserProfileModerator(GenericModerator):
             fields_exclude = ['url']

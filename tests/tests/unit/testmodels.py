@@ -1,26 +1,18 @@
-from __future__ import unicode_literals
-
-from django import VERSION
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.db import models
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
 
-from moderation.constants import (MODERATION_STATUS_REJECTED,
-                                  MODERATION_STATUS_APPROVED,
-                                  MODERATION_STATUS_PENDING,
-                                  MODERATION_READY_STATE,
-                                  MODERATION_DRAFT_STATE)
+from moderation.constants import (MODERATION_DRAFT_STATE, MODERATION_READY_STATE, MODERATION_STATUS_APPROVED,
+                                  MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED)
 from moderation.fields import SerializedObjectField
 from moderation.helpers import automoderate
 from moderation.managers import ModerationObjectsManager
 from moderation.models import ModeratedObject
 from moderation.moderator import GenericModerator
 from moderation.register import ModerationManager, RegistrationError
-from tests.models import (UserProfile, SuperUserProfile, ModelWithSlugField2,
-                          ProxyProfile)
+from tests.models import (ModelWithSlugField2, ProxyProfile, SuperUserProfile, UserProfile)
 from tests.utils import setup_moderation, teardown_moderation
-from tests.utils import unittest
 
 
 class SerializationTestCase(TestCase):
@@ -69,8 +61,8 @@ class SerializationTestCase(TestCase):
         self.assertIn('"fields": {', serialized_str)
 
     def test_deserialize(self):
-        value = '[{"pk": 1, "model": "tests.userprofile", "fields": '\
-                '{"url": "http://www.google.com", "user": 1, '\
+        value = '[{"pk": 1, "model": "tests.userprofile", "fields": ' \
+                '{"url": "http://www.google.com", "user": 1, ' \
                 '"description": "Profile description"}}]'
         json_field = SerializedObjectField()
         object = json_field._deserialize(value)
@@ -80,10 +72,10 @@ class SerializationTestCase(TestCase):
         self.assertTrue(isinstance(object, UserProfile))
 
     def test_deserialize_with_inheritance(self):
-        value = '[{"pk": 2, "model": "tests.superuserprofile",'\
-                ' "fields": {"super_power": "invisibility"}}, '\
-                '{"pk": 2, "model": "tests.userprofile", "fields":'\
-                ' {"url": "http://www.test.com", "user": 2,'\
+        value = '[{"pk": 2, "model": "tests.superuserprofile",' \
+                ' "fields": {"super_power": "invisibility"}}, ' \
+                '{"pk": 2, "model": "tests.userprofile", "fields":' \
+                ' {"url": "http://www.test.com", "user": 2,' \
                 ' "description": "Profile for new super user"}}]'
 
         json_field = SerializedObjectField()
@@ -124,7 +116,6 @@ class SerializationTestCase(TestCase):
         self.assertEqual(moderated_object.changed_object.description,
                          'New changed description')
 
-    @unittest.skipIf(VERSION[:2] < (1, 4), "Proxy models require 1.4")
     def test_serialize_proxy_model(self):
         "Handle proxy models in the serialization."
         profile = ProxyProfile(description="I'm a proxy.",
@@ -142,12 +133,11 @@ class SerializationTestCase(TestCase):
         self.assertIn('"description": "I\'m a proxy."', serialized_str)
         self.assertIn('"fields": {', serialized_str)
 
-    @unittest.skipIf(VERSION[:2] < (1, 4), "Proxy models require 1.4")
     def test_deserialize_proxy_model(self):
         "Correctly restore a proxy model."
-        value = '[{"pk": 2, "model": "tests.proxyprofile", "fields": '\
-            '{"url": "http://example.com", "user": 2, '\
-            '"description": "I\'m a proxy."}}]'
+        value = '[{"pk": 2, "model": "tests.proxyprofile", "fields": ' \
+                '{"url": "http://example.com", "user": 2, ' \
+                '"description": "I\'m a proxy."}}]'
 
         json_field = SerializedObjectField()
         profile = json_field._deserialize(value)
@@ -421,14 +411,11 @@ class AutoModerateTestCase(TestCase):
         self.assertRaises(RegistrationError, automoderate, obj, self.user)
 
 
-@unittest.skipIf(VERSION[:2] < (1, 5), "Custom auth users require 1.5")
-# Using the decorator is causing problems with Django 1.3, so use
-# the non-decorated version below.
-# @override_settings(AUTH_USER_MODEL='tests.CustomUser')
+@override_settings(AUTH_USER_MODEL='tests.CustomUser')
 class ModerateCustomUserTestCase(ModerateTestCase):
 
     def setUp(self):
-        from tests.models import CustomUser,\
+        from tests.models import CustomUser, \
             UserProfileWithCustomUser
         from django.conf import settings
         self.user = CustomUser.objects.create(
@@ -451,52 +438,3 @@ class ModerateCustomUserTestCase(ModerateTestCase):
         ModeratedObject.by = self.copy_m
 
     # The actual tests are inherited from ModerateTestCase
-
-
-if VERSION >= (1, 5):
-    ModerateCustomUserTestCase = override_settings(
-        AUTH_USER_MODEL='tests.CustomUser'
-    )(ModerateCustomUserTestCase)
-
-
-@unittest.skipIf(
-    VERSION[:2] < (1, 5),
-    "django.utils.six.with_metaclass does not work properly until 1.5"
-)
-class ModeratedModelTestCase(TestCase):
-
-    def tearDown(self):
-        teardown_moderation()
-
-    def test_moderatedmodel_automatic_registration(self):
-        from tests.more_models import MyTestModel
-        from tests.more_models import MyTestModelWithoutModerator
-        from moderation import moderation
-
-        registered_models = moderation._registered_models
-        # test registration with moderator
-        moderator = registered_models.get(MyTestModel, None)
-        is_registered = moderator is not None
-        self.assertEqual(is_registered, True)
-        # if Moderator extended then default notify_user should be overwritten
-        notify_user = moderator.notify_user
-        self.assertEqual(notify_user, False)
-        # the value added to the Moderator should also show up
-        made_up_value = moderator.made_up_value
-        self.assertEqual(made_up_value, 'made_up')
-
-        # test registration without custom moderator
-        moderator = registered_models.get(MyTestModelWithoutModerator)
-        self.assertEqual(
-            moderator.__class__.__name__,
-            'GenericModerator'
-        )
-
-    def test_django_14(self):
-        # django_14 test
-        from mock import patch, Mock
-        from moderation.utils import django_14
-        version = Mock()
-        version.return_value = '1.4.8'
-        with patch('django.get_version', version):
-            self.assertTrue(django_14())

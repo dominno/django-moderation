@@ -1,26 +1,19 @@
-from __future__ import unicode_literals
-
 import mock
-
-from django import VERSION
 from django.contrib.admin.sites import site
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Permission, User
 from django.test.testcases import TestCase
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
+from django.urls import reverse
 
-from moderation.admin import ModerationAdmin, approve_objects, reject_objects,\
-    ModeratedObjectAdmin, set_objects_as_pending
+from moderation.admin import (ModeratedObjectAdmin, ModerationAdmin,
+                              approve_objects, reject_objects,
+                              set_objects_as_pending)
 from moderation.constants import (MODERATION_STATUS_APPROVED,
-                                  MODERATION_STATUS_REJECTED,
-                                  MODERATION_STATUS_PENDING)
-from moderation.moderator import GenericModerator
+                                  MODERATION_STATUS_PENDING,
+                                  MODERATION_STATUS_REJECTED)
 from moderation.models import ModeratedObject
-from moderation.utils import django_19
-from tests.models import UserProfile, Book, \
-    ModelWithSlugField, ModelWithSlugField2, SuperUserProfile
+from moderation.moderator import GenericModerator
+from tests.models import (Book, ModelWithSlugField, ModelWithSlugField2,
+                          SuperUserProfile, UserProfile)
 from tests.utils import setup_moderation, teardown_moderation
 from tests.utils.request_factory import RequestFactory
 from tests.utils.testcases import WebTestCase

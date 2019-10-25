@@ -1,13 +1,10 @@
 """
 Test models used in django-moderations tests
 """
-from __future__ import unicode_literals
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.manager import Manager
-from django import VERSION
-
-from moderation.utils import django_17
 
 
 class UserProfile(models.Model):
@@ -17,18 +14,12 @@ class UserProfile(models.Model):
     description = models.TextField()
     url = models.URLField()
 
-    def __unicode__(self):
-        return "%s - %s" % (self.user, self.url)
-
     def __str__(self):
         return "%s - %s" % (self.user, self.url)
 
 
 class SuperUserProfile(UserProfile):
     super_power = models.TextField()
-
-    def __unicode__(self):
-        return "%s - %s - %s" % (self.user, self.url, self.super_power)
 
     def __str__(self):
         return "%s - %s - %s" % (self.user, self.url, self.super_power)
@@ -45,25 +36,13 @@ class ModelWithSlugField2(models.Model):
 class MenManager(Manager):
 
     def get_queryset(self):
-        if django_17():
-            query_set = super(MenManager, self).get_queryset()
-        else:
-            query_set = super(MenManager, self).get_query_set()
-        return query_set.filter(gender=1)
-
-    get_query_set = get_queryset
+        return super().get_queryset().filter(gender=1)
 
 
 class WomenManager(Manager):
 
     def get_queryset(self):
-        if django_17():
-            query_set = super(WomenManager, self).get_queryset()
-        else:
-            query_set = super(WomenManager, self).get_query_set()
-        return query_set.filter(gender=0)
-
-    get_query_set = get_queryset
+        return super().get_queryset().filter(gender=0)
 
 
 class ModelWithMultipleManagers(models.Model):
@@ -81,9 +60,6 @@ class ModelWithVisibilityField(models.Model):
     test = models.CharField(max_length=20)
     is_public = models.BooleanField(default=False)
 
-    def __unicode__(self):
-        return '%s - is public %s' % (self.test, self.is_public)
-
     def __str__(self):
         return '%s - is public %s' % (self.test, self.is_public)
 
@@ -91,9 +67,6 @@ class ModelWithVisibilityField(models.Model):
 class ModelWithWrongVisibilityField(models.Model):
     test = models.CharField(max_length=20)
     is_public = models.IntegerField()
-
-    def __unicode__(self):
-        return '%s - is public %s' % (self.test, self.is_public)
 
     def __str__(self):
         return '%s - is public %s' % (self.test, self.is_public)
@@ -122,27 +95,21 @@ class Book(models.Model):
     author = models.CharField(max_length=20)
 
 
-if VERSION[:2] >= (1, 5):
+class CustomUser(User):
+    date_of_birth = models.DateField(blank=True, null=True)
+    height = models.FloatField(blank=True, null=True)
 
-    from django.contrib.auth.models import User
 
-    class CustomUser(User):
-        date_of_birth = models.DateField(blank=True, null=True)
-        height = models.FloatField(blank=True, null=True)
+class UserProfileWithCustomUser(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    description = models.TextField()
+    url = models.URLField()
 
-    class UserProfileWithCustomUser(models.Model):
-        user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-        description = models.TextField()
-        url = models.URLField()
+    def __str__(self):
+        return "%s - %s" % (self.user, self.url)
 
-        def __unicode__(self):
-            return "%s - %s" % (self.user, self.url)
-
-        def __str__(self):
-            return "%s - %s" % (self.user, self.url)
-
-        def get_absolute_url(self):
-            return '/test/'
+    def get_absolute_url(self):
+        return '/test/'
 
 
 class CustomModel(models.Model):

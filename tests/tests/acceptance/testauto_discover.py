@@ -1,13 +1,9 @@
-from __future__ import unicode_literals
-
 import sys
 
 from django.test.testcases import TestCase
 
-from tests.utils import setup_moderation, teardown_moderation
-from tests.models import Book
 from moderation.helpers import auto_discover
-from moderation.utils import django_17
+from tests.utils import setup_moderation, teardown_moderation
 
 
 class AutoDiscoverAcceptanceTestCase(TestCase):
@@ -25,11 +21,4 @@ class AutoDiscoverAcceptanceTestCase(TestCase):
 
     def test_all_app_containing_moderator_module_should_be_registered(self):
         auto_discover()
-
-        if django_17():
-            self.assertTrue("tests.moderator" in sys.modules.keys())
-        else:
-
-            from moderation import moderation
-
-            self.assertTrue(Book in moderation._registered_models)
+        self.assertTrue("tests.moderator" in sys.modules.keys())

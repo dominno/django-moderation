@@ -1,13 +1,16 @@
-from __future__ import unicode_literals
-from django.test.testcases import TestCase
+from unittest import skipUnless, skipIf
+
+from django import VERSION
 from django.contrib.auth.models import User
-from tests.models import UserProfile, \
-    ModelWithSlugField2, ModelWithVisibilityField
-from moderation.managers import ModerationObjectsManager
-from django.db.models.manager import Manager
-from moderation.models import ModeratedObject
 from django.core.exceptions import MultipleObjectsReturned
+from django.db.models.manager import Manager
+from django.test.testcases import TestCase
+
+from moderation.managers import ModerationObjectsManager
+from moderation.models import ModeratedObject
 from moderation.moderator import GenericModerator
+from tests.models import (ModelWithSlugField2, ModelWithVisibilityField,
+                          UserProfile)
 from tests.utils import setup_moderation, teardown_moderation
 
 
@@ -94,7 +97,7 @@ class ModeratedObjectManagerTestCase(TestCase):
     def tearDown(self):
         teardown_moderation()
 
-    def test_objects_with_same_object_id(self):
+    def test_objects_with_same_object_id_django(self):
         model1 = ModelWithSlugField2(slug='test')
         model1.save()
 
@@ -111,10 +114,14 @@ class ModeratedObjectManagerTestCase(TestCase):
         moderated_obj1 = ModeratedObject.objects.get_for_instance(model1)
         moderated_obj2 = ModeratedObject.objects.get_for_instance(model2)
 
-        self.assertEqual(repr(moderated_obj1),
-                         "<ModeratedObject: ModelWithSlugField2 object>")
         self.assertEqual(repr(moderated_obj2),
                          '<ModeratedObject: user1 - http://www.yahoo.com>')
+        if VERSION < (2, 0):
+            self.assertEqual(repr(moderated_obj1),
+                             "<ModeratedObject: ModelWithSlugField2 object>")
+        else:
+            self.assertEqual(repr(moderated_obj1),
+                             "<ModeratedObject: ModelWithSlugField2 object (1)>")
 
     def test_instance_with_many_moderations(self):
         # Register a moderator that keeps the history

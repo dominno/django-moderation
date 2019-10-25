@@ -1,5 +1,5 @@
-from __future__ import unicode_literals
 from django.contrib import admin
+
 from moderation.admin import ModerationAdmin
 from .models import Book
 
