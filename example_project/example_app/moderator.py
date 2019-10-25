@@ -1,9 +1,6 @@
-from django import VERSION
-
-from moderation import moderation
 from example_project.example_app.models import ExampleUserProfile
-
-
+from example_project.example_app.models import UserProfileWithCustomUser
+from moderation import moderation
 from moderation.moderator import GenericModerator
 
 
@@ -14,7 +11,4 @@ class UserProfileModerator(GenericModerator):
 
 
 moderation.register(ExampleUserProfile)
-
-if VERSION[:2] >= (1, 5):
-    from example_project.example_app.models import UserProfileWithCustomUser
-    moderation.register(UserProfileWithCustomUser, UserProfileModerator)
+moderation.register(UserProfileWithCustomUser, UserProfileModerator)
