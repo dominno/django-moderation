@@ -115,8 +115,8 @@ def get_diff_operations(a, b):
 
 def html_to_list(html):
     pattern = re.compile(r'&.*?;|(?:<[^<]*?>)|'
-                         '(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'
-                         '(?:\s*[,\.\?]*)', re.UNICODE)
+                         r'(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'
+                         r'(?:\s*[,\.\?]*)', re.UNICODE)
 
     return [''.join(element) for element in
             [_f for _f in pattern.findall(html) if _f]]
