@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 
-import sys
 import os
-
-from os.path import dirname, abspath
+import sys
 from optparse import OptionParser
+from os.path import abspath, dirname
 
-from django.conf import settings, global_settings
-
-from moderation.utils import django_17, django_110
-
+from django.conf import settings
 
 MIDDLEWARE_LIST = [
     'django.middleware.common.CommonMiddleware',
@@ -19,24 +15,15 @@ MIDDLEWARE_LIST = [
 ]
 
 
-if django_110():
-    CONTEXT_PROCESSORS = [
-        'django.contrib.auth.context_processors.auth',
-        'django.template.context_processors.i18n',
-        'django.template.context_processors.request',
-        'django.template.context_processors.media',
-        'django.contrib.messages.context_processors.messages',
-    ]
-    MIDDLEWARE_KWARG = {'MIDDLEWARE': MIDDLEWARE_LIST}
-else:
-    CONTEXT_PROCESSORS = [
-        'django.contrib.auth.context_processors.auth',
-        'django.core.context_processors.i18n',
-        'django.core.context_processors.request',
-        'django.core.context_processors.media',
-        'django.contrib.messages.context_processors.messages',
-    ]
-    MIDDLEWARE_KWARG = {'MIDDLEWARE_CLASSES': MIDDLEWARE_LIST}
+CONTEXT_PROCESSORS = [
+    'django.contrib.auth.context_processors.auth',
+    'django.template.context_processors.i18n',
+    'django.template.context_processors.request',
+    'django.template.context_processors.media',
+    'django.contrib.messages.context_processors.messages',
+]
+MIDDLEWARE_KWARG = {'MIDDLEWARE': MIDDLEWARE_LIST}
+
 
 # For convenience configure settings if they are not pre-configured or if we
 # haven't been provided settings to use by environment variable.
@@ -53,6 +40,7 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
             'django.contrib.contenttypes',
             'django.contrib.sessions',
             'django.contrib.sites',
+            'django.contrib.messages',
 
             'moderation',
             'tests',
@@ -89,24 +77,14 @@ def prepare_test_runner(*args, **kwargs):
     """
     import django
 
-    test_runner = None
-
-    if django_17():
-        django.setup()
-        from django.test.runner import DiscoverRunner
-        test_runner = DiscoverRunner(
-            pattern='test*.py',
-            verbosity=kwargs.get('verbosity', 1),
-            interactive=kwargs.get('interactive', False),
-            failfast=kwargs.get('failfast'),
-        )
-    else:
-        from django.test.simple import DjangoTestSuiteRunner
-        test_runner = DjangoTestSuiteRunner(
-            verbosity=kwargs.get('verbosity', 1),
-            interactive=kwargs.get('interactive', False),
-            failfast=kwargs.get('failfast')
-        )
+    django.setup()
+    from django.test.runner import DiscoverRunner
+    test_runner = DiscoverRunner(
+        pattern='test*.py',
+        verbosity=kwargs.get('verbosity', 1),
+        interactive=kwargs.get('interactive', False),
+        failfast=kwargs.get('failfast'),
+    )
     return test_runner
 
 
