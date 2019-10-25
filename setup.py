@@ -5,9 +5,9 @@ import sys
 version = '0.6.0'
 
 tests_require = [
-    'django>=1.7,<=2.0',
-    'django-webtest>=1.5.7-web',
-    'webtest>=2.0,<2.1',
+    'django>=1.11,<=2.2',
+    'django-webtest',
+    'webtest',
     'mock',
     'pillow',
 ]
@@ -24,16 +24,19 @@ else:
 setup(
     name='django-moderation',
     version=version,
-    description="Generic Django objects moderation application",
-    long_description=open("README.rst").read() + "\n" +
-                     open(os.path.join("docs", "history.rst")).read(),
+    description='Generic Django objects moderation application',
+    long_description=open('README.rst').read() + '\n' +
+                     open(os.path.join('docs', 'history.rst')).read(),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Framework :: Django',
     ],
     keywords='django moderation models',
@@ -46,7 +49,7 @@ setup(
     tests_require=tests_require,
     test_suite='runtests.runtests',
     install_requires=[
-        'django>=1.7,<=2.0',
+        'django>=1.11,<=2.2',
         'django-model-utils',
     ],
     zip_safe=False,
