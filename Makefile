@@ -2,7 +2,7 @@
 .PHONY: test lint
 
 lint:
-	pep8 --exclude=migrations --ignore=W291 moderation tests
+	flake8 --exclude=migrations,migrations-pre17 --ignore=W291,W504,E501,F401,F403 moderation tests
 
 test:
 	python runtests.py --failfast
