@@ -1,30 +1,19 @@
-from __future__ import unicode_literals
+import datetime
 
 from django.conf import settings
-try:
-    from django.contrib.contenttypes.fields import GenericForeignKey
-except ImportError:
-    from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
-
 from model_utils import Choices
 
 from . import moderation
-from .constants import (MODERATION_READY_STATE,
-                        MODERATION_DRAFT_STATE,
-                        MODERATION_STATUS_REJECTED,
-                        MODERATION_STATUS_APPROVED,
-                        MODERATION_STATUS_PENDING)
+from .constants import (MODERATION_DRAFT_STATE, MODERATION_READY_STATE, MODERATION_STATUS_APPROVED,
+                        MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED)
 from .diff import get_changes_between_models
 from .fields import SerializedObjectField
 from .managers import ModeratedObjectManager
 from .signals import post_moderation, pre_moderation
-from .utils import django_19
-
-import datetime
-
 
 MODERATION_STATES = Choices(
     (MODERATION_READY_STATE, 'ready', _('Ready for moderation')),
@@ -32,9 +21,9 @@ MODERATION_STATES = Choices(
 )
 
 STATUS_CHOICES = Choices(
-    (MODERATION_STATUS_REJECTED, 'rejected', _("Rejected")),
-    (MODERATION_STATUS_APPROVED, 'approved', _("Approved")),
-    (MODERATION_STATUS_PENDING, 'pending', _("Pending")),
+    (MODERATION_STATUS_REJECTED, 'rejected', _('Rejected')),
+    (MODERATION_STATUS_APPROVED, 'approved', _('Approved')),
+    (MODERATION_STATUS_PENDING, 'pending', _('Pending')),
 )
 
 
@@ -44,8 +33,8 @@ class ModeratedObject(models.Model):
                                      editable=False)
     object_pk = models.PositiveIntegerField(null=True, blank=True,
                                             editable=False, db_index=True)
-    content_object = GenericForeignKey(ct_field="content_type",
-                                       fk_field="object_pk")
+    content_object = GenericForeignKey(ct_field='content_type',
+                                       fk_field='object_pk')
     created = models.DateTimeField(auto_now_add=True, editable=False)
     updated = models.DateTimeField(auto_now=True)
     state = models.SmallIntegerField(choices=MODERATION_STATES,
@@ -74,10 +63,7 @@ class ModeratedObject(models.Model):
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.get('content_object')
-        super(ModeratedObject, self).__init__(*args, **kwargs)
-
-    def __unicode__(self):
-        return "%s" % self.changed_object
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
         return "%s" % self.changed_object
@@ -86,7 +72,7 @@ class ModeratedObject(models.Model):
         if self.instance:
             self.changed_object = self.instance
 
-        super(ModeratedObject, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('Moderated Object')
@@ -146,10 +132,7 @@ class ModeratedObject(models.Model):
         return None
 
     def get_admin_moderate_url(self):
-        if django_19():
-            return "/admin/moderation/moderatedobject/%s/change/" % self.pk
-        else:
-            return "/admin/moderation/moderatedobject/%s/" % self.pk
+        return "/admin/moderation/moderatedobject/%s/change/" % self.pk
 
     @property
     def moderator(self):

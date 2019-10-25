@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
@@ -33,7 +31,7 @@ class SerializedObjectField(models.TextField):
 
     def __init__(self, serialize_format='json', *args, **kwargs):
         self.serialize_format = serialize_format
-        super(SerializedObjectField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _serialize(self, value):
         if not value:
@@ -76,7 +74,7 @@ class SerializedObjectField(models.TextField):
 
     def contribute_to_class(self, cls, name):
         self.class_name = cls
-        super(SerializedObjectField, self).contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name)
         models.signals.post_init.connect(self.post_init)
 
     def post_init(self, **kwargs):

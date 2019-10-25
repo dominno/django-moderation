@@ -5,8 +5,8 @@ from django.db.models.query import QuerySet
 
 from . import moderation
 from .constants import (MODERATION_READY_STATE,
-                        MODERATION_STATUS_REJECTED,
-                        MODERATION_STATUS_APPROVED)
+                        MODERATION_STATUS_APPROVED,
+                        MODERATION_STATUS_REJECTED)
 from .signals import post_many_moderation, pre_many_moderation
 
 

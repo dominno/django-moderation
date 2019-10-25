@@ -1,33 +1,23 @@
-from __future__ import unicode_literals
-
 import django
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
-try:
-    from django import urls as urlresolvers
-except ImportError:
-    from django.core import urlresolvers
 from django.forms.models import ModelForm
+from django.urls import NoReverseMatch, reverse
 from django.utils.translation import ugettext as _
 
 from . import moderation
-from .constants import (MODERATION_STATUS_REJECTED,
-                        MODERATION_STATUS_APPROVED,
-                        MODERATION_STATUS_PENDING)
+from .constants import (MODERATION_STATUS_APPROVED,
+                        MODERATION_STATUS_PENDING,
+                        MODERATION_STATUS_REJECTED)
 from .diff import get_changes_between_models
-try:
-    from .filterspecs import RegisteredContentTypeListFilter
-except ImportError:
-    # Django < 1.4
-    available_filters = ('content_type', 'status')
-else:
-    # Django >= 1.4
-    available_filters = (
-        ('content_type', RegisteredContentTypeListFilter), 'status')
+from .filterspecs import RegisteredContentTypeListFilter
 from .forms import BaseModeratedObjectForm
 from .helpers import automoderate
 from .models import ModeratedObject
-from .utils import django_17, django_110
+
+available_filters = (
+    ('content_type', RegisteredContentTypeListFilter), 'status'
+)
 
 
 def approve_objects(modeladmin, request, queryset):
@@ -69,19 +59,18 @@ class ModerationAdmin(admin.ModelAdmin):
         if obj and self.admin_integration_enabled:
             self.form = self.get_moderated_object_form(obj.__class__)
 
-        return super(ModerationAdmin, self).get_form(request, obj, **kwargs)
+        return super().get_form(request, obj, **kwargs)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         if self.admin_integration_enabled:
             self.send_message(request, object_id)
 
         try:
-            return super(ModerationAdmin, self)\
-                .change_view(request, object_id, form_url=form_url,
-                             extra_context=extra_context)
+            return super().change_view(request, object_id, form_url=form_url,
+                                       extra_context=extra_context)
         except TypeError:
-            return super(ModerationAdmin, self)\
-                .change_view(request, object_id, extra_context=extra_context)
+            return super().change_view(request, object_id,
+                                       extra_context=extra_context)
 
     def send_message(self, request, object_id):
         try:
@@ -125,8 +114,7 @@ class ModerationAdmin(admin.ModelAdmin):
 
             class Meta:
                 model = model_class
-                if django_17():
-                    fields = '__all__'
+                fields = '__all__'
 
         return ModeratedObjectForm
 
@@ -144,7 +132,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
     )
 
     def get_actions(self, request):
-        actions = super(ModeratedObjectAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         # Remove the delete_selected action if it exists
         try:
             del actions['delete_selected']
@@ -161,8 +149,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
             class Meta:
                 model = model_class
-                if django_17():
-                    fields = '__all__'
+                fields = '__all__'
 
         return ModeratedObjectForm
 
@@ -198,20 +185,18 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
         content_type = ContentType.objects.get_for_model(changed_obj.__class__)
         try:
-            object_admin_url = urlresolvers.reverse("admin:%s_%s_change" %
-                                                    (content_type.app_label,
-                                                     content_type.model),
-                                                    args=(changed_obj.pk,))
-        except urlresolvers.NoReverseMatch:
+            object_admin_url = reverse("admin:%s_%s_change" %
+                                       (content_type.app_label,
+                                        content_type.model),
+                                       args=(changed_obj.pk,))
+        except NoReverseMatch:
             object_admin_url = None
 
         extra_context = {'changes': changes,
                          'django_version': django.get_version()[:3],
                          'object_admin_url': object_admin_url}
-        return super(ModeratedObjectAdmin, self).change_view(
-            request,
-            object_id,
-            extra_context=extra_context)
+        return super().change_view(request, object_id,
+                                   extra_context=extra_context)
 
 
 admin.site.register(ModeratedObject, ModeratedObjectAdmin)

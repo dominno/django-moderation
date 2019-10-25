@@ -2,8 +2,8 @@ from django.apps import AppConfig
 
 
 class SimpleModerationConfig(AppConfig):
-    name = "moderation"
-    verbose_name = "Moderation"
+    name = 'moderation'
+    verbose_name = 'Moderation'
 
 
 class ModerationConfig(SimpleModerationConfig):
