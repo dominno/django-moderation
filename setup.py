@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 import sys
 
-version = '0.5.0'
+version = '0.6.0'
 
 tests_require = [
     'django>=1.7,<=2.0',
