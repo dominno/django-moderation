@@ -96,4 +96,9 @@ Added features
 - Internal code and documentation typo fixes
 - Bug fixes (specifically, closes #87)
 
+0.7.0 (2019-03-11)
+------------------
 
+- Drop support of Django <1.11. Now it supports only Django>=1.11,<=2.2
+- Drop support of Python2. Now it supports only Python 3.5, 3.6, 3.7
+- Minor changes at docs

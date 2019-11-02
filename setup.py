@@ -2,7 +2,8 @@ from setuptools import setup, find_packages
 import os
 import sys
 
-version = '0.6.0'
+# Dynamically calculate the version based on moderation.VERSION.
+version = __import__('moderation').__version__
 
 tests_require = [
     'django>=1.11,<=2.2',
@@ -37,7 +38,12 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3 :: Only',
         'Framework :: Django',
+        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
+        'Framework :: Django :: 2.2',
     ],
     keywords='django moderation models',
     author='Dominik Szopa',
