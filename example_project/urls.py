@@ -1,9 +1,11 @@
 from django.conf import settings
-from django.conf.urls import include, handler500, url
+from django.conf.urls import handler500, include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import login
+
 from moderation.helpers import auto_discover
+
 admin.autodiscover()
 auto_discover()
 

@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
@@ -7,14 +6,11 @@ from django.db.models.manager import Manager
 from django.template.loader import render_to_string
 
 from .managers import ModerationObjectsManager
-from .message_backends import (BaseMessageBackend,
-                               EmailMessageBackend,
-                               BaseMultipleMessageBackend,
+from .message_backends import (BaseMessageBackend, BaseMultipleMessageBackend, EmailMessageBackend,
                                EmailMultipleMessageBackend)
 
 
-class GenericModerator(object):
-
+class GenericModerator:
     """
     Encapsulates moderation options for a given model.
     """
@@ -250,7 +246,7 @@ class GenericModerator(object):
                     self.visibility_column)[0])
 
             if field_type != BooleanField:
-                msg = "visibility_column field: %s on model %s should "\
+                msg = "visibility_column field: %s on model %s should " \
                       "be BooleanField type but is %s"
                 msg %= (
                     self.moderator.visibility_column,

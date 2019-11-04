@@ -1,13 +1,11 @@
-from __future__ import unicode_literals
+from django.contrib.auth.models import User
 from django.db.models.fields.files import ImageFieldFile
 from django.forms import CharField
-from django.contrib.auth.models import User
 from django.test.testcases import TestCase
 
-from tests.models import UserProfile, ModelWithImage
 from moderation.forms import BaseModeratedObjectForm
+from tests.models import ModelWithImage, UserProfile
 from tests.utils import setup_moderation, teardown_moderation
-from moderation.utils import django_17
 
 
 class FormsTestCase(TestCase):
@@ -21,8 +19,7 @@ class FormsTestCase(TestCase):
 
             class Meta:
                 model = UserProfile
-                if django_17():
-                    fields = '__all__'
+                fields = '__all__'
 
         self.ModeratedObjectForm = ModeratedObjectForm
         self.moderation = setup_moderation([UserProfile, ModelWithImage])
@@ -35,7 +32,7 @@ class FormsTestCase(TestCase):
         self.assertEqual(form._meta.model.__name__, 'UserProfile')
 
     def test_if_form_is_initialized_new_object(self):
-        profile = UserProfile(description="New description",
+        profile = UserProfile(description='New description',
                               url='http://test.com',
                               user=self.user)
         profile.save()
@@ -44,21 +41,21 @@ class FormsTestCase(TestCase):
         self.assertEqual(form.initial['description'], 'New description')
 
     def test_if_form_is_initialized_existing_object(self):
-        profile = UserProfile(description="old description",
+        profile = UserProfile(description='old description',
                               url='http://test.com',
                               user=self.user)
         profile.save()
 
         profile.moderated_object.approve(by=self.user)
 
-        profile.description = "Changed description"
+        profile.description = 'Changed description'
         profile.save()
 
         form = self.ModeratedObjectForm(instance=profile)
 
         profile = UserProfile.objects.get(id=1)
 
-        self.assertEqual(profile.description, "old description")
+        self.assertEqual(profile.description, 'old description')
         self.assertEqual(form.initial['description'], 'Changed description')
 
     def test_if_form_has_image_field_instance_of_image_field_file(self):
@@ -72,7 +69,7 @@ class FormsTestCase(TestCase):
 
     def test_form_when_obj_has_no_moderated_obj(self):
         self.moderation.unregister(UserProfile)
-        profile = UserProfile(description="old description",
+        profile = UserProfile(description='old description',
                               url='http://test.com',
                               user=self.user)
         profile.save()
@@ -83,7 +80,7 @@ class FormsTestCase(TestCase):
         self.assertEqual(form.initial['description'], 'old description')
 
     def test_if_form_is_initialized_new_object_with_initial(self):
-        profile = UserProfile(description="New description",
+        profile = UserProfile(description='New description',
                               url='http://test.com',
                               user=self.user)
         profile.save()

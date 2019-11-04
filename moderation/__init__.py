@@ -1,7 +1,11 @@
+# -*- coding: utf-8 -*-
+
+__version__ = '0.7.0'
+
 default_app_config = "moderation.apps.ModerationConfig"
 
 
-class _ModerationProxy(object):
+class _ModerationProxy:
     """Proxy the ModerationManager()
 
     It must not be created here for Django >= 1.8, because __init__ is invoked

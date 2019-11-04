@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 import difflib
 import re
 import sys
 
 from django.db.models import fields
-try:
-    from django.db.models.fields.related import ForeignObject
-except ImportError:
-    from django.db.models.fields.related import RelatedField as ForeignObject
+from django.db.models.fields.related import ForeignObject
 from django.utils.html import escape
 
 
@@ -16,7 +13,7 @@ class BaseChange(object):
 
     def __repr__(self):
         value1, value2 = self.change
-        return 'Change object: %s - %s' % (value1, value2)
+        return 'Change object: {} - {}'.format(value1, value2)
 
     def __init__(self, verbose_name, field, change):
         self.verbose_name = verbose_name
@@ -101,8 +98,8 @@ def get_changes_between_models(model1, model2, excludes=None, includes=None,
 
 def get_diff_operations(a, b):
     operations = []
-    a_words = re.split('(\W+)', a)
-    b_words = re.split('(\W+)', b)
+    a_words = re.split(r'(\W+)', a)
+    b_words = re.split(r'(\W+)', b)
     sequence_matcher = difflib.SequenceMatcher(None, a_words, b_words)
     for opcode in sequence_matcher.get_opcodes():
         operation, start_a, end_a, start_b, end_b = opcode
@@ -118,8 +115,8 @@ def get_diff_operations(a, b):
 
 def html_to_list(html):
     pattern = re.compile(r'&.*?;|(?:<[^<]*?>)|'
-                         '(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'
-                         '(?:\s*[,\.\?]*)', re.UNICODE)
+                         r'(?:\w[\w-]*[ ]*)|(?:<[^<]*?>)|'
+                         r'(?:\s*[,\.\?]*)', re.UNICODE)
 
     return [''.join(element) for element in
             [_f for _f in pattern.findall(html) if _f]]
@@ -134,12 +131,6 @@ def get_change_for_type(verbose_name, change, field):
             change)
     else:
         value1, value2 = change
-        if sys.version < '3':
-            if value1 and (type(value1) is str or type(value1) is unicode):  # NOQA
-                value1 = value1.encode('utf-8')
-            if value2 and (type(value2) is str or type(value2) is unicode):  # NOQA
-                value2 = value2.encode('utf-8')
-
         change = TextChange(
             verbose_name,
             field,

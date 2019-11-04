@@ -1,9 +1,4 @@
-from __future__ import unicode_literals
-
-try:
-    from django.contrib.contenttypes.fields import GenericRelation
-except ImportError:
-    from django.contrib.contenttypes.generic import GenericRelation
+from django.contrib.contenttypes.fields import GenericRelation
 from django.utils.six import with_metaclass
 
 from .constants import (MODERATION_DRAFT_STATE,
@@ -11,7 +6,6 @@ from .constants import (MODERATION_DRAFT_STATE,
                         MODERATION_STATUS_PENDING)
 from .models import ModeratedObject, STATUS_CHOICES
 from .moderator import GenericModerator
-from .utils import django_110
 
 
 class RegistrationError(Exception):
@@ -21,7 +15,7 @@ class RegistrationError(Exception):
 class ModerationManagerSingleton(type):
 
     def __init__(cls, name, bases, dict):
-        super(ModerationManagerSingleton, cls).__init__(name, bases, dict)
+        super().__init__(name, bases, dict)
         cls.instance = None
 
     def __call__(cls, *args, **kw):
@@ -37,7 +31,7 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         """Initializes the moderation manager."""
         self._registered_models = {}
 
-        super(ModerationManager, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def register(self, model_class, moderator_class=None):
         """Registers model class with moderation"""
@@ -107,80 +101,53 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
         model_class.add_to_class('moderated_status',
                                  property(get_moderated_status))
 
-    if django_110():
-        def _add_fields_to_model_class(self, moderator_class_instance):
-            """Sets moderation manager on model class,
-               adds generic relation to ModeratedObject,
-               sets _default_manager on model class as instance of
-               ModerationObjectsManager
-            """
-            model_class = moderator_class_instance.model_class
-            base_managers = moderator_class_instance.base_managers
-            moderation_manager_class = moderator_class_instance.\
-                moderation_manager_class
+    def _add_fields_to_model_class(self, moderator_class_instance):
+        """Sets moderation manager on model class,
+           adds generic relation to ModeratedObject,
+           sets _default_manager on model class as instance of
+           ModerationObjectsManager
+        """
+        model_class = moderator_class_instance.model_class
+        base_managers = moderator_class_instance.base_managers
+        moderation_manager_class = moderator_class_instance.\
+            moderation_manager_class
 
-            for manager_name, mgr_class in base_managers:
-                if moderation_manager_class not in mgr_class.__bases__:
-                    ModeratedManager = type(
-                        str('Moderated{}'.format(mgr_class.__name__)),
-                        (moderation_manager_class, mgr_class),
-                        {})
+        for manager_name, mgr_class in base_managers:
+            if moderation_manager_class not in mgr_class.__bases__:
+                ModeratedManager = type(
+                    str('Moderated{}'.format(mgr_class.__name__)),
+                    (moderation_manager_class, mgr_class),
+                    {})
 
-                    manager = ModeratedManager()
+                manager = ModeratedManager()
 
-                    # We need to do this manually, because Django 1.10 doesn't
-                    # easily let us remove or replace a manager, which is what
-                    # we want to do. So instead of using the existing
-                    # add_to_class/contribute_to_class functions, we just find
-                    # the manager with the same name and swap it out for the
-                    # new manager we created, then expire the class's cached
-                    # properties.
-                    manager_names = [m.name for m in model_class._meta.local_managers]
-                    manager.name = manager_name
-                    manager.model = model_class
-                    try:
-                        manager_index = manager_names.index(manager_name)
-                    except Exception:
-                        model_class._meta.local_managers = [manager]
-                    else:
-                        model_class._meta.local_managers[manager_index] = manager
-                    finally:
-                        model_class._meta._expire_cache()
+                # We need to do this manually, because Django 1.10 doesn't
+                # easily let us remove or replace a manager, which is what
+                # we want to do. So instead of using the existing
+                # add_to_class/contribute_to_class functions, we just find
+                # the manager with the same name and swap it out for the
+                # new manager we created, then expire the class's cached
+                # properties.
+                manager_names = [m.name for m in model_class._meta.local_managers]
+                manager.name = manager_name
+                manager.model = model_class
+                try:
+                    manager_index = manager_names.index(manager_name)
+                except Exception:
+                    model_class._meta.local_managers = [manager]
+                else:
+                    model_class._meta.local_managers[manager_index] = manager
+                finally:
+                    model_class._meta._expire_cache()
 
-                    model_class.add_to_class('unmoderated_{}'.format(manager_name),
-                                             mgr_class())
-            unmoderated_manager = getattr(
-                model_class, 'unmoderated_{}'.format(model_class._default_manager.name))
-            model_class.add_to_class('_default_unmoderated_manager', unmoderated_manager)
-
-            self._add_moderated_object_to_class(model_class)
-            self._add_moderated_status_to_class(model_class)
-
-    else:
-        def _add_fields_to_model_class(self, moderator_class_instance):
-            """Sets moderation manager on model class,
-               adds generic relation to ModeratedObject,
-               sets _default_manager on model class as instance of
-               ModerationObjectsManager
-            """
-            model_class = moderator_class_instance.model_class
-            base_managers = moderator_class_instance.base_managers
-            moderation_manager_class = moderator_class_instance.\
-                moderation_manager_class
-
-            for manager_name, mgr_class in base_managers:
-                ModerationObjectsManager = moderation_manager_class()(mgr_class)
-                manager = ModerationObjectsManager()
-                model_class.add_to_class('unmoderated_%s' % manager_name,
+                model_class.add_to_class('unmoderated_{}'.format(manager_name),
                                          mgr_class())
-                model_class.add_to_class(manager_name, manager)
+        unmoderated_manager = getattr(
+            model_class, 'unmoderated_{}'.format(model_class._default_manager.name))
+        model_class.add_to_class('_default_unmoderated_manager', unmoderated_manager)
 
-            unmoderated_manager = getattr(
-                model_class, 'unmoderated_{}'.format(model_class._default_manager.name))
-            model_class.add_to_class('_default_unmoderated_manager', unmoderated_manager)
-
-            self._add_moderated_object_to_class(model_class)
-            self._add_moderated_status_to_class(model_class)
+        self._add_moderated_object_to_class(model_class)
+        self._add_moderated_status_to_class(model_class)
 
     def unregister(self, model_class):
         """Unregister model class from moderation"""
@@ -201,41 +168,26 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
                 msg = "%r has not been registered with Moderation." % model_class
                 raise RegistrationError(msg)
 
-    if django_110():
-        def _remove_fields(self, moderator_class_instance):
-            """Removes fields from model class and disconnects signals"""
+    def _remove_fields(self, moderator_class_instance):
+        """Removes fields from model class and disconnects signals"""
 
-            model_class = moderator_class_instance.model_class
+        model_class = moderator_class_instance.model_class
 
-            moderated_manager_indexes = [i for i, m
-                                         in enumerate(model_class._meta.local_managers)
-                                         if not m.name.startswith('unmoderated_')]
+        moderated_manager_indexes = [i for i, m
+                                     in enumerate(model_class._meta.local_managers)
+                                     if not m.name.startswith('unmoderated_')]
 
-            managers = [m for i, m in enumerate(model_class._meta.local_managers)
-                        if i not in moderated_manager_indexes]
+        managers = [m for i, m in enumerate(model_class._meta.local_managers)
+                    if i not in moderated_manager_indexes]
 
-            for m in managers:
-                m.name = m.name.replace('unmoderated_', '')
+        for m in managers:
+            m.name = m.name.replace('unmoderated_', '')
 
-            model_class._meta.local_managers = managers
+        model_class._meta.local_managers = managers
 
-            delattr(model_class, 'moderated_object')
+        delattr(model_class, 'moderated_object')
 
-            model_class._meta._expire_cache()
-
-    else:
-        def _remove_fields(self, moderator_class_instance):
-            """Removes fields from model class and disconnects signals"""
-
-            model_class = moderator_class_instance.model_class
-            base_managers = moderator_class_instance.base_managers
-
-            for manager_name, manager_class in base_managers:
-                manager = manager_class()
-                delattr(model_class, 'unmoderated_%s' % manager_name)
-                model_class.add_to_class(manager_name, manager)
-
-            delattr(model_class, 'moderated_object')
+        model_class._meta._expire_cache()
 
     def _disconnect_signals(self, model_class):
         from django.db.models import signals
@@ -268,7 +220,8 @@ class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
             return None
         pk = instance.pk
         try:
-            unchanged_obj = instance.__class__._default_unmoderated_manager.get(pk=pk)
+            unchanged_obj = instance.__class__.\
+                _default_unmoderated_manager.get(pk=pk)
             return unchanged_obj
         except instance.__class__.DoesNotExist:
             return None

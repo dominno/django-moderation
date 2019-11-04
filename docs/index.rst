@@ -52,9 +52,9 @@ Screenshots
 Requirements
 ============
 
-python 2.6+, 3.3+
+Python 3.5, 3.6, 3.7
 
-django >= 1.7
+Django 1.11, 2.0, 2.1, 2.2
 
 
 Contents:

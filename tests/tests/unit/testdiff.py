@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+import re
 import unittest
-from moderation.diff import get_changes_between_models, html_to_list,\
-    TextChange, get_diff_operations, ImageChange
-from django.test.testcases import TestCase
+
 from django.contrib.auth.models import User
 from django.db.models import fields
-from tests.models import UserProfile, \
-    ModelWithDateField, ModelWithImage
+from django.test.testcases import TestCase
+
+from moderation.diff import (ImageChange, TextChange, get_changes_between_models,
+                             get_diff_operations, html_to_list)
 from moderation.models import ModeratedObject
-import re
+from tests.models import ModelWithDateField, ModelWithImage, UserProfile
 
 
 _norm_whitespace_re = re.compile(r'\s+')

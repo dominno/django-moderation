@@ -23,20 +23,22 @@ Local Installation
 2. cd into django-moderation
 3. type ``$ python setup.py develop``
 
-Try the example projects
+Try the example project
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. cd into example_project/
-2. create the database: ``$ python manage.py syncdb``
+2. create the database: ``$ python manage.py migrate``
 3. run the dev server: ``$ python manage.py runserver``
 
+.. _GitHub project: https://github.com/dominno/django-moderation
 .. _virtualenv: http://www.virtualenv.org/en/latest/
 .. _virtualenvwrapper: http://virtualenvwrapper.readthedocs.org/en/latest/
 
 How to get your pull request accepted
 -------------------------------------
 
-We want your submission. But we also want to provide a stable experience for our users and the community. Follow these rules and you should succeed without a problem!
+We want your submission. But we also want to provide a stable experience for our users and the community.
+Follow these rules and you should succeed without a problem!
 
 Run the tests!
 --------------

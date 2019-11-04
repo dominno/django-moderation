@@ -17,7 +17,7 @@ from django.utils.six import with_metaclass
 
 from .moderator import GenericModerator
 from .register import ModerationManager
-from .utils import clear_builtins, django_14
+from .utils import clear_builtins
 
 moderation = ModerationManager()
 
@@ -67,9 +67,9 @@ class ModeratedModelBase(type):
         Registers ``ModeratedModel``
 
         """
-        super(ModeratedModelBase, cls).__init__(name, bases, clsdict)
+        super().__init__(name, bases, clsdict)
 
-        if (any(x.__name__ == 'ModeratedModel' for x in cls.mro()[1:])):
+        if any(x.__name__ == 'ModeratedModel' for x in cls.mro()[1:]):
             moderation.register(cls, cls._resolve_moderator())
 
 
@@ -81,8 +81,6 @@ class ModelBase(ModeratedModelBase, base.ModelBase):
     """
 
 
-if not django_14():
-    # django.utils.six.with_metaclass is broken in django < 1.5
-    class ModeratedModel(with_metaclass(ModelBase, base.Model)):
-        class Meta:
-            abstract = True
+class ModeratedModel(with_metaclass(ModelBase, base.Model)):
+    class Meta:
+        abstract = True
