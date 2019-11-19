@@ -174,9 +174,7 @@ class GenericModerator:
         multiple_backend = self.get_multiple_message_backend()
         multiple_backend.send(datatuples)
 
-    def inform_moderator(self,
-                         content_object,
-                         extra_context=None):
+    def inform_moderator(self, content_object, extra_context=None):
         '''Send notification to moderator'''
         from .conf.settings import MODERATORS
 
@@ -185,7 +183,8 @@ class GenericModerator:
                 content_object=content_object,
                 subject_template=self.subject_template_moderator,
                 message_template=self.message_template_moderator,
-                recipient_list=MODERATORS)
+                recipient_list=MODERATORS,
+                extra_context=extra_context)
 
     def inform_user(self, content_object,
                     user,
