@@ -1,0 +1,110 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-03-28 09:07-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Michael Schmid <michael.schmid (at) rz.uni-augsburg.de>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: moderation/admin.py:38
+msgid "Approve selected moderated objects"
+msgstr "Ausgewählte zu moderierende Objekte freigeben"
+
+#: moderation/admin.py:46
+msgid "Reject selected moderated objects"
+msgstr "Ausgewählte zu moderierende Objekte ablehnen"
+
+#: moderation/admin.py:53
+msgid "Set selected moderated objects as Pending"
+msgstr "Setze ausgewählte zu moderierende Objekte auf Ausstehend"
+
+#: moderation/admin.py:107
+msgid "Object is viewable on site, it will be removed if moderator rejects it"
+msgstr ""
+"Objekt ist auf der Seite sichtbar, es wird entfernt falls Moderatoren es "
+"ablehnen"
+
+#: moderation/admin.py:110
+msgid ""
+"Object is not viewable on site, it will be visible if moderator accepts it"
+msgstr ""
+"Objekt ist auf der Seite nicht sichtbar, es wird sichtbar sobald es von "
+"Moderatoren freigegeben wird"
+
+#: moderation/admin.py:113
+#, python-format
+msgid "Object has been rejected by moderator, reason: %s"
+msgstr "Obejto foi rejeitado pelo moderador, motivo: %s"
+
+#: moderation/admin.py:116
+msgid "Object has been approved by moderator and is visible on site"
+msgstr ""
+"Objekt wurde von Moderatoren freigegeben und ist nun auf der Seite sichtbar"
+
+#: moderation/admin.py:119
+msgid "This object is not registered with the moderation system."
+msgstr "Dieses Objekt ist nicht im Moderationssystem registriert."
+
+#: moderation/filterspecs.py:57
+msgid "All"
+msgstr "Alle"
+
+#: moderation/models.py:30
+msgid "Ready for moderation"
+msgstr "Bereit zur Moderation"
+
+#: moderation/models.py:31
+msgid "Draft"
+msgstr "Entwurf"
+
+#: moderation/models.py:35
+msgid "Rejected"
+msgstr "Abgelehnt"
+
+#: moderation/models.py:36
+msgid "Approved"
+msgstr "Freigegeben"
+
+#: moderation/models.py:37
+msgid "Pending"
+msgstr "Ausstehend"
+
+#: moderation/models.py:92
+msgid "Moderated Object"
+msgstr "Moderiertes Objekt"
+
+#: moderation/models.py:93
+msgid "Moderated Objects"
+msgstr "Moderierte Objekte"
+
+#: moderation/templates/moderation/moderate_object.html:8
+msgid "Change object"
+msgstr "Bearbeite Objekt"
+
+#: moderation/templates/moderation/moderate_object.html:18
+msgid "Object differences"
+msgstr "Objekt Unterschiede"
+
+#: moderation/templates/moderation/moderate_object.html:36
+msgid "Reject"
+msgstr "Ablehnen"
+
+#: moderation/templates/moderation/moderate_object.html:39
+msgid "Approve"
+msgstr "Freigeben"
+
+#: moderation/templates/moderation/moderated_objects_list.html:4
+msgid "Select object to moderate"
+msgstr "Wähle Objekt zur Moderation aus"

@@ -16,3 +16,4 @@ venv
 .venv
 build
 docs/_build
+*.iml
