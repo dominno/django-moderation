@@ -275,6 +275,3 @@ Settings
 
 ``MODERATION_MODERATORS``
     Tuple of moderators' email addresses to which notifications will be sent.
-
-``DEFAULT_FROM_EMAIL``
-    String for email address the mail is send from
