@@ -1,5 +1,44 @@
 {% extends "admin/change_form.html" %}
 {% load i18n %}
+{% block extrahead %}
+{{ block.super }}
+<style type="text/css">
+ins, del {
+text-decoration:none;
+}
+
+del {
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+background:#FFCCCC none repeat scroll 0 0;
+}
+
+ins {
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+background:#BBFFBB none repeat scroll 0 0;
+}
+
+.img-wrapper {
+	float: left;
+	width: 75%;
+}
+.img-wrapper img {
+	max-width: 100%;
+}
+.img-wrapper img + img {
+	margin-top: 10px;
+}
+.submit-row input[name=reject] {
+	background: #ba2121;
+}
+.submit-row input[name=approve] {
+	background: #5bc76a;
+}
+</style>
+{% endblock %}
 
 {% block content %}
 {% block object-tools %}
