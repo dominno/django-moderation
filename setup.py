@@ -55,7 +55,7 @@ setup(
     tests_require=tests_require,
     test_suite='runtests.runtests',
     install_requires=[
-        'django>=1.11,<=2.2',
+        'django>=1.11,<=2.2.9',
         'django-model-utils',
     ],
     zip_safe=False,
