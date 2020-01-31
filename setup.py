@@ -6,7 +6,7 @@ import sys
 version = __import__('moderation').__version__
 
 tests_require = [
-    'django>=1.11,<=2.2',
+    'django>=1.11,<=2.2.9',
     'django-webtest',
     'webtest',
     'mock',
