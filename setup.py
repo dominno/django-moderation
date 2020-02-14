@@ -6,6 +6,7 @@ import sys
 version = __import__('moderation').__version__
 
 tests_require = [
+    'unittest2py3k',
     'django>=1.11,<2.3',
     'django-webtest',
     'webtest',
@@ -13,14 +14,17 @@ tests_require = [
     'pillow',
 ]
 
-# ipython>2 is only supported on Python 2.7+
-if sys.hexversion < 0x02070000:
-    tests_require = ['ipython>=0.10,<2'] + tests_require
+install_requires = [
+    'django>=1.11,<2.3',
+    'django-model-utils'
+]
 
-if sys.hexversion >= 0x03000000:
-    tests_require = ['unittest2py3k'] + tests_require
-else:
-    tests_require = ['unittest2'] + tests_require
+# override django-model-utils version in requirements file if DJANGO env is set
+DJANGO_ENV = os.environ.get("DJANGO")
+if DJANGO_ENV == 'Django>=1.11,<2.0':
+    install_requires = [
+        "django-model-utils<4" if r == "django-model-utils" else r for r in install_requires
+    ]
 
 setup(
     name='django-moderation',
@@ -54,9 +58,6 @@ setup(
     include_package_data=True,
     tests_require=tests_require,
     test_suite='runtests.runtests',
-    install_requires=[
-        'django>=1.11,<2.3',
-        'django-model-utils',
-    ],
+    install_requires=install_requires,
     zip_safe=False,
 )
