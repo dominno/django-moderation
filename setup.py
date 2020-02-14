@@ -6,7 +6,7 @@ import sys
 version = __import__('moderation').__version__
 
 tests_require = [
-    'django>=1.11,<=2.2.9',
+    'django>=1.11,<2.3',
     'django-webtest',
     'webtest',
     'mock',
@@ -55,7 +55,7 @@ setup(
     tests_require=tests_require,
     test_suite='runtests.runtests',
     install_requires=[
-        'django>=1.11,<=2.2.9',
+        'django>=1.11,<2.3',
         'django-model-utils',
     ],
     zip_safe=False,
