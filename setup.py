@@ -7,7 +7,7 @@ version = __import__('moderation').__version__
 
 tests_require = [
     'unittest2py3k',
-    'django>=1.11,<2.3',
+    'django>=1.11',
     'django-webtest',
     'webtest',
     'mock',
@@ -15,7 +15,7 @@ tests_require = [
 ]
 
 install_requires = [
-    'django>=1.11,<2.3',
+    'django>=1.11',
     'django-model-utils'
 ]
 
@@ -44,10 +44,6 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
         'Framework :: Django',
-        'Framework :: Django :: 1.11',
-        'Framework :: Django :: 2.0',
-        'Framework :: Django :: 2.1',
-        'Framework :: Django :: 2.2',
     ],
     keywords='django moderation models',
     author='Dominik Szopa',
