@@ -1,5 +1,4 @@
 import datetime
-import uuid
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -29,13 +28,13 @@ STATUS_CHOICES = Choices(
 
 
 class ModeratedObject(models.Model):
-    id = models.UUIDField(primary_key=True, editable=False, db_index=True, default=uuid.uuid4)
+    id = models.UUIDField(primary_key=True, editable=False, db_index=True)
 
     content_type = models.ForeignKey(ContentType, null=True, blank=True,
                                      on_delete=models.SET_NULL,
                                      editable=False)
     object_pk = models.UUIDField(null=True, blank=True,
-                                            editable=False, db_index=True, default=uuid.uuid4)
+                                            editable=False, db_index=True)
     content_object = GenericForeignKey(ct_field='content_type',
                                        fk_field='object_pk')
     created = models.DateTimeField(auto_now_add=True, editable=False)
