@@ -28,9 +28,6 @@ STATUS_CHOICES = Choices(
 
 
 class ModeratedObject(models.Model):
-    id = models.UUIDField(null=True, blank=True,
-                                 editable=False, db_index=True)
-
     content_type = models.ForeignKey(ContentType, null=True, blank=True,
                                      on_delete=models.SET_NULL,
                                      editable=False)
