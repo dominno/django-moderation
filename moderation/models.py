@@ -51,7 +51,7 @@ class ModeratedObject(models.Model):
     on = models.DateTimeField(editable=False, blank=True, null=True)
     reason = models.TextField(blank=True, null=True)
     changed_object = SerializedObjectField(serialize_format='json',
-                                           editable=False)
+                                           editable=True)
     changed_by = models.ForeignKey(
         getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
         blank=True, null=True, editable=True, on_delete=models.SET_NULL,
