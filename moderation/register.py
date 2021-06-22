@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.fields import GenericRelation
-from django.utils.six import with_metaclass
 
 from .constants import (MODERATION_DRAFT_STATE,
                         MODERATION_STATUS_APPROVED,
@@ -26,7 +25,7 @@ class ModerationManagerSingleton(type):
         return cls.instance
 
 
-class ModerationManager(with_metaclass(ModerationManagerSingleton, object)):
+class ModerationManager(metaclass=ModerationManagerSingleton):
     def __init__(self, *args, **kwargs):
         """Initializes the moderation manager."""
         self._registered_models = {}
