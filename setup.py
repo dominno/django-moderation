@@ -7,7 +7,7 @@ version = __import__('moderation').__version__
 
 tests_require = [
     'unittest2py3k',
-    'django==2.2,>=3.1',
+    'django~=2.2,>~3.1',
     'django-webtest',
     'webtest',
     'mock',
@@ -15,7 +15,7 @@ tests_require = [
 ]
 
 install_requires = [
-    'django==2.2,>=3.1',
+    'django~=2.2,>~3.1',
     'django-model-utils'
 ]
 
