@@ -7,7 +7,7 @@ version = __import__('moderation').__version__
 
 tests_require = [
     'unittest2py3k',
-    'django>=1.11',
+    'django~=2.2,>~3.1',
     'django-webtest',
     'webtest',
     'mock',
@@ -15,16 +15,9 @@ tests_require = [
 ]
 
 install_requires = [
-    'django>=1.11',
+    'django~=2.2,>~3.1',
     'django-model-utils'
 ]
-
-# override django-model-utils version in requirements file if DJANGO env is set
-DJANGO_ENV = os.environ.get("DJANGO")
-if DJANGO_ENV == 'Django>=1.11,<2.0':
-    install_requires = [
-        "django-model-utils<4" if r == "django-model-utils" else r for r in install_requires
-    ]
 
 setup(
     name='django-moderation',
@@ -46,11 +39,7 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3 :: Only',
         'Framework :: Django',
-        'Framework :: Django :: 1.11',
-        'Framework :: Django :: 2.0',
-        'Framework :: Django :: 2.1',
         'Framework :: Django :: 2.2',
-        'Framework :: Django :: 3.0',
         'Framework :: Django :: 3.1',
         'Framework :: Django :: 3.2',
     ],
