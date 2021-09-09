@@ -1,13 +1,12 @@
 from setuptools import setup, find_packages
 import os
-import sys
 
 # Dynamically calculate the version based on moderation.VERSION.
 version = __import__('moderation').__version__
 
 tests_require = [
     'unittest2py3k',
-    'django~=2.2,>~3.1',
+    'django>=1.11',
     'django-webtest',
     'webtest',
     'mock',
@@ -15,7 +14,7 @@ tests_require = [
 ]
 
 install_requires = [
-    'django~=2.2,>~3.1',
+    'django>=1.11',
     'django-model-utils'
 ]
 
