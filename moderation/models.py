@@ -9,7 +9,8 @@ from model_utils import Choices
 
 from . import moderation
 from .constants import (MODERATION_DRAFT_STATE, MODERATION_READY_STATE, MODERATION_STATUS_APPROVED,
-                        MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED)
+                        MODERATION_STATUS_PENDING, MODERATION_STATUS_REJECTED,
+                        MODERATION_STATUS_VISIBLE_UNTIL_REJECTED)
 from .diff import get_changes_between_models
 from .fields import SerializedObjectField
 from .managers import ModeratedObjectManager
@@ -24,6 +25,7 @@ STATUS_CHOICES = Choices(
     (MODERATION_STATUS_REJECTED, 'rejected', _('Rejected')),
     (MODERATION_STATUS_APPROVED, 'approved', _('Approved')),
     (MODERATION_STATUS_PENDING, 'pending', _('Pending')),
+    (MODERATION_STATUS_VISIBLE_UNTIL_REJECTED, 'visible_until_rejected', _('Visible until rejected')),
 )
 
 
@@ -102,6 +104,8 @@ class ModeratedObject(models.Model):
             self.reject(by=self.by, reason=reason)
         elif status == MODERATION_STATUS_APPROVED:
             self.approve(by=self.by, reason=reason)
+        elif self.moderator.visible_until_rejected:
+            self.visible_until_rejected(by=self.by, reason=reason)
         else:  # MODERATION_STATUS_PENDING
             self.save()
 
@@ -118,6 +122,9 @@ class ModeratedObject(models.Model):
             reason = self.moderator.is_auto_approve(obj, user)
             if reason:
                 return MODERATION_STATUS_APPROVED, reason
+
+        if self.moderator.visible_until_rejected:
+            return MODERATION_STATUS_VISIBLE_UNTIL_REJECTED, None
 
         return MODERATION_STATUS_PENDING, None
 
@@ -207,7 +214,7 @@ class ModeratedObject(models.Model):
                 # inherited visibility_column.
                 base_object._save_parents(base_object.__class__, None, None)
 
-        if self.changed_by:
+        if self.changed_by and self.status != MODERATION_STATUS_VISIBLE_UNTIL_REJECTED:
             self.moderator.inform_user(self.content_object, self.changed_by)
 
     def has_object_been_changed(self, original_obj, only_excluded=False):
@@ -234,3 +241,6 @@ class ModeratedObject(models.Model):
 
     def reject(self, by=None, reason=None):
         self._send_signals_and_moderate(MODERATION_STATUS_REJECTED, by, reason)
+
+    def visible_until_rejected(self, by=None, reason=None):
+        self._send_signals_and_moderate(MODERATION_STATUS_VISIBLE_UNTIL_REJECTED, by, reason)
