@@ -55,6 +55,7 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         ),
         DEBUG=True,
         SITE_ID=1,
+        SECRET_KEY="dummy",
         # For Django 1.10 compatibility
         # See https://docs.djangoproject.com/en/1.10/ref/settings/#std:setting-TEMPLATES
         TEMPLATES=[
