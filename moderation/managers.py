@@ -3,7 +3,7 @@ from django.db.models import Count, Q
 from django.db.models.manager import Manager
 
 from . import moderation
-from .constants import MODERATION_READY_STATE
+from .constants import MODERATION_READY_STATE, MODERATION_STATUS_VISIBLE_UNTIL_REJECTED
 from .queryset import ModeratedObjectQuerySet
 
 
@@ -45,7 +45,11 @@ class ModerationObjectsManager(Manager):
         only_ready = {
             '_relation_object__state': MODERATION_READY_STATE,
         }
-        return queryset.filter(Q(**only_no_relation_objects) | Q(**only_ready))
+        visible_until_rejected = {
+            '_relation_object__status': MODERATION_STATUS_VISIBLE_UNTIL_REJECTED,
+        }
+        return queryset.filter(Q(**only_no_relation_objects) | Q(**only_ready)
+                               | Q(**visible_until_rejected))
 
     def exclude_objs_by_visibility_col(self, query_set):
         return query_set.exclude(**{self.moderator.visibility_column: False})
