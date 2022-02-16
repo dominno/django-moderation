@@ -14,7 +14,7 @@ tests_require = [
 ]
 
 install_requires = [
-    'django>=1.11',
+    'django>=1.11,<4',
     'django-model-utils'
 ]
 
