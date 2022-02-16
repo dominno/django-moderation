@@ -4,6 +4,7 @@ from django.apps import AppConfig
 class SimpleModerationConfig(AppConfig):
     name = 'moderation'
     verbose_name = 'Moderation'
+    default_auto_field = 'django.db.models.AutoField'
 
 
 class ModerationConfig(SimpleModerationConfig):
