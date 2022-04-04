@@ -8,7 +8,7 @@ def clear_builtins(attrs):
     new_attrs = {}
 
     for key in attrs.keys():
-        if not(key.startswith('__') and key.endswith('__')):
+        if not (key.startswith('__') and key.endswith('__')):
             new_attrs[key] = attrs[key]
 
     return new_attrs

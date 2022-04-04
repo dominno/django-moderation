@@ -88,9 +88,7 @@ AUTH_USER_MODEL = 'example_app.CustomUser'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(os.path.dirname(__file__), "templates")
-        ],
+        'DIRS': [os.path.join(os.path.dirname(__file__), "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -98,7 +96,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.request',
                 'django.template.context_processors.media',
-                'django.contrib.messages.context_processors.messages'
+                'django.contrib.messages.context_processors.messages',
             ],
             'loaders': (
                 'django.template.loaders.filesystem.Loader',

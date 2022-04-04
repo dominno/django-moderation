@@ -8,9 +8,11 @@ from django.db.models.manager import Manager
 
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
-                             on_delete=models.CASCADE,
-                             related_name='user_profile_set')
+    user = models.ForeignKey(
+        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
+        on_delete=models.CASCADE,
+        related_name='user_profile_set',
+    )
     description = models.TextField()
     url = models.URLField()
 
@@ -34,13 +36,11 @@ class ModelWithSlugField2(models.Model):
 
 
 class MenManager(Manager):
-
     def get_queryset(self):
         return super().get_queryset().filter(gender=1)
 
 
 class WomenManager(Manager):
-
     def get_queryset(self):
         return super().get_queryset().filter(gender=0)
 
@@ -85,7 +85,6 @@ class ModelWithModeratedFields(models.Model):
 
 
 class ProxyProfile(UserProfile):
-
     class Meta(object):
         proxy = True
 

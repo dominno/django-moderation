@@ -17,14 +17,11 @@ def _registered_content_types():
 
 
 class RegisteredContentTypeListFilter(FieldListFilter):
-
-    def __init__(self, field, request, params,
-                 model, model_admin, field_path):
+    def __init__(self, field, request, params, model, model_admin, field_path):
         self.lookup_kwarg = '%s' % field_path
         self.lookup_val = request.GET.get(self.lookup_kwarg)
         self.content_types = _registered_content_types()
-        super().__init__(
-            field, request, params, model, model_admin, field_path)
+        super().__init__(field, request, params, model, model_admin, field_path)
 
     def expected_parameters(self):
         return [self.lookup_kwarg]
@@ -33,11 +30,11 @@ class RegisteredContentTypeListFilter(FieldListFilter):
         yield {
             'selected': self.lookup_val is None,
             'query_string': cl.get_query_string({}, [self.lookup_kwarg]),
-            'display': _('All')}
+            'display': _('All'),
+        }
         for ct_type in self.content_types:
             yield {
                 'selected': smart_text(ct_type.id) == self.lookup_val,
-                'query_string': cl.get_query_string({
-                    self.lookup_kwarg: ct_type.id}),
+                'query_string': cl.get_query_string({self.lookup_kwarg: ct_type.id}),
                 'display': str(ct_type),
             }

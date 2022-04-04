@@ -20,7 +20,7 @@ class RequestFactory(Client):
     This class re-uses the django.test.client.Client interface, docs here:
     http://www.djangoproject.com/documentation/testing/#the-test-client
 
-    Once you have a request object you can pass it to any view function, 
+    Once you have a request object you can pass it to any view function,
     just as if that view had been hooked up using a URLconf.
 
     """

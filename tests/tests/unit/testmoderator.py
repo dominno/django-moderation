@@ -10,8 +10,11 @@ from moderation.managers import ModerationObjectsManager
 from moderation.message_backends import BaseMessageBackend
 from moderation.models import ModeratedObject
 from moderation.moderator import GenericModerator
-from tests.models import (ModelWithVisibilityField,
-                          ModelWithWrongVisibilityField, UserProfile)
+from tests.models import (
+    ModelWithVisibilityField,
+    ModelWithWrongVisibilityField,
+    UserProfile,
+)
 from tests.utils import setup_moderation, teardown_moderation
 
 
@@ -29,14 +32,14 @@ class GenericModeratorTestCase(TestCase):
     def test_create_generic_moderator(self):
         self.assertEqual(self.moderator.model_class, UserProfile)
         self.assertEqual(self.moderator.manager_names, ['objects'])
-        self.assertEqual(self.moderator.moderation_manager_class,
-                         ModerationObjectsManager)
+        self.assertEqual(
+            self.moderator.moderation_manager_class, ModerationObjectsManager
+        )
         self.assertEqual(self.moderator.auto_approve_for_staff, True)
         self.assertEqual(self.moderator.auto_approve_for_groups, None)
         self.assertEqual(self.moderator.auto_reject_for_groups, None)
 
     def test_subclass_moderator_class(self):
-
         class UserProfileModerator(GenericModerator):
             auto_approve_for_staff = False
             auto_approve_for_groups = ['admins', 'moderators']
@@ -45,11 +48,9 @@ class GenericModeratorTestCase(TestCase):
         moderator = UserProfileModerator(UserProfile)
         self.assertEqual(moderator.model_class, UserProfile)
         self.assertEqual(moderator.manager_names, ['objects'])
-        self.assertEqual(moderator.moderation_manager_class,
-                         ModerationObjectsManager)
+        self.assertEqual(moderator.moderation_manager_class, ModerationObjectsManager)
         self.assertEqual(moderator.auto_approve_for_staff, False)
-        self.assertEqual(moderator.auto_approve_for_groups, ['admins',
-                                                             'moderators'])
+        self.assertEqual(moderator.auto_approve_for_groups, ['admins', 'moderators'])
         self.assertEqual(moderator.auto_reject_for_groups, ['others'])
 
     def test_custom_message_backend_class(self):
@@ -60,11 +61,10 @@ class GenericModeratorTestCase(TestCase):
         self.moderator.message_backend_class = CustomMessageBackend
         self.moderator.send(
             self.user,
-            subject_template=('moderation/'
-                              'notification_subject_moderator.txt'),
-            message_template=('moderation/'
-                              'notification_message_moderator.txt'),
-            recipient_list=['test@example.com'])
+            subject_template=('moderation/' 'notification_subject_moderator.txt'),
+            message_template=('moderation/' 'notification_message_moderator.txt'),
+            recipient_list=['test@example.com'],
+        )
 
         # because of the custom message backend
         self.assertEqual(len(mail.outbox), 0)
@@ -77,11 +77,10 @@ class GenericModeratorTestCase(TestCase):
         with self.assertRaises(NotImplementedError):
             self.moderator.send(
                 self.user,
-                subject_template=('moderation/'
-                                  'notification_subject_moderator.txt'),
-                message_template=('moderation'
-                                  '/notification_message_moderator.txt'),
-                recipient_list=['test@example.com'])
+                subject_template=('moderation/' 'notification_subject_moderator.txt'),
+                message_template=('moderation' '/notification_message_moderator.txt'),
+                recipient_list=['test@example.com'],
+            )
 
     def test_wrong_message_backend_class_raise_exception(self):
         class WrongMessageBackend(object):
@@ -91,18 +90,18 @@ class GenericModeratorTestCase(TestCase):
         with self.assertRaises(TypeError):
             self.moderator.send(
                 self.user,
-                subject_template=('moderation/'
-                                  'notification_subject_moderator.txt'),
-                message_template=('moderation/'
-                                  'notification_message_moderator.txt'),
-                recipient_list=['test@example.com'])
+                subject_template=('moderation/' 'notification_subject_moderator.txt'),
+                message_template=('moderation/' 'notification_message_moderator.txt'),
+                recipient_list=['test@example.com'],
+            )
 
     def test_send_notification(self):
         self.moderator.send(
             self.user,
             subject_template='moderation/notification_subject_moderator.txt',
             message_template='moderation/notification_message_moderator.txt',
-            recipient_list=['test@example.com'])
+            recipient_list=['test@example.com'],
+        )
 
         self.assertEqual(len(mail.outbox), 1)
 
@@ -205,7 +204,6 @@ class AutoModerateModeratorTestCase(TestCase):
         self.assertFalse(self.moderator.is_auto_reject(self.obj, self.user))
 
     def test_overwrite_automoderation_method(self):
-
         def akismet_spam_check(obj):
             return True
 
@@ -229,12 +227,10 @@ class ByPassModerationTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
     def setUp(self):
-
         class UserProfileModerator(GenericModerator):
             bypass_moderation_after_approval = True
 
-        self.moderation = setup_moderation([(UserProfile,
-                                             UserProfileModerator)])
+        self.moderation = setup_moderation([(UserProfile, UserProfileModerator)])
 
         self.user = User.objects.get(username='moderator')
         self.profile = UserProfile.objects.get(user__username='moderator')
@@ -243,9 +239,11 @@ class ByPassModerationTestCase(TestCase):
         teardown_moderation()
 
     def test_bypass_moderation_after_approval(self):
-        profile = UserProfile(description='Profile for new user',
-                              url='http://www.test.com',
-                              user=User.objects.get(username='user1'))
+        profile = UserProfile(
+            description='Profile for new user',
+            url='http://www.test.com',
+            user=User.objects.get(username='user1'),
+        )
         profile.save()
 
         profile.moderated_object.approve(self.user)
@@ -253,8 +251,7 @@ class ByPassModerationTestCase(TestCase):
         profile.description = 'New description'
         profile.save()
 
-        self.assertEqual(profile.moderated_object.status,
-                         MODERATION_STATUS_APPROVED)
+        self.assertEqual(profile.moderated_object.status, MODERATION_STATUS_APPROVED)
 
 
 class BaseManagerTestCase(unittest.TestCase):
@@ -277,16 +274,14 @@ class BaseManagerTestCase(unittest.TestCase):
 
         setattr(self.model_class, 'objects', self.custom_manager())
 
-        base_manager = self.moderator._get_base_manager(self.model_class,
-                                                        'objects')
+        base_manager = self.moderator._get_base_manager(self.model_class, 'objects')
 
         self.assertEqual(base_manager, self.custom_manager)
 
         delattr(self.model_class, 'objects')
 
     def test_get_base_manager_default_manager(self):
-        base_manager = self.moderator._get_base_manager(self.model_class,
-                                                        'objects')
+        base_manager = self.moderator._get_base_manager(self.model_class, 'objects')
         self.assertEqual(base_manager, Manager)
 
 
@@ -294,12 +289,12 @@ class VisibilityColumnTestCase(TestCase):
     fixtures = ['test_users.json', 'test_moderation.json']
 
     def setUp(self):
-
         class UserProfileModerator(GenericModerator):
             visibility_column = 'is_public'
 
-        self.moderation = setup_moderation([(ModelWithVisibilityField,
-                                             UserProfileModerator)])
+        self.moderation = setup_moderation(
+            [(ModelWithVisibilityField, UserProfileModerator)]
+        )
 
         self.user = User.objects.get(username='moderator')
 
@@ -320,7 +315,7 @@ class VisibilityColumnTestCase(TestCase):
         self.assertEqual(list(objects), [])
 
     def test_approved_obj_should_be_return_by_manager(self):
-        '''Verify new object with visibility column is accessible '''
+        '''Verify new object with visibility column is accessible'''
         '''by manager after approve'''
         profile = self._create_userprofile()
         profile.moderated_object.approve(self.user)
@@ -330,19 +325,21 @@ class VisibilityColumnTestCase(TestCase):
         self.assertEqual(objects.count(), 1)
 
     def test_invalid_visibility_column_field_should_rise_exception(self):
-        '''Verify correct exception is raised when model has '''
+        '''Verify correct exception is raised when model has'''
         '''invalid visibility column'''
 
         class UserProfileModerator(GenericModerator):
             visibility_column = 'is_public'
 
-        self.assertRaises(AttributeError,
-                          self.moderation.register,
-                          ModelWithWrongVisibilityField,
-                          UserProfileModerator)
+        self.assertRaises(
+            AttributeError,
+            self.moderation.register,
+            ModelWithWrongVisibilityField,
+            UserProfileModerator,
+        )
 
     def test_model_should_be_saved_properly(self):
-        '''Verify that after approve of object that has visibility column '''
+        '''Verify that after approve of object that has visibility column'''
         '''value is changed from False to True'''
         profile = self._create_userprofile()
 
@@ -351,5 +348,5 @@ class VisibilityColumnTestCase(TestCase):
         profile.moderated_object.approve(self.user)
 
         self.assertEqual(
-            ModelWithVisibilityField.unmoderated_objects.get().is_public,
-            True)
+            ModelWithVisibilityField.unmoderated_objects.get().is_public, True
+        )

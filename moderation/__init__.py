@@ -11,11 +11,13 @@ class _ModerationProxy:
     It must not be created here for Django >= 1.8, because __init__ is invoked
     too early, but must be present once a module registers its models.
     """
+
     _moderation = None
 
     def _ensure_obj(self):
         if _ModerationProxy._moderation is None:
             from .register import ModerationManager
+
             _ModerationProxy._moderation = ModerationManager()
 
     def __getattr__(self, attribute):

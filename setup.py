@@ -13,17 +13,15 @@ tests_require = [
     'pillow',
 ]
 
-install_requires = [
-    'django>=1.11,<4',
-    'django-model-utils'
-]
+install_requires = ['django>=1.11,<4', 'django-model-utils']
 
 setup(
     name='django-moderation',
     version=version,
     description='Generic Django objects moderation application',
-    long_description=open('README.rst').read() + '\n' +
-                     open(os.path.join('docs', 'history.rst')).read(),
+    long_description=open('README.rst').read()
+    + '\n'
+    + open(os.path.join('docs', 'history.rst')).read(),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
@@ -45,7 +43,7 @@ setup(
     keywords='django moderation models',
     author='Dominik Szopa',
     author_email='dszopa@gmail.com',
-    url='http://github.com/dominno/django-moderation',
+    url='https://github.com/dominno/django-moderation',
     license='BSD',
     packages=find_packages('.', exclude=('tests', 'example_project')),
     include_package_data=True,

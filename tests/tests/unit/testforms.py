@@ -32,18 +32,18 @@ class FormsTestCase(TestCase):
         self.assertEqual(form._meta.model.__name__, 'UserProfile')
 
     def test_if_form_is_initialized_new_object(self):
-        profile = UserProfile(description='New description',
-                              url='http://test.com',
-                              user=self.user)
+        profile = UserProfile(
+            description='New description', url='http://test.com', user=self.user
+        )
         profile.save()
 
         form = self.ModeratedObjectForm(instance=profile)
         self.assertEqual(form.initial['description'], 'New description')
 
     def test_if_form_is_initialized_existing_object(self):
-        profile = UserProfile(description='old description',
-                              url='http://test.com',
-                              user=self.user)
+        profile = UserProfile(
+            description='old description', url='http://test.com', user=self.user
+        )
         profile.save()
 
         profile.moderated_object.approve(by=self.user)
@@ -64,14 +64,16 @@ class FormsTestCase(TestCase):
 
         object = ModelWithImage.unmoderated_objects.get(id=1)
         form = self.ModeratedObjectForm(instance=object)
-        self.assertTrue(isinstance(form.initial['image'], ImageFieldFile),
-                        'image in form.initial is instance of ImageField File')
+        self.assertTrue(
+            isinstance(form.initial['image'], ImageFieldFile),
+            'image in form.initial is instance of ImageField File',
+        )
 
     def test_form_when_obj_has_no_moderated_obj(self):
         self.moderation.unregister(UserProfile)
-        profile = UserProfile(description='old description',
-                              url='http://test.com',
-                              user=self.user)
+        profile = UserProfile(
+            description='old description', url='http://test.com', user=self.user
+        )
         profile.save()
         self.moderation.register(UserProfile)
 
@@ -80,13 +82,12 @@ class FormsTestCase(TestCase):
         self.assertEqual(form.initial['description'], 'old description')
 
     def test_if_form_is_initialized_new_object_with_initial(self):
-        profile = UserProfile(description='New description',
-                              url='http://test.com',
-                              user=self.user)
+        profile = UserProfile(
+            description='New description', url='http://test.com', user=self.user
+        )
         profile.save()
 
-        form = self.ModeratedObjectForm(initial={'extra': 'value'},
-                                        instance=profile)
+        form = self.ModeratedObjectForm(initial={'extra': 'value'}, instance=profile)
 
         self.assertEqual(form.initial['description'], 'New description')
         self.assertEqual(form.initial['extra'], 'value')
