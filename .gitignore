@@ -4,6 +4,7 @@
 .installed.cfg
 .idea
 .tox
+.python-version
 bin
 develop-eggs
 dist

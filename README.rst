@@ -12,7 +12,7 @@ Introduction
 .. image:: https://coveralls.io/repos/dominno/django-moderation/badge.png?branch=master
    :target: https://coveralls.io/r/dominno/django-moderation?branch=master
 
-django-moderation is reusable application for Django framework, that allows to
+``django-moderation`` is reusable application for Django framework, that allows to
 moderate any model objects.
 
 Possible use cases:
@@ -39,9 +39,9 @@ Features:
 Requirements
 ============
 
-Python 3.5, 3.6, 3.7
+Python 3.6, 3.7, 3.8, 3.9
 
-Django 1.11, 2.0, 2.1, 2.2
+Django 2.2, 3.1, 3.2
 
 django-model-utils
 
@@ -63,8 +63,8 @@ Contributors
 
 Special thanks to all persons that contributed to this project.
 
-- jonwd7 http://github.com/jonwd7
-- treyhunner http://github.com/treyhunner
+- jonwd7 https://github.com/jonwd7
+- treyhunner https://github.com/treyhunner
 
 Thank you for all ideas, bug fixes, patches.
 

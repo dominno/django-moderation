@@ -19,7 +19,7 @@ DATABASES = {
     }
 }
 
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'UTC'
 
 LANGUAGE_CODE = 'en'
 
@@ -80,7 +80,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'moderation',
     'example_project.example_app',
-    # 'test_extensions',
 )
 
 AUTH_USER_MODEL = 'example_app.CustomUser'
@@ -88,9 +87,12 @@ AUTH_USER_MODEL = 'example_app.CustomUser'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(os.path.dirname(__file__), "templates")],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(os.path.dirname(__file__), 'templates')],
         'OPTIONS': {
+            'loaders': (
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ),
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.i18n',
@@ -98,10 +100,6 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
             ],
-            'loaders': (
-                'django.template.loaders.filesystem.Loader',
-                'django.template.loaders.app_directories.Loader',
-            ),
         },
     },
 ]

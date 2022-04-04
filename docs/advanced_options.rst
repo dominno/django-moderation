@@ -270,8 +270,5 @@ with data from changed_object.::
 Settings
 --------
 
-``DJANGO_MODERATION_MODERATORS``
-    This option is deprecated in favor of ``MODERATION_MODERATORS``.
-
 ``MODERATION_MODERATORS``
     Tuple of moderators' email addresses to which notifications will be sent.

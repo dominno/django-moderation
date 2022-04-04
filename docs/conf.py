@@ -46,8 +46,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-moderation'
-copyright = u'2014, Dominik Szopa'
+project = 'django-moderation'
+copyright = '2022, Dominik Szopa'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -200,8 +200,8 @@ latex_documents = [
     (
         'index',
         'django-moderation.tex',
-        u'django-moderation Documentation',
-        u'Dominik Szopa',
+        'django-moderation Documentation',
+        'Dominik Szopa',
         'manual',
     ),
 ]
@@ -235,8 +235,8 @@ man_pages = [
     (
         'index',
         'django-moderation',
-        u'django-moderation Documentation',
-        [u'Dominik Szopa'],
+        'django-moderation Documentation',
+        ['Dominik Szopa'],
         1,
     )
 ]
@@ -254,8 +254,8 @@ texinfo_documents = [
     (
         'index',
         'django-moderation',
-        u'django-moderation Documentation',
-        u'Dominik Szopa',
+        'django-moderation Documentation',
+        'Dominik Szopa',
         'django-moderation',
         'One line description of project.',
         'Miscellaneous',
