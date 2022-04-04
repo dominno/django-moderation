@@ -9,9 +9,10 @@ from tests.utils import setup_moderation, teardown_moderation
 
 class ExcludeAcceptanceTestCase(TestCase):
     '''
-    As developer I want to have way to ignore/exclude model fields from 
+    As developer I want to have way to ignore/exclude model fields from
     moderation
     '''
+
     fixtures = ['test_users.json', 'test_moderation.json']
 
     def setUp(self):
@@ -36,15 +37,16 @@ class ExcludeAcceptanceTestCase(TestCase):
 
         profile.save()
 
-        url = reverse('admin:moderation_moderatedobject_change',
-                      args=(profile.moderated_object.pk,))
+        url = reverse(
+            'admin:moderation_moderatedobject_change',
+            args=(profile.moderated_object.pk,),
+        )
 
         response = self.client.get(url, {})
 
         changes = [change.change for change in response.context['changes']]
 
-        self.assertFalse(('http://www.google.com',
-                          'http://dominno.pl') in changes)
+        self.assertFalse(('http://www.google.com', 'http://dominno.pl') in changes)
 
     def test_non_excluded_field_should_be_moderated_when_obj_is_edited(self):
         '''
@@ -57,8 +59,10 @@ class ExcludeAcceptanceTestCase(TestCase):
 
         profile.save()
 
-        url = reverse('admin:moderation_moderatedobject_change',
-                      args=(profile.moderated_object.pk,))
+        url = reverse(
+            'admin:moderation_moderatedobject_change',
+            args=(profile.moderated_object.pk,),
+        )
 
         response = self.client.get(url, {})
 
@@ -71,28 +75,35 @@ class ExcludeAcceptanceTestCase(TestCase):
         Create new object, only non excluded fields are used
         by moderation system
         '''
-        profile = UserProfile(description='Profile for new user',
-                              url='http://www.dominno.com',
-                              user=User.objects.get(username='user1'))
+        profile = UserProfile(
+            description='Profile for new user',
+            url='http://www.dominno.com',
+            user=User.objects.get(username='user1'),
+        )
         profile.save()
 
-        url = reverse('admin:moderation_moderatedobject_change',
-                      args=(profile.moderated_object.pk,))
+        url = reverse(
+            'admin:moderation_moderatedobject_change',
+            args=(profile.moderated_object.pk,),
+        )
 
         response = self.client.get(url, {})
 
         changes = [change.change for change in response.context['changes']]
 
-        self.assertFalse(('http://www.dominno.com',
-                          'http://www.dominno.com') in changes)
+        self.assertFalse(
+            ('http://www.dominno.com', 'http://www.dominno.com') in changes
+        )
 
     def test_excluded_field_should_always_be_saved(self):
         '''
         Ensure that excluded fields are always saved to the object.
         '''
-        profile = UserProfile(description='Profile for new user',
-                              url='http://www.dominno.com',
-                              user=User.objects.get(username='user1'))
+        profile = UserProfile(
+            description='Profile for new user',
+            url='http://www.dominno.com',
+            user=User.objects.get(username='user1'),
+        )
         profile.save()
         profile.moderated_object.approve()
 

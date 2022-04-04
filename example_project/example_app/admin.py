@@ -19,14 +19,19 @@ class UserProfileWithCustomUserAdmin(ModerationAdmin):
 class CustomUserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password."""
-    password1 = forms.CharField(label='Password',
-                                widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation',
-                                widget=forms.PasswordInput)
+
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(
+        label='Password confirmation', widget=forms.PasswordInput
+    )
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'date_of_birth', )
+        fields = (
+            'username',
+            'email',
+            'date_of_birth',
+        )
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -50,6 +55,7 @@ class UserChangeForm(forms.ModelForm):
     the user, but replaces the password field with admin's
     password hash display field.
     """
+
     password = ReadOnlyPasswordHashField()
 
     class Meta:
@@ -83,9 +89,17 @@ class MyUserAdmin(UserAdmin):
     # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (
         (
-            None, {'classes': ('wide',), 'fields': (
-                'username', 'email', 'date_of_birth', 'password1', 'password2'
-            )}
+            None,
+            {
+                'classes': ('wide',),
+                'fields': (
+                    'username',
+                    'email',
+                    'date_of_birth',
+                    'password1',
+                    'password2',
+                ),
+            },
         ),
     )
     search_fields = ('email',)

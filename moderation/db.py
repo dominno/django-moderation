@@ -30,6 +30,7 @@ class ModeratedModelBase(type):
            a instance of ``GenericModerator``
 
     """
+
     def _resolve_moderator(cls):
         """
         ``ModeratedModel`` that defines the class Moderator

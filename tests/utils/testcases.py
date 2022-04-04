@@ -2,7 +2,6 @@ from django_webtest import WebTest
 
 
 class WebTestCase(WebTest):
-
     def setUp(self):
         self.user = None
 

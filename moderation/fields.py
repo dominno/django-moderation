@@ -6,26 +6,26 @@ from django.db import models
 
 class SerializedObjectField(models.TextField):
     '''Model field that stores serialized value of model class instance
-       and returns deserialized model instance
+    and returns deserialized model instance
 
-       >>> from django.db import models
-       >>> import SerializedObjectField
+    >>> from django.db import models
+    >>> import SerializedObjectField
 
-       >>> class A(models.Model):
-               object = SerializedObjectField(serialize_format='json')
+    >>> class A(models.Model):
+            object = SerializedObjectField(serialize_format='json')
 
-       >>> class B(models.Model):
-               field = models.CharField(max_length=10)
-       >>> b = B(field='test')
-       >>> b.save()
-       >>> a = A()
-       >>> a.object = b
-       >>> a.save()
-       >>> a = A.object.get(pk=1)
-       >>> a.object
-       <B: B object>
-       >>> a.object.__dict__
-       {'field': 'test', 'id': 1}
+    >>> class B(models.Model):
+            field = models.CharField(max_length=10)
+    >>> b = B(field='test')
+    >>> b.save()
+    >>> a = A()
+    >>> a.object = b
+    >>> a.save()
+    >>> a = A.object.get(pk=1)
+    >>> a.object
+    <B: B object>
+    >>> a.object.__dict__
+    {'field': 'test', 'id': 1}
 
     '''
 
@@ -39,9 +39,11 @@ class SerializedObjectField(models.TextField):
 
         value_set = [value]
         if value._meta.parents:
-            value_set += [getattr(value, f.name)
-                          for f in list(value._meta.parents.values())
-                          if f is not None]
+            value_set += [
+                getattr(value, f.name)
+                for f in list(value._meta.parents.values())
+                if f is not None
+            ]
 
         return serializers.serialize(self.serialize_format, value_set)
 
@@ -49,7 +51,8 @@ class SerializedObjectField(models.TextField):
         obj_generator = serializers.deserialize(
             self.serialize_format,
             value.encode(settings.DEFAULT_CHARSET),
-            ignorenonexistent=True)
+            ignorenonexistent=True,
+        )
 
         obj = next(obj_generator).object
         for parent in obj_generator:
@@ -80,13 +83,14 @@ class SerializedObjectField(models.TextField):
     def post_init(self, **kwargs):
         if 'sender' in kwargs and 'instance' in kwargs:
             sender = kwargs['sender']
-            if (sender == self.class_name or sender._meta.proxy and
-                issubclass(sender, self.class_name)) and\
-               hasattr(kwargs['instance'], self.attname):
+            if (
+                sender == self.class_name
+                or sender._meta.proxy
+                and issubclass(sender, self.class_name)
+            ) and hasattr(kwargs['instance'], self.attname):
                 value = self.value_from_object(kwargs['instance'])
 
                 if value:
-                    setattr(kwargs['instance'], self.attname,
-                            self._deserialize(value))
+                    setattr(kwargs['instance'], self.attname, self._deserialize(value))
                 else:
                     setattr(kwargs['instance'], self.attname, None)

@@ -4,16 +4,27 @@ from django.contrib.auth.models import Permission, User
 from django.test.testcases import TestCase
 from django.urls import reverse
 
-from moderation.admin import (ModeratedObjectAdmin, ModerationAdmin,
-                              approve_objects, reject_objects,
-                              set_objects_as_pending)
-from moderation.constants import (MODERATION_STATUS_APPROVED,
-                                  MODERATION_STATUS_PENDING,
-                                  MODERATION_STATUS_REJECTED)
+from moderation.admin import (
+    ModeratedObjectAdmin,
+    ModerationAdmin,
+    approve_objects,
+    reject_objects,
+    set_objects_as_pending,
+)
+from moderation.constants import (
+    MODERATION_STATUS_APPROVED,
+    MODERATION_STATUS_PENDING,
+    MODERATION_STATUS_REJECTED,
+)
 from moderation.models import ModeratedObject
 from moderation.moderator import GenericModerator
-from tests.models import (Book, ModelWithSlugField, ModelWithSlugField2,
-                          SuperUserProfile, UserProfile)
+from tests.models import (
+    Book,
+    ModelWithSlugField,
+    ModelWithSlugField2,
+    SuperUserProfile,
+    UserProfile,
+)
 from tests.utils import setup_moderation, teardown_moderation
 from tests.utils.request_factory import RequestFactory
 from tests.utils.testcases import WebTestCase
@@ -54,14 +65,13 @@ class ModeratedObjectAdminBehaviorTestCase(WebTestCase):
     def setUp(self):
         class BookModerator(GenericModerator):
             auto_approve_for_staff = False
+
         self.moderation = setup_moderation([(Book, BookModerator)])
 
         self.user = User.objects.get(username='user1')
-        self.user.user_permissions.add(
-            Permission.objects.get(codename='change_book'))
+        self.user.user_permissions.add(Permission.objects.get(codename='change_book'))
 
-        self.book = Book.objects.create(title="Book not modified",
-                                        author="Nico")
+        self.book = Book.objects.create(title="Book not modified", author="Nico")
 
     def tearDown(self):
         teardown_moderation()
@@ -148,10 +158,12 @@ class ModerationAdminSendMessageTestCase(TestCase):
         teardown_moderation()
 
     def test_send_message_when_object_has_no_moderated_object(self):
-        profile = SuperUserProfile(description='Profile for new user',
-                                   url='http://www.yahoo.com',
-                                   user=User.objects.get(username='user1'),
-                                   super_power='text')
+        profile = SuperUserProfile(
+            description='Profile for new user',
+            url='http://www.yahoo.com',
+            user=User.objects.get(username='user1'),
+            super_power='text',
+        )
 
         profile.save()
 
@@ -161,8 +173,9 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(str(message), "This object is not registered "
-                                       "with the moderation system.")
+        self.assertEqual(
+            str(message), "This object is not registered " "with the moderation system."
+        )
 
     def test_send_message_status_pending(self):
         self.moderated_obj.status = MODERATION_STATUS_PENDING
@@ -172,9 +185,11 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(str(message),
-                         "Object is not viewable on site, "
-                         "it will be visible if moderator accepts it")
+        self.assertEqual(
+            str(message),
+            "Object is not viewable on site, "
+            "it will be visible if moderator accepts it",
+        )
 
     def test_send_message_status_rejected(self):
         self.moderated_obj.status = MODERATION_STATUS_REJECTED
@@ -185,9 +200,10 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(str(message),
-                         "Object has been rejected by "
-                         "moderator, reason: Reason for rejection")
+        self.assertEqual(
+            str(message),
+            "Object has been rejected by " "moderator, reason: Reason for rejection",
+        )
 
     def test_send_message_status_approved(self):
         self.moderated_obj.status = MODERATION_STATUS_APPROVED
@@ -197,8 +213,10 @@ class ModerationAdminSendMessageTestCase(TestCase):
 
         args, kwargs = self.request._messages.add.call_args
         level, message, tags = args
-        self.assertEqual(str(message), "Object has been approved by "
-                                       "moderator and is visible on site")
+        self.assertEqual(
+            str(message),
+            "Object has been approved by " "moderator and is visible on site",
+        )
 
 
 try:
@@ -235,14 +253,17 @@ else:
 
         def test_content_types_and_its_order(self):
             f = ModeratedObject._meta.get_field('content_type')
-            filter_spec = ContentTypeFilterSpec(f, self.request, {},
-                                                ModeratedObject, self.admin)
+            filter_spec = ContentTypeFilterSpec(
+                f, self.request, {}, ModeratedObject, self.admin
+            )
 
             self.assertEqual(
                 [x[1] for x in filter_spec.lookup_choices],
-                ['Model with slug field',
-                 'Model with slug field2'])
+                ['Model with slug field', 'Model with slug field2'],
+            )
 
-            self.assertEqual(str(filter_spec.content_types),
-                             "[<ContentType: model with slug field>, "
-                             "<ContentType: model with slug field2>]")
+            self.assertEqual(
+                str(filter_spec.content_types),
+                "[<ContentType: model with slug field>, "
+                "<ContentType: model with slug field2>]",
+            )

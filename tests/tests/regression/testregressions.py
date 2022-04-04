@@ -18,9 +18,11 @@ class CSRFMiddlewareTestCase(TestCase):
         teardown_moderation()
 
     def test_csrf_token(self):
-        profile = UserProfile(description='Profile for new user',
-                              url='http://www.yahoo.com',
-                              user=User.objects.get(username='user1'))
+        profile = UserProfile(
+            description='Profile for new user',
+            url='http://www.yahoo.com',
+            user=User.objects.get(username='user1'),
+        )
 
         profile.save()
 
@@ -37,8 +39,7 @@ class CSRFMiddlewareTestCase(TestCase):
 
         profile = UserProfile.objects.get(pk=profile.pk)
 
-        self.assertEqual(profile.moderated_object.status,
-                         MODERATION_STATUS_APPROVED)
+        self.assertEqual(profile.moderated_object.status, MODERATION_STATUS_APPROVED)
 
 
 class AutomoderationRuntimeErrorRegressionTestCase(TestCase):
@@ -84,9 +85,11 @@ class BypassOverwritesUpdatedObjectRegressionTestCase(TestCase):
 
         # It's never been approved before, so it's now invisible
         self.assertEqual(
-            [], list(ModelWithVisibilityField.objects.all()),
+            [],
+            list(ModelWithVisibilityField.objects.all()),
             "The ModelWithVisibilityField has never been approved and is now "
-            "pending, so it should be hidden")
+            "pending, so it should be hidden",
+        )
         # So approve it
         obj.moderated_object.approve(by=self.user, reason='test')
         # Now it should be visible, with the new description

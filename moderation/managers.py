@@ -8,7 +8,6 @@ from .queryset import ModeratedObjectQuerySet
 
 
 class MetaClass(type(Manager)):
-
     def __new__(cls, name, bases, attrs):
         return super(MetaClass, cls).__new__(cls, name, bases, attrs)
 
@@ -17,22 +16,22 @@ class ModerationObjectsManager(Manager):
     class MultipleModerations(Exception):
         def __init__(self, base_object):
             self.base_object = base_object
-            super(ModerationObjectsManager.MultipleModerations,
-                  self).__init__(
-                "Multiple moderations found for object/s: %s" %
-                base_object)
+            super(ModerationObjectsManager.MultipleModerations, self).__init__(
+                "Multiple moderations found for object/s: %s" % base_object
+            )
 
     def __call__(self, base_manager, *args, **kwargs):
         return MetaClass(
             self.__class__.__name__,
             (self.__class__, base_manager),
-            {'use_for_related_fields': True})
+            {'use_for_related_fields': True},
+        )
 
     def filter_moderated_objects(self, queryset):
         # Find any objects that have more than one related ModeratedObject
-        annotated_queryset = queryset \
-            .annotate(num_moderation_objects=Count('_relation_object')) \
-            .filter(num_moderation_objects__gt=1)
+        annotated_queryset = queryset.annotate(
+            num_moderation_objects=Count('_relation_object')
+        ).filter(num_moderation_objects__gt=1)
 
         if annotated_queryset.exists():
             # No sensible default action here. You need to override
@@ -70,13 +69,14 @@ class ModeratedObjectManager(Manager):
     def get_for_instance(self, instance):
         '''Returns ModeratedObject for given model instance'''
         try:
-            moderated_object = self.get(object_pk=instance.pk,
-                                        content_type=ContentType.objects
-                                        .get_for_model(instance.__class__))
+            moderated_object = self.get(
+                object_pk=instance.pk,
+                content_type=ContentType.objects.get_for_model(instance.__class__),
+            )
         except self.model.MultipleObjectsReturned:
             # Get the most recent one
-            moderated_object = self.filter(object_pk=instance.pk,
-                                           content_type=ContentType.objects
-                                           .get_for_model(instance.__class__)) \
-                .order_by('-updated')[0]
+            moderated_object = self.filter(
+                object_pk=instance.pk,
+                content_type=ContentType.objects.get_for_model(instance.__class__),
+            ).order_by('-updated')[0]
         return moderated_object

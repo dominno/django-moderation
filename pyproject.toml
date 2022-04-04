@@ -1,0 +1,25 @@
+[tool.black]
+target-version = ['py38']
+skip-string-normalization = true
+include = '\.pyi?$'
+force-exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | env
+    | venv
+    | tmp
+    | migrations
+    | _build
+    | buck-out
+    | build
+  )/
+  | tox.ini
+)
+'''

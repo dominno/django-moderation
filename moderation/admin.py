@@ -6,18 +6,18 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.translation import ugettext as _
 
 from . import moderation
-from .constants import (MODERATION_STATUS_APPROVED,
-                        MODERATION_STATUS_PENDING,
-                        MODERATION_STATUS_REJECTED)
+from .constants import (
+    MODERATION_STATUS_APPROVED,
+    MODERATION_STATUS_PENDING,
+    MODERATION_STATUS_REJECTED,
+)
 from .diff import get_changes_between_models
 from .filterspecs import RegisteredContentTypeListFilter
 from .forms import BaseModeratedObjectForm
 from .helpers import automoderate
 from .models import ModeratedObject
 
-available_filters = (
-    ('content_type', RegisteredContentTypeListFilter), 'status'
-)
+available_filters = (('content_type', RegisteredContentTypeListFilter), 'status')
 
 
 def approve_objects(modeladmin, request, queryset):
@@ -40,8 +40,9 @@ def set_objects_as_pending(modeladmin, request, queryset):
     queryset.update(status=MODERATION_STATUS_PENDING)
 
 
-set_objects_as_pending.short_description = _("Set selected moderated"
-                                             " objects as Pending")
+set_objects_as_pending.short_description = _(
+    "Set selected moderated" " objects as Pending"
+)
 
 
 class ModerationAdmin(admin.ModelAdmin):
@@ -66,20 +67,22 @@ class ModerationAdmin(admin.ModelAdmin):
             self.send_message(request, object_id)
 
         try:
-            return super().change_view(request, object_id, form_url=form_url,
-                                       extra_context=extra_context)
+            return super().change_view(
+                request, object_id, form_url=form_url, extra_context=extra_context
+            )
         except TypeError:
-            return super().change_view(request, object_id,
-                                       extra_context=extra_context)
+            return super().change_view(request, object_id, extra_context=extra_context)
 
     def send_message(self, request, object_id):
         try:
             obj = self.model.unmoderated_objects.get(pk=object_id)
             moderated_obj = ModeratedObject.objects.get_for_instance(obj)
             moderator = moderated_obj.moderator
-            msg = self.get_moderation_message(moderated_obj.status,
-                                              moderated_obj.reason,
-                                              moderator.visible_until_rejected)
+            msg = self.get_moderation_message(
+                moderated_obj.status,
+                moderated_obj.reason,
+                moderator.visible_until_rejected,
+            )
         except ModeratedObject.DoesNotExist:
             msg = self.get_moderation_message()
 
@@ -89,29 +92,29 @@ class ModerationAdmin(admin.ModelAdmin):
         obj.save()
         automoderate(obj, request.user)
 
-    def get_moderation_message(self, status=None, reason=None,
-                               visible_until_rejected=False):
+    def get_moderation_message(
+        self, status=None, reason=None, visible_until_rejected=False
+    ):
         if status == MODERATION_STATUS_PENDING:
             if visible_until_rejected:
-                return _("Object is viewable on site, "
-                         "it will be removed if moderator rejects it")
+                return _(
+                    "Object is viewable on site, "
+                    "it will be removed if moderator rejects it"
+                )
             else:
-                return _("Object is not viewable on site, "
-                         "it will be visible if moderator accepts it")
+                return _(
+                    "Object is not viewable on site, "
+                    "it will be visible if moderator accepts it"
+                )
         elif status == MODERATION_STATUS_REJECTED:
-            return _("Object has been rejected by moderator, "
-                     "reason: %s" % reason)
+            return _("Object has been rejected by moderator, " "reason: %s" % reason)
         elif status == MODERATION_STATUS_APPROVED:
-            return _("Object has been approved by moderator "
-                     "and is visible on site")
+            return _("Object has been approved by moderator " "and is visible on site")
         elif status is None:
-            return _("This object is not registered with "
-                     "the moderation system.")
+            return _("This object is not registered with " "the moderation system.")
 
     def get_moderated_object_form(self, model_class):
-
         class ModeratedObjectForm(BaseModeratedObjectForm):
-
             class Meta:
                 model = model_class
                 fields = '__all__'
@@ -121,15 +124,12 @@ class ModerationAdmin(admin.ModelAdmin):
 
 class ModeratedObjectAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
-    list_display = ('content_object', 'content_type', 'created',
-                    'status', 'by', 'on')
+    list_display = ('content_object', 'content_type', 'created', 'status', 'by', 'on')
     list_filter = available_filters
     change_form_template = 'moderation/moderate_object.html'
     change_list_template = 'moderation/moderated_objects_list.html'
     actions = [reject_objects, approve_objects, set_objects_as_pending]
-    fieldsets = (
-        ('Object moderation', {'fields': ('reason',)}),
-    )
+    fieldsets = (('Object moderation', {'fields': ('reason',)}),)
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -144,9 +144,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
         return str(obj.changed_object)
 
     def get_moderated_object_form(self, model_class):
-
         class ModeratedObjectForm(ModelForm):
-
             class Meta:
                 model = model_class
                 fields = '__all__'
@@ -167,11 +165,14 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
             old_object = moderated_object.get_object_for_this_type()
             new_object = changed_obj
 
-        changes = list(get_changes_between_models(
-            old_object,
-            new_object,
-            moderator.fields_exclude,
-            resolve_foreignkeys=moderator.resolve_foreignkeys).values())
+        changes = list(
+            get_changes_between_models(
+                old_object,
+                new_object,
+                moderator.fields_exclude,
+                resolve_foreignkeys=moderator.resolve_foreignkeys,
+            ).values()
+        )
 
         if request.POST:
             admin_form = self.get_form(request, moderated_object)(request.POST)
@@ -185,18 +186,19 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
 
         content_type = ContentType.objects.get_for_model(changed_obj.__class__)
         try:
-            object_admin_url = reverse("admin:%s_%s_change" %
-                                       (content_type.app_label,
-                                        content_type.model),
-                                       args=(changed_obj.pk,))
+            object_admin_url = reverse(
+                "admin:%s_%s_change" % (content_type.app_label, content_type.model),
+                args=(changed_obj.pk,),
+            )
         except NoReverseMatch:
             object_admin_url = None
 
-        extra_context = {'changes': changes,
-                         'django_version': django.get_version()[:3],
-                         'object_admin_url': object_admin_url}
-        return super().change_view(request, object_id,
-                                   extra_context=extra_context)
+        extra_context = {
+            'changes': changes,
+            'django_version': django.get_version()[:3],
+            'object_admin_url': object_admin_url,
+        }
+        return super().change_view(request, object_id, extra_context=extra_context)
 
 
 admin.site.register(ModeratedObject, ModeratedObjectAdmin)
