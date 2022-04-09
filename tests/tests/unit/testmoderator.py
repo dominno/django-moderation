@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock
 
 from django.contrib.auth.models import Group, User
 from django.core import mail
@@ -174,8 +175,6 @@ class AutoModerateModeratorTestCase(TestCase):
         self.assertFalse(self.moderator.is_auto_approve(self.obj, self.user))
 
     def test_is_auto_reject_user_is_anonymous(self):
-        from mock import Mock
-
         user = Mock()
         user.is_anonymous = lambda: True
         reason = self.moderator.is_auto_reject(self.obj, user)
@@ -183,8 +182,6 @@ class AutoModerateModeratorTestCase(TestCase):
         self.assertEqual(reason, 'Auto-rejected: Anonymous User')
 
     def test_is_auto_reject_user_is_not_anonymous(self):
-        from mock import Mock
-
         user = Mock()
         user.is_anonymous = lambda: False
         self.assertFalse(self.moderator.is_auto_reject(self.obj, user))

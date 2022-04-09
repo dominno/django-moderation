@@ -4,11 +4,9 @@ Getting started quick guide
 Installation
 ------------
 
-Use easy_install:
-
 .. code-block:: bash
 
-    $ easy_install django-moderation
+    $ pip install django-moderation
 
 Or download source code from http://github.com/dominno/django-moderation and run
 installation script:

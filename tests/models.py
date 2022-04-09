@@ -1,5 +1,5 @@
 """
-Test models used in django-moderations tests
+Test models used in django-moderation tests
 """
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -9,22 +9,22 @@ from django.db.models.manager import Manager
 
 class UserProfile(models.Model):
     user = models.ForeignKey(
-        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='user_profile_set',
+        related_name='user_profiles',
     )
     description = models.TextField()
     url = models.URLField()
 
     def __str__(self):
-        return "%s - %s" % (self.user, self.url)
+        return f"{self.user} - {self.url}"
 
 
 class SuperUserProfile(UserProfile):
     super_power = models.TextField()
 
     def __str__(self):
-        return "%s - %s - %s" % (self.user, self.url, self.super_power)
+        return f"{self.user} - {self.url} - {self.super_power}"
 
 
 class ModelWithSlugField(models.Model):

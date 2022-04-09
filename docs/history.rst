@@ -104,7 +104,7 @@ Added features
 - Minor changes at docs
 
 
-0.8.0 (2022-04-05)
+0.8.0 (2022-04-09)
 ------------------
 
 - Drop support of Django<2.2. Now it supports only Django>=2.2,<4
@@ -112,3 +112,5 @@ Added features
 - Drop support of ``DJANGO_MODERATION_MODERATORS`` setting
 - Formatted code with `black`
 - Drop dependency `django-model-utils` which we used for Choices functionality
+- Add partial support for Django 4.0 - remove ugettext, change `smart_text` to `smart_str`,
+  change `ifequal` template tag to `if`.

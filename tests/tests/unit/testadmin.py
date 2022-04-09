@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import Permission, User
 from django.test.testcases import TestCase

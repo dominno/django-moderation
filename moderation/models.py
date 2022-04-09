@@ -116,9 +116,9 @@ class ModeratedObject(models.Model):
         return status
 
     def _get_moderation_status_and_reason(self, obj, user):
-        '''
+        """
         Returns tuple of moderation status and reason for auto moderation
-        '''
+        """
         reason = self.moderator.is_auto_reject(obj, user)
         if reason:
             return MODERATION_STATUS_REJECTED, reason

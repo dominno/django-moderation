@@ -5,11 +5,9 @@ import os
 version = __import__('moderation').__version__
 
 tests_require = [
-    'unittest2py3k',
     'django>=2.2',
     'django-webtest',
     'webtest',
-    'mock',
     'pillow',
 ]
 

@@ -53,7 +53,8 @@ Known issues
 Documentation
 =============
 
-Full module documentation is hosted at ReadTheDocs: http://django-moderation.readthedocs.org/
+
+Full documentation is hosted at `ReadTheDocs django-moderation <https://django-moderation.readthedocs.org/>`_
 
 
 Contributors
@@ -61,8 +62,10 @@ Contributors
 
 Special thanks to all persons that contributed to this project.
 
-- jonwd7 https://github.com/jonwd7
-- treyhunner https://github.com/treyhunner
 
-Thank you for all ideas, bug fixes, patches.
+- `jonwd7 <https://github.com/jonwd7>`_
+- `treyhunner <https://github.com/treyhunner>`_
+- `DmytroLitvinov <https://github.com/DmytroLitvinov>`_
+
+Thank you for all ideas, bug fixes, patches, maintaining.
 

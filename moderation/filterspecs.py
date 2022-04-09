@@ -1,6 +1,6 @@
 from django.contrib.admin.filters import FieldListFilter
 from django.contrib.contenttypes.models import ContentType
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.utils.translation import gettext as _
 
 from . import moderation
@@ -34,7 +34,7 @@ class RegisteredContentTypeListFilter(FieldListFilter):
         }
         for ct_type in self.content_types:
             yield {
-                'selected': smart_text(ct_type.id) == self.lookup_val,
+                'selected': smart_str(ct_type.id) == self.lookup_val,
                 'query_string': cl.get_query_string({self.lookup_kwarg: ct_type.id}),
                 'display': str(ct_type),
             }

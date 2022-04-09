@@ -1,13 +1,13 @@
-import django.dispatch
+from django.dispatch import Signal
 
-pre_moderation = django.dispatch.Signal(providing_args=['instance', 'status'])
+# Arguments: "instance", "status"
+pre_moderation = Signal()
 
-post_moderation = django.dispatch.Signal(providing_args={'instance', 'status'})
+# Arguments: "instance", "status"
+post_moderation = Signal()
 
-pre_many_moderation = django.dispatch.Signal(
-    providing_args={'queryset', 'status', 'by', 'reason'}
-)
+# Arguments: "queryset", "status", "by", "reason"
+pre_many_moderation = Signal()
 
-post_many_moderation = django.dispatch.Signal(
-    providing_args={'queryset', 'status', 'by', 'reason'}
-)
+# Arguments: "queryset", "status", "by", "reason"
+post_many_moderation = Signal()
