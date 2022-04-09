@@ -13,7 +13,7 @@ tests_require = [
     'pillow',
 ]
 
-install_requires = ['django>=2.2', 'django-model-utils']
+install_requires = ['django>=2.2']
 
 setup(
     name='django-moderation',

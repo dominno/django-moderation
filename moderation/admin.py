@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.forms.models import ModelForm
 from django.urls import NoReverseMatch, reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from . import moderation
 from .constants import (

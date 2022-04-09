@@ -5,7 +5,7 @@ from .constants import (
     MODERATION_STATUS_APPROVED,
     MODERATION_STATUS_PENDING,
 )
-from .models import ModeratedObject, STATUS_CHOICES
+from .models import ModeratedObject
 from .moderator import GenericModerator
 
 
@@ -96,7 +96,7 @@ class ModerationManager(metaclass=ModerationManagerSingleton):
             self._add_moderated_object_to_class(model_class)
 
         def get_moderated_status(self):
-            return STATUS_CHOICES[self.moderated_object.status]
+            return self.moderated_object.get_status_display()
 
         model_class.add_to_class('moderated_status', property(get_moderated_status))
 

@@ -111,3 +111,4 @@ Added features
 - Drop support of Python3.5. Now it supports only Python 3.6, 3.7, 3.8, 3.9
 - Drop support of ``DJANGO_MODERATION_MODERATORS`` setting
 - Formatted code with `black`
+- Drop dependency `django-model-utils` which we used for Choices functionality

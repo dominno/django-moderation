@@ -43,8 +43,6 @@ Python 3.6, 3.7, 3.8, 3.9
 
 Django 2.2, 3.1, 3.2
 
-django-model-utils
-
 
 Known issues
 ============

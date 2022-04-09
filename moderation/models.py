@@ -4,8 +4,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
-from django.utils.translation import ugettext_lazy as _
-from model_utils import Choices
+from django.utils.translation import gettext_lazy as _
 
 from . import moderation
 from .constants import (
@@ -20,16 +19,16 @@ from .fields import SerializedObjectField
 from .managers import ModeratedObjectManager
 from .signals import post_moderation, pre_moderation
 
-MODERATION_STATES = Choices(
-    (MODERATION_READY_STATE, 'ready', _('Ready for moderation')),
-    (MODERATION_DRAFT_STATE, 'draft', _('Draft')),
-)
+MODERATION_STATES = [
+    (MODERATION_READY_STATE, _('Ready for moderation')),
+    (MODERATION_DRAFT_STATE, _('Draft')),
+]
 
-STATUS_CHOICES = Choices(
-    (MODERATION_STATUS_REJECTED, 'rejected', _('Rejected')),
-    (MODERATION_STATUS_APPROVED, 'approved', _('Approved')),
-    (MODERATION_STATUS_PENDING, 'pending', _('Pending')),
-)
+STATUS_CHOICES = [
+    (MODERATION_STATUS_REJECTED, _('Rejected')),
+    (MODERATION_STATUS_APPROVED, _('Approved')),
+    (MODERATION_STATUS_PENDING, _('Pending')),
+]
 
 
 class ModeratedObject(models.Model):
