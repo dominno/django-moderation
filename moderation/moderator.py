@@ -12,6 +12,7 @@ from .message_backends import (
     EmailMessageBackend,
     EmailMultipleMessageBackend,
 )
+from .utils import is_sites_framework_enabled
 
 
 class GenericModerator:
@@ -146,9 +147,13 @@ class GenericModerator:
         context = {
             'moderated_object': content_object.moderated_object,
             'content_object': content_object,
-            'site': Site.objects.get_current(),
             'content_type': content_object.moderated_object.content_type,
         }
+
+        if is_sites_framework_enabled():
+            context.update({
+                'site': Site.objects.get_current(),
+            })
 
         if extra_context:
             context.update(extra_context)
@@ -162,9 +167,13 @@ class GenericModerator:
     def send_many(
         self, queryset, subject_template, message_template, extra_context=None
     ):
-        site = Site.objects.get_current()
-
         ctx = extra_context if extra_context else {}
+
+        if is_sites_framework_enabled():
+            site = Site.objects.get_current()
+            ctx.update({
+                'site': site,
+            })
 
         datatuples = tuple(
             {
@@ -174,7 +183,6 @@ class GenericModerator:
                         {
                             'moderated_object': mobj,
                             'content_object': mobj.content_object,
-                            'site': site,
                             'content_type': mobj.content_type,
                             'user': mobj.changed_by,
                         }
@@ -186,7 +194,6 @@ class GenericModerator:
                         {
                             'moderated_object': mobj,
                             'content_object': mobj.content_object,
-                            'site': site,
                             'content_type': mobj.content_type,
                             'user': mobj.changed_by,
                         }
