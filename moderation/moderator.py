@@ -1,5 +1,4 @@
 from django.contrib.auth.models import Group
-from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields import BooleanField
 from django.db.models.manager import Manager
@@ -151,6 +150,7 @@ class GenericModerator:
         }
 
         if is_sites_framework_enabled():
+            from django.contrib.sites.models import Site
             context.update({
                 'site': Site.objects.get_current(),
             })
@@ -170,6 +170,7 @@ class GenericModerator:
         ctx = extra_context if extra_context else {}
 
         if is_sites_framework_enabled():
+            from django.contrib.sites.models import Site
             site = Site.objects.get_current()
             ctx.update({
                 'site': site,
