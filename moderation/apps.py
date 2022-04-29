@@ -9,7 +9,6 @@ class SimpleModerationConfig(AppConfig):
 
 class ModerationConfig(SimpleModerationConfig):
     def ready(self):
-        # We have to import this here because it imports from models.py
-        from .helpers import auto_discover
+        from django.utils.module_loading import autodiscover_modules
 
-        auto_discover()
+        autodiscover_modules("moderator")
