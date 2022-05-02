@@ -184,7 +184,7 @@ class ModeratedObjectAdmin(admin.ModelAdmin):
                 elif 'reject' in request.POST:
                     moderated_object.reject(request.user, reason)
 
-        content_type = ContentType.objects.get_for_model(changed_obj.__class__)
+        content_type = ContentType.objects.get_for_model(changed_obj.__class__, for_concrete_model=False)
         try:
             object_admin_url = reverse(
                 "admin:%s_%s_change" % (content_type.app_label, content_type.model),

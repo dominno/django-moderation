@@ -12,7 +12,7 @@ def _registered_content_types():
     registered = list(moderation._registered_models.keys())
     registered.sort(key=lambda obj: obj.__name__)
     for model in registered:
-        content_types.append(ContentType.objects.get_for_model(model))
+        content_types.append(ContentType.objects.get_for_model(model, for_concrete_model=False))
     return content_types
 
 

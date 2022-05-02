@@ -38,7 +38,7 @@ class ModeratedObject(models.Model):
     object_pk = models.PositiveIntegerField(
         null=True, blank=True, editable=False, db_index=True
     )
-    content_object = GenericForeignKey(ct_field='content_type', fk_field='object_pk')
+    content_object = GenericForeignKey(ct_field='content_type', fk_field='object_pk', for_concrete_model=False)
     created = models.DateTimeField(auto_now_add=True, editable=False)
     updated = models.DateTimeField(auto_now=True)
     state = models.SmallIntegerField(

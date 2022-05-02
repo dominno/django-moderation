@@ -71,12 +71,12 @@ class ModeratedObjectManager(Manager):
         try:
             moderated_object = self.get(
                 object_pk=instance.pk,
-                content_type=ContentType.objects.get_for_model(instance.__class__),
+                content_type=ContentType.objects.get_for_model(instance.__class__, for_concrete_model=False),
             )
         except self.model.MultipleObjectsReturned:
             # Get the most recent one
             moderated_object = self.filter(
                 object_pk=instance.pk,
-                content_type=ContentType.objects.get_for_model(instance.__class__),
+                content_type=ContentType.objects.get_for_model(instance.__class__, for_concrete_model=False),
             ).order_by('-updated')[0]
         return moderated_object

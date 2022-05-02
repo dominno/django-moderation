@@ -4,10 +4,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
-from moderation.helpers import auto_discover
+from django.utils.module_loading import autodiscover_modules
 
 admin.autodiscover()
-auto_discover()
+autodiscover_modules("moderator")
 
 handler500  # Pyflakes
 
