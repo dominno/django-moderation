@@ -272,3 +272,9 @@ Settings
 
 ``MODERATION_MODERATORS``
     Tuple of moderators' email addresses to which notifications will be sent.
+
+Using with proxy classes
+--------
+
+- Register each proxy class individually.
+- Register concrete class **also** but only after registering any proxy classes under this concrete class.
