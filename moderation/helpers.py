@@ -36,13 +36,3 @@ def import_moderator(app):
     module = import_module("%s.moderator" % app)
 
     return module
-
-
-def auto_discover():
-    '''
-    Auto register all apps that have module moderator with moderation
-    '''
-    from django.conf import settings
-
-    for app in [app for app in settings.INSTALLED_APPS if app != 'moderation']:
-        import_moderator(app)

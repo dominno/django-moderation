@@ -5,11 +5,13 @@ class SimpleModerationConfig(AppConfig):
     name = 'moderation'
     verbose_name = 'Moderation'
     default_auto_field = 'django.db.models.AutoField'
+    default = False
 
 
 class ModerationConfig(SimpleModerationConfig):
-    def ready(self):
-        # We have to import this here because it imports from models.py
-        from .helpers import auto_discover
+    default = True
 
-        auto_discover()
+    def ready(self):
+        from django.utils.module_loading import autodiscover_modules
+
+        autodiscover_modules("moderator")
