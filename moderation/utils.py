@@ -14,9 +14,9 @@ def clear_builtins(attrs):
     return new_attrs
 
 
-def is_sites_framework_enabled():
+def is_sites_framework_enabled() -> bool:
     """
     Check project's settings to see if the optional Sites framework is installed.
     """
     from django.conf import settings
-    return True if "django.contrib.sites" in settings.INSTALLED_APPS else False
+    return "django.contrib.sites" in settings.INSTALLED_APPS
