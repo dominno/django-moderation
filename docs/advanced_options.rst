@@ -135,7 +135,7 @@ Default context:
     ModeratedObject instance
 
 ``site``
-    current Site instance
+    current Site instance, if Site package is enabled
 
 
 How to pass extra context to email notification templates
